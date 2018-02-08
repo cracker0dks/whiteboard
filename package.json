@@ -18,6 +18,8 @@
   ],
   "dependencies": {
     "express": "*",
+    "formidable": "*",
+    "fs-extra": "*",
     "socket.io": "2.*"
   },
   "author": "Cracker0dks",

@@ -57,11 +57,6 @@
 	        </button>
 	    </div>
 
-	    <div class="btn-group">
-	    	<button id="addImgToCanvasBtn" title="Add an image" type="button" class="whiteboardBtn">
-                <i class="fas fa-image"></i>
-            </button> 
-		</div>
 		<div style="width: 190px;  height: 44px; border: 1px solid green;" class="btn-group">
 			<img style="position: absolute; left: 11px; top: 16px; height:14px; width:130px;" src="./img/slider-background.svg">
 	    	<input title="Thickness" id="whiteboardThicknessSlider" style="position: absolute; left:9px; width: 130px; top: 15px;" type="range" min="1" max="50" value="3">
@@ -73,11 +68,22 @@
 		<div class="btn-group">
 	    	<button id="saveAsImageBtn" title="Save whiteboard as image" type="button" class="whiteboardBtn">
                 <i class="fas fa-image"></i>
-                <i style="position: absolute; top: 6px; left: 9px; color: #000000; background: grey; font-size: 0.8em; " class="fas fa-save"></i>
+                <i style="position: absolute; top: 3px; left: 2px; color: #000000; background: grey; font-size: 0.5em; " class="fas fa-save"></i>
             </button> 
             <button style="position: relative;" id="saveAsJSONBtn" title="Save whiteboard as JSON" type="button" class="whiteboardBtn">
                 <i class="far fa-file-alt"></i>
-                <i style="position: absolute; top: 5px; left: 7px; color: #000000; background: grey; font-size: 0.8em; " class="fas fa-save"></i>
+                <i style="position: absolute; top: 3px; left: 2px; color: #000000; background: grey; font-size: 0.5em; " class="fas fa-save"></i>
+            </button> 
+		</div>
+
+		<div class="btn-group">
+	    	<button id="addImgToCanvasBtn" title="Upload Image to whiteboard" type="button" class="whiteboardBtn">
+                <i class="fas fa-image"></i>
+                <i style="position: absolute; top: 3px; left: 2px; color: #000000; font-size: 0.5em; " class="fas fa-upload"></i>
+            </button> 
+            <button style="position: relative;" id="uploadJsonBtn" title="Load saved JSON to whiteboard" type="button" class="whiteboardBtn">
+                <i class="far fa-file-alt"></i>
+                <i style="position: absolute; top: 3px; left: 2px; color: #000000; font-size: 0.5em; " class="fas fa-upload"></i>
             </button> 
 		</div>
 </body>

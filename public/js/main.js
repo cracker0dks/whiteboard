@@ -97,26 +97,16 @@ $(document).ready(function() {
 
                 var filename = e.originalEvent.dataTransfer.files[0]["name"];
                 if(isImageFileName(filename)) {	
-	                var form = $('<form action="#" enctype="multipart/form-data" method="post"></form>');
-	                var formData = new FormData(form[0]);
-	                formData.append("file", e.originalEvent.dataTransfer.files[0]);
-			        formData.append("userId", ownSocketId);
-			        formData.append("uploadType", "singleFileUpload");
-			        formData.append("room", roomImIn["roomName"]);
-			        sendFormData(formData, function(msg) {
-			        	//success callback
-			        	whiteboard.addImgToCanvasByUrl(document.URL.substr(0,document.URL.lastIndexOf('/'))+"/singlefiles/"+filename);
-			        	writeToChat("Success", "Upload success!");
-			        },  function(err) {
-			        	writeToChat("Error", err);
-			        }, function(progress) {
-			        	writeToChat("Uploading", progress+'%');
-			        	//Upload progress
-			        }, function(progress) {
-			        	//Download progress
-			        });
+			        var blob = e.originalEvent.dataTransfer.files[0];
+	               	var reader = new window.FileReader();
+					reader.readAsDataURL(blob);
+					reader.onloadend = function() {
+						console.log("Uploading image!");
+					    base64data = reader.result;                
+					    uploadImgAndAddToWhiteboard(base64data);
+					}
 			    } else {
-			    	writeToChat("Error", "File must be an image!");
+			    	console.error("File must be an image!");
 			    }
             } else { //File from other browser
             	var fileUrl = e.originalEvent.dataTransfer.getData('URL');
@@ -138,31 +128,11 @@ $(document).ready(function() {
 			    				if(isImageFileName(url)) {
 			    					whiteboard.addImgToCanvasByUrl(url);
 			    				} else {
-			    					var date =  (+new Date());
-				            		$.ajax({
-							            type: 'POST',
-							            url: document.URL.substr(0,document.URL.lastIndexOf('/'))+'/upload',
-							            data: { 
-							                'imagedata': url,
-							                'room' : roomImIn["roomName"],
-							                'name' : "whiteboard",
-							                'date' : date,
-							                'userId' : ownSocketId,
-							                'uploadType' : "singleFileUpload"
-							                },
-							            success: function(msg){
-							            	var filename = username+"_whiteboard_"+date+".png";
-							            	whiteboard.addImgToCanvasByUrl(document.URL.substr(0,document.URL.lastIndexOf('/'))+"/singlefiles/"+filename);
-							                writeToChat("Server", "Image uploaded");
-							                
-							            },
-							            error : function(err) {
-							                writeToChat("Error", "Failed to upload frame: "+JSON.stringify(err));
-							            }
-							        });
+			    					var blob = items[i].getAsFile();
+						            uploadImgAndAddToWhiteboard(url);
 			    				}
 			    			} else {
-			    				writeToChat("Error", "Can only upload imagedata!");
+			    				console.error("Can only upload imagedata!");
 			    			}
 			    		});
 			    	}
@@ -189,6 +159,27 @@ window.addEventListener("drop",function(e){
   e = e || event;
   e.preventDefault();
 },false);
+
+function uploadImgAndAddToWhiteboard(base64data) {
+	var date =  (+new Date());
+	$.ajax({
+        type: 'POST',
+        url: document.URL.substr(0,document.URL.lastIndexOf('/'))+'/upload',
+        data: { 
+            'imagedata': base64data,
+            'whiteboardId' : whiteboardId,
+            'date' : date
+            },
+        success: function(msg){
+        	var filename = whiteboardId+"_"+date+".png";
+        	whiteboard.addImgToCanvasByUrl(document.URL.substr(0,document.URL.lastIndexOf('/'))+"/uploads/"+filename); //Add image to canvas
+            console.log("Image uploaded!");
+        },
+        error : function(err) {
+            console.error("Failed to upload frame: "+JSON.stringify(err));
+        }
+    });
+}
 
 function isImageFileName(filename) {
     var ending = filename.split(".")[filename.split(".").length-1];
@@ -230,27 +221,7 @@ window.addEventListener("paste", function(e) { //Even do copy & paste from clipb
 					reader.onloadend = function() {
 						console.log("Uploading image!");
 					    base64data = reader.result;                
-					    var date =  (+new Date());
-	            		$.ajax({
-				            type: 'POST',
-				            url: document.URL.substr(0,document.URL.lastIndexOf('/'))+'/upload',
-				            data: { 
-				                'imagedata': base64data,
-				                'room' : roomImIn["roomName"],
-				                'name' : "whiteboard",
-				                'date' : date,
-				                'userId' : ownSocketId,
-				                'uploadType' : "singleFileUpload"
-				                },
-				            success: function(msg){
-				            	var filename = username+"_whiteboard_"+date+".png";
-				            	whiteboard.addImgToCanvasByUrl(document.URL.substr(0,document.URL.lastIndexOf('/'))+"/singlefiles/"+filename); //Add image to canvas
-				                console.log("Image uploaded!");
-				            },
-				            error : function(err) {
-				                console.error("Failed to upload frame: "+JSON.stringify(err));
-				            }
-				        });
+					    uploadImgAndAddToWhiteboard(base64data);
 					}
 	            }
 	         }

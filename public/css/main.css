@@ -1,0 +1,48 @@
+.btn-group button {
+    background-color: #4CAF50; /* Green background */
+    border: 1px solid green; /* Green border */
+    color: black; /* White text */
+    padding: 11px 14px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    float: left; /* Float the buttons side by side */
+     font-size: 1.2em;
+}
+
+.btn-group button:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+    background-color: #3e8e41;
+}
+
+.btn-group {
+    background-color: #4CAF50;
+    margin-left: 5px;
+    float: left;
+    position: relative;
+}
+
+.whiteboardTool.active {
+    background: #2d8a41;
+}
+
+#whiteboardThicknessSlider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 3px;
+    background: transparent;
+    outline: none;
+    opacity: 1;
+    -webkit-transition: opacity .15s ease-in-out;
+    transition: opacity .15s ease-in-out;
+}

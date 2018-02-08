@@ -49,7 +49,7 @@ var whiteboard =  {
 
         _this.cursorContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
-        _this.dropIndicator = $('<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="fa fa-plus-square-o" aria-hidden="true"></i></div>')
+        _this.dropIndicator = $('<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="far fa-plus-square" aria-hidden="true"></i></div>')
 
         _this.mouseOverlay = $('<div style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
@@ -473,7 +473,7 @@ var whiteboard =  {
 					'<button draw="0" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Add to background</button> '+
 					'<button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>'+
 				'</div>'+
-				'<i style="position:absolute; bottom: -4px; right: 2px; font-size: 2em; color: gray; transform: rotate(-45deg);" class="fa fa-sort-desc" aria-hidden="true"></i>'+
+				'<i style="position:absolute; bottom: -4px; right: 2px; font-size: 2em; color: gray; transform: rotate(-45deg);" class="fas fa-sort-down" aria-hidden="true"></i>'+
 			'</div>');
 		imgDiv.find(".xCanvasBtn").click(function() {
 			_this.imgDragActive = false;
@@ -510,9 +510,9 @@ var whiteboard =  {
 			_this.drawId++;
 			imgDiv.remove();
 		});
+		_this.mouseOverlay.append(imgDiv);
 		imgDiv.draggable();
 		imgDiv.resizable();
-		_this.mouseOverlay.append(imgDiv);
 	},
 	drawImgToBackground(url,width,height,left,top) {
 		this.imgContainer.append('<img crossorigin="anonymous" style="width:'+width+'px; height:'+height+'px; position:absolute; top:'+top+'px; left:'+left+'px;" src="'+url+'">')
@@ -528,7 +528,7 @@ var whiteboard =  {
 		}
 		img.src = url;
 	},
-	undoWhiteboard : function(username) {
+	undoWhiteboard : function(username) { //Not call this directly because you will get out of sync whit others...
 		var _this = this;
 		if(!username) {
 			username = _this.settings.username;

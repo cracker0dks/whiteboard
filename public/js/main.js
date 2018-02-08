@@ -1,6 +1,7 @@
-var whiteboardId = "myNewWhiteboard";
-var myUsername = "Default";
-
+var whiteboardId = getQueryVariable("whiteboardid");
+whiteboardId = whiteboardId || "myNewWhiteboard";
+var myUsername = getQueryVariable("username");
+myUsername = myUsername || "unkonwn";
 var io = signaling_socket = io();
 
 io.on('connect', function () {
@@ -8,6 +9,10 @@ io.on('connect', function () {
 
     signaling_socket.on('drawToWhiteboard', function (content) {
         whiteboard.handleEventsAndData(content, true);
+    });
+
+    signaling_socket.on('refreshUserBadges', function () {
+        whiteboard.refreshUserBadges();
     });
 });
 
@@ -247,3 +252,15 @@ window.addEventListener("paste", function(e) { //Even do copy & paste from clipb
         }
 	}
 });
+
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  } 
+  return false;
+}

@@ -21,7 +21,7 @@ var whiteboard =  {
 	imgDragActive : false,
 	settings : {
 		whiteboardId : "0",
-		username : "defaultuser",
+		username : "unknown",
 		sendFunction : null,
 		canvasWidth : 3000,
 		canvasHeight : 2000,
@@ -602,7 +602,7 @@ var whiteboard =  {
 				if(_this.cursorContainer.find("."+content["username"]).length>=1) {
 					_this.cursorContainer.find("."+content["username"]).css({"left":data[0]+"px","top":data[1]+"px" });
 				} else {
-					_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:'+data[0]+'; top:'+data[1]+';" class="'+content["username"]+'">'+
+					_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:'+data[0]+'; top:'+data[1]+';" class="userbadge '+content["username"]+'">'+
 						'<div style="width:4px; height:4px; background:gray; position:absolute; top:-2px; left:-2px; border-radius:50%;"></div>'+
 						content["username"]+'</div>');
 				}
@@ -622,6 +622,9 @@ var whiteboard =  {
 	},
 	userLeftWhiteboard(username) {
 		this.cursorContainer.find("."+username).remove();
+	},
+	refreshUserBadges() {
+		this.cursorContainer.find(".userbadge").remove();
 	},
 	getImageDataBase64() {
 		_this = this;

@@ -71,6 +71,10 @@ function progressUploadFormData(formData) {
 }
 
 io.on('connection', function(socket){
+    socket.on('disconnect', function () {
+        socket.broadcast.emit('refreshUserBadges', null);
+    });
+
     socket.on('drawToWhiteboard', function(content) {
         socket.broadcast.emit('drawToWhiteboard', content);
         s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server

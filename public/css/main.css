@@ -1,6 +1,6 @@
 .btn-group button {
-    background-color: #4CAF50; /* Green background */
-    border: 1px solid green; /* Green border */
+    background-color: #808080; /* Green background */
+    border: 1px solid #636060; /* Green border */
     color: black; /* White text */
     padding: 11px 14px; /* Some padding */
     cursor: pointer; /* Pointer/hand icon */
@@ -21,18 +21,22 @@
 
 /* Add a background color on hover */
 .btn-group button:hover {
-    background-color: #3e8e41;
+    background-color: #a5a3a3;
+}
+
+button {
+    outline-width: 0;
 }
 
 .btn-group {
-    background-color: #4CAF50;
+    background-color: #808080;
     margin-left: 5px;
     float: left;
     position: relative;
 }
 
 .whiteboardTool.active {
-    background: #2d8a41;
+    background: #bfbfbf;
 }
 
 #whiteboardThicknessSlider {

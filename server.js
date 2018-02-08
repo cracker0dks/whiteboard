@@ -76,7 +76,26 @@ io.on('connection', function(socket){
     });
 
     socket.on('drawToWhiteboard', function(content) {
+        content = escapeAllContentStrings(content);
         socket.broadcast.emit('drawToWhiteboard', content);
         s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
     });
 });
+
+//Prevent cross site scripting
+function escapeAllContentStrings(content, cnt) {
+    if(!cnt)
+        cnt = 0;
+
+    if(typeof(content)=="string") {
+        return content.replace(/<\/?[^>]+(>|$)/g, "");
+    }
+    for(var i in content) {
+        if(typeof(content[i])=="string") {
+            content[i] = content[i].replace(/<\/?[^>]+(>|$)/g, "");
+        } if(typeof(content[i])=="object" && cnt < 10) {
+            content[i] = escapeAllContentStrings(content[i], ++cnt);
+        }
+    }
+    return content;
+}

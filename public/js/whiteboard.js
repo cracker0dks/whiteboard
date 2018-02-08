@@ -33,6 +33,9 @@ var whiteboard =  {
 		for(var i in newSettings) {
 			this.settings[i] = newSettings[i];
 		}
+		this.settings["username"] = this.settings["username"].replace(/[^0-9a-z]/gi, '');
+		this.settings["whiteboardId"] = this.settings["whiteboardId"].replace(/[^0-9a-z]/gi, '');
+
 		var startCoords = [];
 		var svgLine = null;
 		var svgRect = null;

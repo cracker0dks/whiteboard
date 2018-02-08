@@ -1,7 +1,7 @@
 # whiteboard
 This is a lightweight NodeJS collaborative Whiteboard witch can easily be customized...
 
-![start](./doc/start.png)
+![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/start.png)
 
 ## Some Features
 * Showing remote user cursors while drawing

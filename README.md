@@ -1,5 +1,5 @@
 # whiteboard
-This is a lightweight collaborative Whiteboard witch can easily be customized...
+This is a lightweight NodeJS collaborative Whiteboard witch can easily be customized...
 
 ![start](./doc/start.png)
 

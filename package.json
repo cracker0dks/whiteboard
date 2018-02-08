@@ -1,0 +1,25 @@
+{
+  "name": "accelerator",
+  "version": "1.0.0",
+  "description": "Collaborative Whiteboard / Sketchboard",
+  "main": "server.js",
+  "directories": {},
+  "scripts": {
+    "test": "echo \"No tests needed!\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cracker0dks/whiteboard"
+  },
+  "keywords": [
+    "whiteboard",
+    "Sketchboard",
+    "lightweight"
+  ],
+  "dependencies": {
+    "express": "*",
+    "socket.io": "2.*"
+  },
+  "author": "Cracker0dks",
+  "license": "MIT"
+}

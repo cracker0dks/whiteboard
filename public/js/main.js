@@ -47,11 +47,25 @@ $(document).ready(function() {
     });
 
     $("#saveAsImageBtn").click(function() {
-    	alert("yoyo");
+    	var imgData = whiteboard.getImageDataBase64();
+	    var a = document.createElement('a');
+		a.href = imgData;
+		a.download = 'whiteboard.png';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
     });
 
     $("#saveAsJSONBtn").click(function() {
-    	alert("yoyo");
+    	var imgData = whiteboard.getImageDataJson();
+    	var a = window.document.createElement('a');
+		a.href = window.URL.createObjectURL(new Blob([imgData], {type: 'text/json'}));
+		a.download = 'whiteboard.json';
+		// Append anchor to body.
+		document.body.appendChild(a);
+		a.click();
+		// Remove anchor from body
+		document.body.removeChild(a);
     });    
 
     var dragCounter = 0;
@@ -166,6 +180,16 @@ $(document).ready(function() {
     });
 });
 
+//Prevent site from changing tab on drag&drop
+window.addEventListener("dragover",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+window.addEventListener("drop",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+
 function isImageFileName(filename) {
     var ending = filename.split(".")[filename.split(".").length-1];
     if(ending.toLowerCase()=="png" || ending.toLowerCase()=="jpg" || ending.toLowerCase()=="jpeg" || ending.toLowerCase()=="gif" || ending.toLowerCase()=="tiff") {
@@ -190,16 +214,6 @@ function isValidImageUrl(url, callback) { //Check if given url it is a vaild img
     }, 2000);
     img.src = url;
 }
-
-//Prevent site from changing tab on drag&drop
-window.addEventListener("dragover",function(e){
-  e = e || event;
-  e.preventDefault();
-},false);
-window.addEventListener("drop",function(e){
-  e = e || event;
-  e.preventDefault();
-},false);
 
 window.addEventListener("paste", function(e) { //Even do copy & paste from clipboard
 	if (e.clipboardData) {
@@ -230,7 +244,7 @@ window.addEventListener("paste", function(e) { //Even do copy & paste from clipb
 				                },
 				            success: function(msg){
 				            	var filename = username+"_whiteboard_"+date+".png";
-				            	whiteboard.addImgToCanvasByUrl(document.URL.substr(0,document.URL.lastIndexOf('/'))+"/singlefiles/"+filename);
+				            	whiteboard.addImgToCanvasByUrl(document.URL.substr(0,document.URL.lastIndexOf('/'))+"/singlefiles/"+filename); //Add image to canvas
 				                console.log("Image uploaded!");
 				            },
 				            error : function(err) {

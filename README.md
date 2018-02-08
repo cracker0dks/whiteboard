@@ -26,6 +26,15 @@ You can run this app with and without docker
 1. `docker run -d -p 8080:8080 rofl256/whiteboard`
 2. Surf to http://YOURIP:8080
 
+## API
+Call your site with GET parameters to change the WhiteboardID or the Username
+
+`http://YOURIP:8080?whiteboardid=MYID&username=MYNAME`
+
+* whiteboardid => All people with the same ID are drawing on the same board
+* username => The name witch is showing to others while drawing
+
+
 ## Things you may want to know
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
 * This is just a sample layout to show the functions available

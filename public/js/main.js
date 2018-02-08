@@ -66,7 +66,26 @@ $(document).ready(function() {
 		a.click();
 		// Remove anchor from body
 		document.body.removeChild(a);
-    });    
+    });  
+
+    $("#uploadJsonBtn").click(function() {
+    	$("#myFile").click();
+    });
+
+    $("#myFile").on("change", function() {
+    	var file = document.getElementById("myFile").files[0];
+    	var reader = new FileReader();
+		reader.onload = function (e) {
+		    try {
+		    	var j = JSON.parse(e.target.result);
+		    	whiteboard.loadJsonData(j);
+		    } catch(e) {
+		    	alert("File was not a valid JSON!");
+		    }
+		};
+		reader.readAsText(file);
+    	$(this).val("");
+    });
 
     var dragCounter = 0;
     $('#whiteboardContainer').on("dragenter", function(e) {

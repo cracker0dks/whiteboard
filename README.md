@@ -39,3 +39,5 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
 * This is just a sample layout to show the functions available
 * You shoud be able to customize without ever toutching the whiteboard.js (take a look at index.html & main.js)
+
+___ MIT License ___

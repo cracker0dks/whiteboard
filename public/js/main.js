@@ -2,9 +2,21 @@ var whiteboardId = getQueryVariable("whiteboardid");
 whiteboardId = whiteboardId || "myNewWhiteboard";
 var myUsername = getQueryVariable("username");
 myUsername = myUsername || "unkonwn";
-var io = signaling_socket = io();
 
-io.on('connect', function () {
+var url = document.URL.substr(0,document.URL.lastIndexOf('/'));
+var signaling_socket = null;
+var urlSplit = url.split("/");
+var subdir = "";
+for(var i=3;i<urlSplit.length;i++) {
+    subdir = subdir+'/'+urlSplit[i];
+}
+if(subdir !="") {
+    signaling_socket = io("",{"path":subdir+"/socket.io"}); //Connect even if we are in a subdir behind a reverse proxy
+} else {
+    signaling_socket = io();
+}
+
+signaling_socket.on('connect', function () {
 	console.log("Websocket connected!");
 
     signaling_socket.on('drawToWhiteboard', function (content) {
@@ -21,11 +33,11 @@ $(document).ready(function() {
         whiteboardId : whiteboardId,
         username : myUsername,
         sendFunction : function(content) {
-        	io.emit('drawToWhiteboard', content);
+        	signaling_socket.emit('drawToWhiteboard', content);
         }
     });
 
-    $.get( "/loadwhiteboard", { wid: whiteboardId } ).done(function( data ) {
+    $.get( subdir+"/loadwhiteboard", { wid: whiteboardId } ).done(function( data ) {
         whiteboard.loadData(data)
     });
 

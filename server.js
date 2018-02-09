@@ -80,7 +80,7 @@ io.on('connection', function(socket){
 
     socket.on('drawToWhiteboard', function(content) {
         content = escapeAllContentStrings(content);
-        sendToAllUsersOfWhiteboard(content["wid"], content)
+        sendToAllUsersOfWhiteboard(content["wid"], socket.id, content)
         s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
     });
 
@@ -92,9 +92,9 @@ io.on('connection', function(socket){
     });
 });
 
-function sendToAllUsersOfWhiteboard(wid, content) {
+function sendToAllUsersOfWhiteboard(wid, ownSocketId, content) {
     for(var i in allUsers) {
-        if(allUsers[i]["wid"]==wid) {
+        if(allUsers[i]["wid"]===wid && allUsers[i]["socket"].id !== ownSocketId) {
             allUsers[i]["socket"].emit('drawToWhiteboard', content);
         }
     }

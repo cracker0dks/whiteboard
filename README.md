@@ -62,7 +62,7 @@ To run it at /whiteboard. Don't forget to change -> YOURIP!
 2. Add Link to your server: `https://YOURIP/whiteboard/?whiteboardid=WHITEBOARDNAME&username={uid}`
 You can give each group its own whiteboard by changeing the WHITEBOARDNAME in the URL if you want.
 
-Note: You might have to serv the app with https (If your nextcloud server runs https). To do so, its recommend to run this app behind a reverse proxy. (as shown above)
+Note: You might have to serve the app with https (If your nextcloud server runs https). To do so, its recommend to run this app behind a reverse proxy. (as shown above)
 
 
 ___ MIT License ___

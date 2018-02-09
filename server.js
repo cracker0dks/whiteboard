@@ -70,17 +70,35 @@ function progressUploadFormData(formData) {
     });
 }
 
+var allUsers = {};
 io.on('connection', function(socket){
+
     socket.on('disconnect', function () {
+        delete allUsers[socket.id];
         socket.broadcast.emit('refreshUserBadges', null);
     });
 
     socket.on('drawToWhiteboard', function(content) {
         content = escapeAllContentStrings(content);
-        socket.broadcast.emit('drawToWhiteboard', content);
+        sendToAllUsersOfWhiteboard(content["wid"], content)
         s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
     });
+
+    socket.on('joinWhiteboard', function(wid) {
+        allUsers[socket.id] = {
+            "socket" : socket,
+            "wid" : wid
+        };
+    });
 });
+
+function sendToAllUsersOfWhiteboard(wid, content) {
+    for(var i in allUsers) {
+        if(allUsers[i]["wid"]==wid) {
+            allUsers[i]["socket"].emit('drawToWhiteboard', content);
+        }
+    }
+}
 
 //Prevent cross site scripting
 function escapeAllContentStrings(content, cnt) {

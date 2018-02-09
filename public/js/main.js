@@ -26,6 +26,8 @@ signaling_socket.on('connect', function () {
     signaling_socket.on('refreshUserBadges', function () {
         whiteboard.refreshUserBadges();
     });
+
+    signaling_socket.emit('joinWhiteboard', whiteboardId);
 });
 
 $(document).ready(function() {

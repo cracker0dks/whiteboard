@@ -12,6 +12,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 * Save Whiteboard to Image and JSON
 * Draw angle lines by pressing "shift" while drawing (with line tool)
 * Draw square by pressing "shift" while drawing (with rectangle tool)
+* Working on PC, Tablet & Mobile
 
 ## Install the App
 You can run this app with and without docker

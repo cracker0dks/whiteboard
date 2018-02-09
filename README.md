@@ -1,5 +1,5 @@
 # whiteboard
-This is a lightweight NodeJS collaborative Whiteboard witch can easily be customized...
+This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easily be customized...
 
 ![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/start.png)
 

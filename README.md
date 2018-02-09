@@ -5,7 +5,7 @@ This is a lightweight NodeJS collaborative Whiteboard witch can easily be custom
 
 ## Some Features
 * Showing remote user cursors while drawing
-* Undo function for each user
+* Undo function for each user (strg+z as well)
 * Drag & Drop Images to Whiteboard from PC and Browsers
 * Copy & Paste Images from Clipboard
 * Resize, Move & Draw Images to Canvas or Background

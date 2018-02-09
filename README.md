@@ -43,4 +43,26 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 ## ToDo
 * Add feedback for errors and things ...
 
+## Nginx Reverse Proxy configuration
+Add this to your server part:
+```
+    location /whiteboard/ {
+        proxy_set_header HOST $host;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection upgrade;
+        proxy_pass http://YOURIP:8080/;
+    }
+```
+To run it at /whiteboard. Don't forget to change -> YOURIP!
+
+## Nextcloud integration
+1. Install this app on your server
+2. Enable and go to "external sites" on your Nextcloud
+2. Add Link to your server: `https://YOURIP/whiteboard/?whiteboardid=WHITEBOARDNAME&username={uid}`
+You can give each group its own whiteboard by changeing the WHITEBOARDNAME in the URL if you want.
+
+Note: You might have to serv the app with https (If your nextcloud server runs https). To do so, its recommend to run this app behind a reverse proxy. (as shown above)
+
+
 ___ MIT License ___

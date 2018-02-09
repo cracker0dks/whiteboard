@@ -1,7 +1,7 @@
 var whiteboardId = getQueryVariable("whiteboardid");
 whiteboardId = whiteboardId || "myNewWhiteboard";
 var myUsername = getQueryVariable("username");
-myUsername = myUsername || "unkonwn";
+myUsername = myUsername || "unkonwn"+(Math.random()+"").substring(2,6);
 
 var url = document.URL.substr(0,document.URL.lastIndexOf('/'));
 var signaling_socket = null;

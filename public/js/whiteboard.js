@@ -16,6 +16,7 @@ var whiteboard =  {
 	imgContainer : null,
 	svgContainer : null, //For draw prev
 	mouseOverlay : null,
+	ownCursor : null,
 	drawBuffer : [],
 	drawId : 0, //Used for undo function
 	imgDragActive : false,
@@ -126,73 +127,75 @@ var whiteboard =  {
 				return;
 			}
 			var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-		    var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-		    if((!currX || !currY) && e.touches && e.touches[0]) {
-		    	var touche= e.touches[0];
-		    	currX = touche.clientX - $(_this.mouseOverlay).offset().left;
-		    	currY = touche.clientY - $(_this.mouseOverlay).offset().top;
-		    	latestTouchCoods = [currX, currY];
-		    }
-		    
-			if(_this.drawFlag) {
-		        if(_this.tool==="pen") {
-			        _this.drawPenLine(currX, currY, _this.prevX, _this.prevY, _this.drawcolor, _this.thickness);
-			    	_this.sendFunction({"t":_this.tool,"d":[currX, currY, _this.prevX, _this.prevY], "c":_this.drawcolor, "th":_this.thickness});
-		        } else if(_this.tool=="eraser") {
-		        	_this.drawEraserLine(currX, currY, _this.prevX, _this.prevY, _this.thickness);
-			    	_this.sendFunction({"t":_this.tool,"d":[currX, currY, _this.prevX, _this.prevY], "th":_this.thickness});
-		        }
-		        _this.prevX =currX;
-		        _this.prevY =currY; 
-		    }
-
-		    if(_this.tool==="eraser") {
-		    	var left = currX-_this.thickness;
-		    	var top = currY-_this.thickness;
-		    	_this.cursorContainer.find("#ownCursor").css({"top":top+"px", "left":left+"px"});
-		    } else if(_this.tool==="pen") {
-		    	var left = currX-_this.thickness/2;
-		    	var top = currY-_this.thickness/2;
-		    	_this.cursorContainer.find("#ownCursor").css({"top":top+"px", "left":left+"px"});
-		    } else if(_this.tool==="line") {
-		    	if(svgLine) {
-		    		if(shiftPressed) {
-		    			var angs = getRoundedAngles(currX, currY);
-		    			currX = angs.x;
-		    			currY = angs.y;
-		    		}
-			    	svgLine.setAttribute('x2',currX);
-				    svgLine.setAttribute('y2',currY);
-				}
-		    } else if(_this.tool==="rect" || (_this.tool==="recSelect" && _this.drawFlag)) {
-		    	if(svgRect) {
-			    	var width = Math.abs(currX-startCoords[0]);
-			    	var height = Math.abs(currY-startCoords[1]);
-			    	if(shiftPressed) {
-			    		height=width;
-			    		var x = currX<startCoords[0] ? startCoords[0]-width : startCoords[0];
-			    		var y = currY<startCoords[1] ? startCoords[1]-width : startCoords[1];
-					    svgRect.setAttribute('x', x);
-		        		svgRect.setAttribute('y', y);
-			    	} else {
-			    		var x = currX<startCoords[0] ? currX : startCoords[0];
-			    		var y = currY<startCoords[1] ? currY : startCoords[1];
-			    		svgRect.setAttribute('x', x);
-	        			svgRect.setAttribute('y', y);
-			    	}
-			    	
-		    		svgRect.setAttribute('width',width);
-				    svgRect.setAttribute('height',height);
+			var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+			window.requestAnimationFrame(function() {
+			    if((!currX || !currY) && e.touches && e.touches[0]) {
+			    	var touche= e.touches[0];
+			    	currX = touche.clientX - $(_this.mouseOverlay).offset().left;
+			    	currY = touche.clientY - $(_this.mouseOverlay).offset().top;
+			    	latestTouchCoods = [currX, currY];
 			    }
-		    } else if(_this.tool==="circle") {
-		    	var a = currX - startCoords[0];
-				var b = currY - startCoords[1];
-				var r = Math.sqrt( a*a + b*b );
-				if(svgCirle) {
-		    		svgCirle.setAttribute('r', r);
-		    	}
-		    }
-	    	_this.sendFunction({"t":"cursor","event":"move","d":[currX, currY], "username":_this.settings.username});
+			    
+				if(_this.drawFlag) {
+			        if(_this.tool==="pen") {
+				        _this.drawPenLine(currX, currY, _this.prevX, _this.prevY, _this.drawcolor, _this.thickness);
+				    	_this.sendFunction({"t":_this.tool,"d":[currX, currY, _this.prevX, _this.prevY], "c":_this.drawcolor, "th":_this.thickness});
+			        } else if(_this.tool=="eraser") {
+			        	_this.drawEraserLine(currX, currY, _this.prevX, _this.prevY, _this.thickness);
+				    	_this.sendFunction({"t":_this.tool,"d":[currX, currY, _this.prevX, _this.prevY], "th":_this.thickness});
+			        }
+			        _this.prevX =currX;
+			        _this.prevY =currY; 
+			    }
+
+			    if(_this.tool==="eraser") {
+			    	var left = currX-_this.thickness;
+			    	var top = currY-_this.thickness;
+			    	_this.ownCursor.css({"top":top+"px", "left":left+"px"});
+			    } else if(_this.tool==="pen") {
+			    	var left = currX-_this.thickness/2;
+			    	var top = currY-_this.thickness/2;
+			    	_this.ownCursor.css({"top":top+"px", "left":left+"px"});
+			    } else if(_this.tool==="line") {
+			    	if(svgLine) {
+			    		if(shiftPressed) {
+			    			var angs = getRoundedAngles(currX, currY);
+			    			currX = angs.x;
+			    			currY = angs.y;
+			    		}
+				    	svgLine.setAttribute('x2',currX);
+					    svgLine.setAttribute('y2',currY);
+					}
+			    } else if(_this.tool==="rect" || (_this.tool==="recSelect" && _this.drawFlag)) {
+			    	if(svgRect) {
+				    	var width = Math.abs(currX-startCoords[0]);
+				    	var height = Math.abs(currY-startCoords[1]);
+				    	if(shiftPressed) {
+				    		height=width;
+				    		var x = currX<startCoords[0] ? startCoords[0]-width : startCoords[0];
+				    		var y = currY<startCoords[1] ? startCoords[1]-width : startCoords[1];
+						    svgRect.setAttribute('x', x);
+			        		svgRect.setAttribute('y', y);
+				    	} else {
+				    		var x = currX<startCoords[0] ? currX : startCoords[0];
+				    		var y = currY<startCoords[1] ? currY : startCoords[1];
+				    		svgRect.setAttribute('x', x);
+		        			svgRect.setAttribute('y', y);
+				    	}
+				    	
+			    		svgRect.setAttribute('width',width);
+					    svgRect.setAttribute('height',height);
+				    }
+			    } else if(_this.tool==="circle") {
+			    	var a = currX - startCoords[0];
+					var b = currY - startCoords[1];
+					var r = Math.sqrt( a*a + b*b );
+					if(svgCirle) {
+			    		svgCirle.setAttribute('r', r);
+			    	}
+			    }
+			});
+			_this.sendFunction({"t":"cursor","event":"move","d":[currX, currY], "username":_this.settings.username});
 		});
 
 		$(_this.mouseOverlay).on("mouseup touchend touchcancel", function(e) {
@@ -306,7 +309,7 @@ var whiteboard =  {
 			_this.drawFlag=false;
 		    _this.mouseover = false;
 		    _this.ctx.globalCompositeOperation = _this.oldGCO;
-		    _this.cursorContainer.find("#ownCursor").remove();
+		    _this.ownCursor.remove();
 		    _this.svgContainer.find("line").remove();
 		    _this.svgContainer.find("rect").remove();
 		    _this.svgContainer.find("circle").remove();
@@ -325,7 +328,8 @@ var whiteboard =  {
 					widthHeight = widthHeight * 2;
 				}
 				if(_this.tool==="eraser" || _this.tool==="pen") {
-					_this.cursorContainer.append('<div id="ownCursor" style="background:'+color+'; border:1px solid gray; position:absolute; width:'+widthHeight+'px; height:'+widthHeight+'px; border-radius:50%;"></div>');
+					_this.ownCursor = $('<div id="ownCursor" style="background:'+color+'; border:1px solid gray; position:absolute; width:'+widthHeight+'px; height:'+widthHeight+'px; border-radius:50%;"></div>');
+					_this.cursorContainer.append(_this.ownCursor);
 				}
 			}
 			_this.mouseover = true;
@@ -576,46 +580,46 @@ var whiteboard =  {
 		var color = content["c"];
 		var username = content["username"];
 		var thickness = content["th"];
-
-		if(tool==="line" || tool==="pen") {
-			_this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness);
-		} else if(tool==="rect"){
-			_this.drawRec(data[0], data[1], data[2], data[3], color, thickness);
-		} else if(tool==="circle"){
-			_this.drawCircle(data[0], data[1], data[2], color, thickness);
-		} else if(tool==="eraser"){
-			_this.drawEraserLine(data[0], data[1], data[2], data[3], thickness);
-		} else if(tool==="eraseRec"){
-			_this.eraseRec(data[0], data[1],data[2],data[3]);
-		} else if(tool==="recSelect"){
-			_this.dragCanvasRectContent(data[0], data[1],data[2],data[3],data[4],data[5]);
-		} else if(tool==="addImgBG") {
-			if(content["draw"]=="1") {
-				_this.drawImgToCanvas(content["url"],data[0],data[1],data[2],data[3], doneCallback)
-			} else {
-				_this.drawImgToBackground(content["url"],data[0],data[1],data[2],data[3]);	
-			}
-		} else if(tool==="clear") {
-			_this.canvas.height = _this.canvas.height;
-			this.imgContainer.empty();
-			this.drawBuffer = [];
-    		this.drawId = 0;
-		} else if(tool==="cursor") {
-			if(content["event"]==="move") {
-				if(_this.cursorContainer.find("."+content["username"]).length>=1) {
-					_this.cursorContainer.find("."+content["username"]).css({"left":data[0]+"px","top":data[1]+"px" });
+		window.requestAnimationFrame(function() {
+			if(tool==="line" || tool==="pen") {
+				_this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness);
+			} else if(tool==="rect"){
+				_this.drawRec(data[0], data[1], data[2], data[3], color, thickness);
+			} else if(tool==="circle"){
+				_this.drawCircle(data[0], data[1], data[2], color, thickness);
+			} else if(tool==="eraser"){
+				_this.drawEraserLine(data[0], data[1], data[2], data[3], thickness);
+			} else if(tool==="eraseRec"){
+				_this.eraseRec(data[0], data[1],data[2],data[3]);
+			} else if(tool==="recSelect"){
+				_this.dragCanvasRectContent(data[0], data[1],data[2],data[3],data[4],data[5]);
+			} else if(tool==="addImgBG") {
+				if(content["draw"]=="1") {
+					_this.drawImgToCanvas(content["url"],data[0],data[1],data[2],data[3], doneCallback)
 				} else {
-					_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:'+data[0]+'; top:'+data[1]+';" class="userbadge '+content["username"]+'">'+
-						'<div style="width:4px; height:4px; background:gray; position:absolute; top:-2px; left:-2px; border-radius:50%;"></div>'+
-						content["username"]+'</div>');
+					_this.drawImgToBackground(content["url"],data[0],data[1],data[2],data[3]);	
 				}
-			} else {
-				_this.cursorContainer.find("."+content["username"]).remove();
+			} else if(tool==="clear") {
+				_this.canvas.height = _this.canvas.height;
+				this.imgContainer.empty();
+				this.drawBuffer = [];
+	    		this.drawId = 0;
+			} else if(tool==="cursor" && _this.settings) {
+				if(content["event"]==="move") {
+					if(_this.cursorContainer.find("."+content["username"]).length>=1) {
+						_this.cursorContainer.find("."+content["username"]).css({"left":data[0]+"px","top":data[1]+"px" });
+					} else {
+						_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:'+data[0]+'; top:'+data[1]+';" class="userbadge '+content["username"]+'">'+
+							'<div style="width:4px; height:4px; background:gray; position:absolute; top:-2px; left:-2px; border-radius:50%;"></div>'+
+							content["username"]+'</div>');
+					}
+				} else {
+					_this.cursorContainer.find("."+content["username"]).remove();
+				}
+			} else if(tool==="undo") {
+				_this.undoWhiteboard(username);
 			}
-			
-		} else if(tool==="undo") {
-			_this.undoWhiteboard(username);
-		}
+		});
 
 		if(isNewData && (tool==="line" || tool==="pen" || tool==="rect" || tool==="circle" || tool==="eraser" || tool==="addImgBG" || tool==="recSelect" || tool==="eraseRec")) {
 			content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;

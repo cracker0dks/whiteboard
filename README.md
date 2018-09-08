@@ -7,7 +7,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 * Showing remote user cursors while drawing
 * Undo function for each user (strg+z as well)
 * Drag & Drop Images to Whiteboard from PC and Browsers
-* Copy & Paste Images from Clipboard
+* Copy & Paste Images from Clipboard to the Whiteboard
 * Resize, Move & Draw Images to Canvas or Background
 * Save Whiteboard to Image and JSON
 * Draw angle lines by pressing "shift" while drawing (with line tool)

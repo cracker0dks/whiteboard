@@ -1,5 +1,5 @@
 {
-  "name": "accelerator",
+  "name": "Whiteboard",
   "version": "1.0.0",
   "description": "Collaborative Whiteboard / Sketchboard",
   "main": "server.js",

@@ -57,8 +57,12 @@ function progressUploadFormData(formData) {
     var filename = whiteboardId+"_"+date+".png";
 
     fs.ensureDir("./public/uploads", function(err) {
+        if(err) {
+            console.log("Could not create upload folder!", err);
+            return;
+        }
         var imagedata = fields["imagedata"];
-        if(imagedata && imagedata != "") { //Save from base64
+        if(imagedata && imagedata != "") { //Save from base64 data
             imagedata = imagedata.replace(/^data:image\/png;base64,/, "").replace(/^data:image\/jpeg;base64,/, "");
             console.log(filename, "uploaded");
             fs.writeFile('./public/uploads/'+filename, imagedata, 'base64', function(err) {

@@ -50,10 +50,12 @@ var whiteboard = {
 		_this.canvasElement = $('<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0; cursor:crosshair;"></canvas>');
 		// SVG container holding drawing or moving previews
 		_this.svgContainer = $('<svg style="position: absolute; top:0px; left:0px;" width="' + _this.settings.canvasWidth + '" height="' + _this.settings.canvasHeight + '"></svg>');
-		// container for own and other users cursors
-		_this.cursorContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 		 // drag and drop indicator, hidden by default
 		_this.dropIndicator = $('<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="far fa-plus-square" aria-hidden="true"></i></div>')
+		// container for other users cursors
+		_this.cursorContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
+		// container for texts by users
+		_this.textContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>');
 		// mouse overlay for draw callbacks
 		_this.mouseOverlay = $('<div style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
@@ -63,6 +65,7 @@ var whiteboard = {
 		.append(_this.svgContainer)
 		.append(_this.dropIndicator)
 		.append(_this.cursorContainer)
+		.append(_this.textContainer)
 		.append(_this.mouseOverlay);
 		this.canvas = $("#whiteboardCanvas")[0];
 		this.canvas.height = _this.settings.canvasHeight;
@@ -468,6 +471,11 @@ var whiteboard = {
 	},
 	addImgToCanvasByUrl: function (url) {
 		var _this = this;
+		var wasTextTool = false;
+		if(_this.tool==="text") {
+			wasTextTool = true;
+			_this.setTool("mouse");
+		}
 		_this.imgDragActive = true;
 		_this.mouseOverlay.css({ "cursor": "default" });
 		var imgDiv = $('<div style="border: 2px dashed gray; position:absolute; left:200px; top:200px; min-width:160px; min-height:100px; cursor:move;">' +
@@ -483,11 +491,14 @@ var whiteboard = {
 			_this.imgDragActive = false;
 			this.refreshCursorAppearance();
 			imgDiv.remove();
+			if(wasTextTool) {
+				_this.setTool("text");
+			}
 		});
 		imgDiv.find(".addToCanvasBtn").click(function () {
 			var draw = $(this).attr("draw");
 			_this.imgDragActive = false;
-			this.refreshCursorAppearance();
+			_this.refreshCursorAppearance();
 			var width = imgDiv.width();
 			var height = imgDiv.height();
 			var p = imgDiv.position();
@@ -501,6 +512,9 @@ var whiteboard = {
 			_this.sendFunction({ "t": "addImgBG", "draw": draw, "url": url, "d": [width, height, left, top] });
 			_this.drawId++;
 			imgDiv.remove();
+			if(wasTextTool) {
+				_this.setTool("text");
+			}
 		});
 		_this.mouseOverlay.append(imgDiv);
 		imgDiv.draggable();
@@ -549,6 +563,11 @@ var whiteboard = {
 	},
 	setTool: function (tool) {
 		this.tool = tool;
+		if(this.tool==="text") {
+			this.textContainer.appendTo($(whiteboardContainer)); //Bring textContainer to the front
+		} else { 
+			this.mouseOverlay.appendTo($(whiteboardContainer));
+		}
 		this.refreshCursorAppearance();
 		this.mouseOverlay.find(".xCanvasBtn").click();
 	},
@@ -706,8 +725,6 @@ var whiteboard = {
 			_this.mouseOverlay.css({ "cursor": "none" });
 		} else if (_this.tool === "mouse") {
 			this.mouseOverlay.css({ "cursor": "default" });
-		} else if(_this.tool === "text") {
-			_this.mouseOverlay.css({ "cursor": "text" });
 		} else { //Line, Rec, Circle, Cutting
 			_this.mouseOverlay.css({ "cursor": "crosshair" }); 
 		}

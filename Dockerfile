@@ -1,4 +1,4 @@
-FROM node:boron
+FROM node:11
 
 MAINTAINER cracker0dks
 

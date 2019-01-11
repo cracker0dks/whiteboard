@@ -57,9 +57,13 @@ var whiteboard = {
 
 		_this.mouseOverlay = $('<div style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
-
-
-		$(whiteboardContainer).append(_this.backgroundGrid).append(_this.imgContainer).append(_this.canvasElement).append(_this.svgContainer).append(_this.dropIndicator).append(_this.cursorContainer).append(this.mouseOverlay);
+		$(whiteboardContainer).append(_this.backgroundGrid)
+		.append(_this.imgContainer)
+		.append(_this.canvasElement)
+		.append(_this.svgContainer)
+		.append(_this.dropIndicator)
+		.append(_this.cursorContainer)
+		.append(_this.mouseOverlay);
 		this.canvas = $("#whiteboardCanvas")[0];
 		this.canvas.height = _this.settings.canvasHeight;
 		this.canvas.width = _this.settings.canvasWidth;

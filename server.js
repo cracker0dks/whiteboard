@@ -77,17 +77,17 @@ function progressUploadFormData(formData) {
 io.on('connection', function(socket){
 
     socket.on('disconnect', function () {
-        socket.broadcast.emit('refreshUserBadges', null);
+        socket.broadcast.emit('refreshUserBadges', null); //Removes old user Badges
     });
 
     socket.on('drawToWhiteboard', function(content) {
         content = escapeAllContentStrings(content);
-        socket.broadcast.to(content["wid"]).emit('drawToWhiteboard', content);
+        socket.broadcast.to(content["wid"]).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
         s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
     });
 
     socket.on('joinWhiteboard', function(wid) {
-        socket.join(wid);
+        socket.join(wid); //Joins room name=wid
     });
 });
 

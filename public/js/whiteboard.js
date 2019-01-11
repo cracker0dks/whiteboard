@@ -275,21 +275,13 @@ var whiteboard = {
 				destCanvasContext.drawImage(_this.canvas, left, top, width, height, 0, 0, width, height);
 				imgDiv.find(".xCanvasBtn").click(function () {
 					_this.imgDragActive = false;
-					if (_this.tool === "pen") {
-						_this.mouseOverlay.css({ "cursor": "none" });
-					} else {
-						_this.mouseOverlay.css({ "cursor": "crosshair" });
-					}
+					_this.refreshCursorAppearance();
 					imgDiv.remove();
 					dragOutOverlay.remove();
 				});
 				imgDiv.find(".addToCanvasBtn").click(function () {
 					_this.imgDragActive = false;
-					if (_this.tool === "pen") {
-						_this.mouseOverlay.css({ "cursor": "none" });
-					} else {
-						_this.mouseOverlay.css({ "cursor": "crosshair" });
-					}
+					_this.refreshCursorAppearance();
 					var widthT = imgDiv.width();
 					var heightT = imgDiv.height();
 					var p = imgDiv.position();
@@ -489,25 +481,13 @@ var whiteboard = {
 			'</div>');
 		imgDiv.find(".xCanvasBtn").click(function () {
 			_this.imgDragActive = false;
-			if (_this.tool === "pen") {
-				_this.mouseOverlay.css({ "cursor": "none" });
-			} else if (_this.tool === "mouse") {
-				_this.mouseOverlay.css({ "cursor": "auto" });
-			} else {
-				_this.mouseOverlay.css({ "cursor": "crosshair" });
-			}
+			this.refreshCursorAppearance();
 			imgDiv.remove();
 		});
 		imgDiv.find(".addToCanvasBtn").click(function () {
 			var draw = $(this).attr("draw");
 			_this.imgDragActive = false;
-			if (_this.tool === "pen") {
-				_this.mouseOverlay.css({ "cursor": "none" });
-			} else if (_this.tool === "mouse") {
-				_this.mouseOverlay.css({ "cursor": "auto" });
-			} else {
-				_this.mouseOverlay.css({ "cursor": "crosshair" });
-			}
+			this.refreshCursorAppearance();
 			var width = imgDiv.width();
 			var height = imgDiv.height();
 			var p = imgDiv.position();
@@ -569,13 +549,7 @@ var whiteboard = {
 	},
 	setTool: function (tool) {
 		this.tool = tool;
-		if (tool === "pen" || tool === "eraser") {
-			this.mouseOverlay.css({ "cursor": "none" });
-		} else if (tool === "mouse") {
-			this.mouseOverlay.css({ "cursor": "default" });
-		} else {
-			this.mouseOverlay.css({ "cursor": "crosshair" });
-		}
+		this.refreshCursorAppearance();
 		this.mouseOverlay.find(".xCanvasBtn").click();
 	},
 	handleEventsAndData: function (content, isNewData, doneCallback) {
@@ -725,5 +699,17 @@ var whiteboard = {
 	},
 	isRecPointCollision: function (rx, ry, rw, rh, px, py) {
 		return rx <= px && px <= rx + rw && ry <= py && py <= ry + rh;
+	},
+	refreshCursorAppearance() { //Set cursor depending on current active tool
+		var _this = this;
+		if (_this.tool === "pen" || _this.tool === "eraser") {
+			_this.mouseOverlay.css({ "cursor": "none" });
+		} else if (_this.tool === "mouse") {
+			this.mouseOverlay.css({ "cursor": "default" });
+		} else if(_this.tool === "text") {
+			_this.mouseOverlay.css({ "cursor": "text" });
+		} else { //Line, Rec, Circle, Cutting
+			_this.mouseOverlay.css({ "cursor": "crosshair" }); 
+		}
 	}
 }

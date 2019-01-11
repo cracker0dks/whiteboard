@@ -42,19 +42,19 @@ var whiteboard = {
 		var svgRect = null;
 		var svgCirle = null;
 		var latestTouchCoods = null;
-		//Background
+		//background grid (repeating image)
 		_this.backgroundGrid = $('<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url(\'' + _this.settings["backgroundGridUrl"] + '\'); height: 100%; width: 100%;"></div>');
-
+		// container for background images
 		_this.imgContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
-		//Canvas
+		 // whiteboard canvas
 		_this.canvasElement = $('<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0; cursor:crosshair;"></canvas>');
-
+		// SVG container holding drawing or moving previews
 		_this.svgContainer = $('<svg style="position: absolute; top:0px; left:0px;" width="' + _this.settings.canvasWidth + '" height="' + _this.settings.canvasHeight + '"></svg>');
-
+		// container for own and other users cursors
 		_this.cursorContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
-
+		 // drag and drop indicator, hidden by default
 		_this.dropIndicator = $('<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="far fa-plus-square" aria-hidden="true"></i></div>')
-
+		// mouse overlay for draw callbacks
 		_this.mouseOverlay = $('<div style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
 		$(whiteboardContainer).append(_this.backgroundGrid)

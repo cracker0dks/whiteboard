@@ -50,3 +50,7 @@ button {
     -webkit-transition: opacity .15s ease-in-out;
     transition: opacity .15s ease-in-out;
 }
+
+.textBox.active {
+    border: 1px dashed gray;
+}

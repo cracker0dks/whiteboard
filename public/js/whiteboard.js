@@ -335,6 +335,16 @@ var whiteboard = {
 			_this.mouseover = true;
 		});
 
+		//On textcontainer click (Add a new textbox)
+		$(_this.textContainer).on("click", function (e) {
+			currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+			currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+			var fontsize = _this.thickness * 0.5;
+			var txId = 'tx'+(+new Date());
+			_this.sendFunction({ "t": "addTextBox", "d": [_this.drawcolor, fontsize, currX, currY, txId] });
+			_this.addTextBox(_this.drawcolor, fontsize, currX, currY, txId, true);
+		});
+
 		var strgPressed = false;
 		var zPressed = false;
 		var shiftPressed = false;
@@ -465,6 +475,7 @@ var whiteboard = {
 		var _this = this;
 		_this.canvas.height = _this.canvas.height;
 		_this.imgContainer.empty();
+		_this.textContainer.empty();
 		_this.sendFunction({ "t": "clear" });
 		_this.drawBuffer = [];
 		_this.drawId = 0;
@@ -474,7 +485,7 @@ var whiteboard = {
 		var wasTextTool = false;
 		if(_this.tool==="text") {
 			wasTextTool = true;
-			_this.setTool("mouse");
+			_this.setTool("mouse"); //Set to mouse tool while dropping to prevent errors
 		}
 		_this.imgDragActive = true;
 		_this.mouseOverlay.css({ "cursor": "default" });
@@ -523,6 +534,28 @@ var whiteboard = {
 	drawImgToBackground(url, width, height, left, top) {
 		this.imgContainer.append('<img crossorigin="anonymous" style="width:' + width + 'px; height:' + height + 'px; position:absolute; top:' + top + 'px; left:' + left + 'px;" src="' + url + '">')
 	},
+	addTextBox(textcolor, fontsize, left, top, txId, newLocalBox) {
+		var _this = this;
+		var textBox = $('<div id="'+txId+'" class="textBox" contentEditable="true" spellcheck="false" style="font-family: monospace; font-size:'+fontsize+'em; color:'+textcolor+'; position:absolute; top:' + top + 'px; left:' + left + 'px; min-width:50px; min-height:50px;"></div>')
+		textBox.click(function(e) {
+			e.preventDefault();
+			return false;
+		})
+		this.textContainer.append(textBox);
+		textBox.on("input", function() {
+			var text = btoa($(this).html()); //Get html and make encode base64
+			_this.sendFunction({ "t": "setTextboxText", "d": [txId, text] });
+		});
+		if(newLocalBox) {
+			textBox.focus();
+		}
+		if(this.tool==="text") {
+			textBox.addClass("active");
+		}
+	},
+	setTextboxText(txId, text) {
+		$("#"+txId).html(atob(text)); //Set decoded base64 as html
+	},
 	drawImgToCanvas(url, width, height, left, top, doneCallback) {
 		var _this = this;
 		var img = document.createElement('img');
@@ -552,7 +585,6 @@ var whiteboard = {
 		}
 		_this.canvas.height = _this.canvas.height;
 		_this.imgContainer.empty();
-		console.log(_this.drawBuffer)
 		_this.loadDataInSteps(_this.drawBuffer, false, function (stepData) {
 			//Nothing to do
 		});
@@ -564,8 +596,10 @@ var whiteboard = {
 	setTool: function (tool) {
 		this.tool = tool;
 		if(this.tool==="text") {
+			$(".textBox").addClass("active");
 			this.textContainer.appendTo($(whiteboardContainer)); //Bring textContainer to the front
-		} else { 
+		} else {
+			$(".textBox").removeClass("active");
 			this.mouseOverlay.appendTo($(whiteboardContainer));
 		}
 		this.refreshCursorAppearance();
@@ -597,11 +631,16 @@ var whiteboard = {
 				} else {
 					_this.drawImgToBackground(content["url"], data[0], data[1], data[2], data[3]);
 				}
+			} else if (tool === "addTextBox") {
+				_this.addTextBox(data[0], data[1], data[2], data[3], data[4]);
+			} else if (tool === "setTextboxText") {
+				_this.setTextboxText(data[0], data[1]);
 			} else if (tool === "clear") {
 				_this.canvas.height = _this.canvas.height;
-				this.imgContainer.empty();
-				this.drawBuffer = [];
-				this.drawId = 0;
+				_this.imgContainer.empty();
+				_this.textContainer.empty();
+				_this.drawBuffer = [];
+				_this.drawId = 0;
 			} else if (tool === "cursor" && _this.settings) {
 				if (content["event"] === "move") {
 					if (_this.cursorContainer.find("." + content["username"]).length >= 1) {
@@ -619,7 +658,7 @@ var whiteboard = {
 			}
 		});
 
-		if (isNewData && (tool === "line" || tool === "pen" || tool === "rect" || tool === "circle" || tool === "eraser" || tool === "addImgBG" || tool === "recSelect" || tool === "eraseRec")) {
+		if (isNewData && ["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText"].includes(tool)) {
 			content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;
 			content["username"] = content["username"] ? content["username"] : _this.settings.username;
 			_this.drawBuffer.push(content);
@@ -709,7 +748,7 @@ var whiteboard = {
 		if (_this.settings.sendFunction) {
 			_this.settings.sendFunction(content);
 		}
-		if (tool === "line" || tool === "pen" || tool === "rect" || tool === "circle" || tool === "eraser" || tool === "addImgBG" || tool === "recSelect" || tool === "eraseRec") {
+		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText"].includes(tool)) {
 			_this.drawBuffer.push(content);
 		}
 	},

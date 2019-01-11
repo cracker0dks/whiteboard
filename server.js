@@ -74,35 +74,22 @@ function progressUploadFormData(formData) {
     });
 }
 
-var allUsers = {};
 io.on('connection', function(socket){
 
     socket.on('disconnect', function () {
-        delete allUsers[socket.id];
         socket.broadcast.emit('refreshUserBadges', null);
     });
 
     socket.on('drawToWhiteboard', function(content) {
         content = escapeAllContentStrings(content);
-        sendToAllUsersOfWhiteboard(content["wid"], socket.id, content)
+        socket.broadcast.to(content["wid"]).emit('drawToWhiteboard', content);
         s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
     });
 
     socket.on('joinWhiteboard', function(wid) {
-        allUsers[socket.id] = {
-            "socket" : socket,
-            "wid" : wid
-        };
+        socket.join(wid);
     });
 });
-
-function sendToAllUsersOfWhiteboard(wid, ownSocketId, content) {
-    for(var i in allUsers) {
-        if(allUsers[i]["wid"]===wid && allUsers[i]["socket"].id !== ownSocketId) {
-            allUsers[i]["socket"].emit('drawToWhiteboard', content);
-        }
-    }
-}
 
 //Prevent cross site scripting
 function escapeAllContentStrings(content, cnt) {

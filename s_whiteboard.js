@@ -22,7 +22,7 @@ module.exports = {
 					}
 				}
 			}
-		} else if(tool==="line" || tool==="pen" || tool==="rect" || tool==="circle" || tool==="eraser" || tool==="addImgBG" || tool==="recSelect" || tool==="eraseRec") { //Save all this actions
+		} else if(["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec"].includes(tool)) { //Save all this actions
 			if(!savedBoards[wid]) {
 				savedBoards[wid] = [];
 			}
@@ -31,9 +31,6 @@ module.exports = {
 		}
 	},
 	loadStoredData : function(wid) { //Load saved whiteboard
-		if(!savedBoards[wid]) {
-			return [];
-		}
-		return savedBoards[wid];
+		return savedBoards[wid] ? savedBoards[wid] : [];
 	}
 }

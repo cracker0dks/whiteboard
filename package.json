@@ -17,9 +17,9 @@
     "lightweight"
   ],
   "dependencies": {
-    "express": "*",
-    "formidable": "*",
-    "fs-extra": "*",
+    "express": "4.*",
+    "formidable": "1.*",
+    "fs-extra": "7.*",
     "socket.io": "2.*"
   },
   "author": "Cracker0dks",

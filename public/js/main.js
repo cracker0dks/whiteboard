@@ -39,6 +39,7 @@ $(document).ready(function () {
         }
     });
 
+    // request whiteboard from server
     $.get(subdir + "/loadwhiteboard", { wid: whiteboardId }).done(function (data) {
         whiteboard.loadData(data)
     });
@@ -47,24 +48,29 @@ $(document).ready(function () {
 	Whiteboard actions
     /----------------*/
 
+    // whiteboard clear button
     $("#whiteboardTrashBtn").click(function () {
         whiteboard.clearWhiteboard();
     });
 
+    // undo button
     $("#whiteboardUndoBtn").click(function () {
         whiteboard.undoWhiteboardClick();
     });
 
+    // switch tool
     $(".whiteboardTool").click(function () {
         $(".whiteboardTool").removeClass("active");
         $(this).addClass("active");
         whiteboard.setTool($(this).attr("tool"));
     });
 
+    // upload image button
     $("#addImgToCanvasBtn").click(function () {
-        alert("Just drag and drop images in!");
+        alert("Please drag the image into the browser.");
     });
 
+    // save image to png
     $("#saveAsImageBtn").click(function () {
         var imgData = whiteboard.getImageDataBase64();
         var a = document.createElement('a');
@@ -75,6 +81,7 @@ $(document).ready(function () {
         document.body.removeChild(a);
     });
 
+    // save image to json containing steps
     $("#saveAsJSONBtn").click(function () {
         var imgData = whiteboard.getImageDataJson();
         var a = window.document.createElement('a');
@@ -87,10 +94,12 @@ $(document).ready(function () {
         document.body.removeChild(a);
     });
 
+    // upload json containing steps
     $("#uploadJsonBtn").click(function () {
         $("#myFile").click();
     });
 
+    // load json to whiteboard
     $("#myFile").on("change", function () {
         var file = document.getElementById("myFile").files[0];
         var reader = new FileReader();
@@ -106,6 +115,12 @@ $(document).ready(function () {
         $(this).val("");
     });
 
+    // On thickness slider change
+    $("#whiteboardThicknessSlider").on("change", function () {
+        whiteboard.thickness = $(this).val();
+    });
+
+    // handle drag&drop
     var dragCounter = 0;
     $('#whiteboardContainer').on("dragenter", function (e) {
         e.preventDefault();
@@ -123,11 +138,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#whiteboardThicknessSlider").on("change", function () {
-        whiteboard.thickness = $(this).val();
-    });
-
-    $('#whiteboardContainer').on('drop', function (e) { //Handle drag & drop
+    $('#whiteboardContainer').on('drop', function (e) { //Handle drop
         if (e.originalEvent.dataTransfer) {
             if (e.originalEvent.dataTransfer.files.length) { //File from harddisc
                 e.preventDefault();
@@ -218,15 +229,15 @@ function uploadImgAndAddToWhiteboard(base64data) {
     });
 }
 
+// verify if filename refers to an image
 function isImageFileName(filename) {
-    var ending = filename.split(".")[filename.split(".").length - 1];
-    if (ending.toLowerCase() == "png" || ending.toLowerCase() == "jpg" || ending.toLowerCase() == "jpeg" || ending.toLowerCase() == "gif" || ending.toLowerCase() == "tiff") {
-        return true;
-    }
-    return false;
+    var extension = filename.split(".")[filename.split(".").length - 1];
+    var known_extensions = ["png", "jpg", "jpeg", "gif", "tiff"];
+    return known_extensions.includes(extension.toLowerCase());
 }
 
-function isValidImageUrl(url, callback) { //Check if given url it is a vaild img url
+// verify if given url is url to an image
+function isValidImageUrl(url, callback) {
     var img = new Image();
     var timer = null;
     img.onerror = img.onabort = function () {
@@ -243,7 +254,8 @@ function isValidImageUrl(url, callback) { //Check if given url it is a vaild img
     img.src = url;
 }
 
-window.addEventListener("paste", function (e) { //Even do copy & paste from clipboard
+// handle pasting from clipboard
+window.addEventListener("paste", function (e) {
     if (e.clipboardData) {
         var items = e.clipboardData.items;
         if (items) {
@@ -266,6 +278,7 @@ window.addEventListener("paste", function (e) { //Even do copy & paste from clip
     }
 });
 
+// get 'GET' parameter by variable name
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");

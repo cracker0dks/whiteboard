@@ -538,7 +538,7 @@ var whiteboard = {
 		var _this = this;
 		var textBox = $('<div id="'+txId+'" class="textBox" style="font-family: monospace; position:absolute; top:' + top + 'px; left:' + left + 'px;">'+
 							'<div contentEditable="true" spellcheck="false" class="textContent" style="outline: none; font-size:'+fontsize+'em; color:'+textcolor+'; min-width:50px; min-height:50px;"></div>'+
-							'<div class="removeIcon" style="position:absolute; cursor:pointer; top:-2px; right:2px;">x</div>'+
+							'<div title="remove textbox" class="removeIcon" style="position:absolute; cursor:pointer; top:-4px; right:2px;">x</div>'+
 						'</div>')
 		textBox.click(function(e) {
 			e.preventDefault();

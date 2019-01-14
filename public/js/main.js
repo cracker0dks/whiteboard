@@ -176,7 +176,6 @@ $(document).ready(function () {
                                 if (isImageFileName(url)) {
                                     whiteboard.addImgToCanvasByUrl(url);
                                 } else {
-                                    var blob = items[i].getAsFile();
                                     uploadImgAndAddToWhiteboard(url);
                                 }
                             } else {

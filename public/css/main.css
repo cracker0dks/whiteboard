@@ -54,3 +54,9 @@ button {
 .textBox.active {
     border: 1px dashed gray;
 }
+.textBox>.removeIcon {
+    display:none;
+}
+.textBox.active>.removeIcon {
+    display:block;
+}

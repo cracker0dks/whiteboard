@@ -22,7 +22,7 @@ module.exports = {
 					}
 				}
 			}
-		} else if(["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText"].includes(tool)) { //Save all this actions
+		} else if(["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox"].includes(tool)) { //Save all this actions
 			if(!savedBoards[wid]) {
 				savedBoards[wid] = [];
 			}

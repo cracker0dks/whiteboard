@@ -536,25 +536,37 @@ var whiteboard = {
 	},
 	addTextBox(textcolor, fontsize, left, top, txId, newLocalBox) {
 		var _this = this;
-		var textBox = $('<div id="'+txId+'" class="textBox" contentEditable="true" spellcheck="false" style="font-family: monospace; font-size:'+fontsize+'em; color:'+textcolor+'; position:absolute; top:' + top + 'px; left:' + left + 'px; min-width:50px; min-height:50px;"></div>')
+		var textBox = $('<div id="'+txId+'" class="textBox" style="font-family: monospace; position:absolute; top:' + top + 'px; left:' + left + 'px;">'+
+							'<div contentEditable="true" spellcheck="false" class="textContent" style="outline: none; font-size:'+fontsize+'em; color:'+textcolor+'; min-width:50px; min-height:50px;"></div>'+
+							'<div class="removeIcon" style="position:absolute; cursor:pointer; top:-2px; right:2px;">x</div>'+
+						'</div>')
 		textBox.click(function(e) {
 			e.preventDefault();
 			return false;
 		})
 		this.textContainer.append(textBox);
-		textBox.on("input", function() {
+		textBox.find(".textContent").on("input", function() {
 			var text = btoa($(this).html()); //Get html and make encode base64
 			_this.sendFunction({ "t": "setTextboxText", "d": [txId, text] });
 		});
+		textBox.find(".removeIcon").click(function(e) {
+			$("#"+txId).remove();
+			_this.sendFunction({ "t": "removeTextbox", "d": [txId] });
+			e.preventDefault();
+			return false;
+		});
 		if(newLocalBox) {
-			textBox.focus();
+			textBox.find(".textContent").focus();
 		}
 		if(this.tool==="text") {
 			textBox.addClass("active");
 		}
 	},
 	setTextboxText(txId, text) {
-		$("#"+txId).html(atob(text)); //Set decoded base64 as html
+		$("#"+txId).find(".textContent").html(atob(text)); //Set decoded base64 as html
+	},
+	removeTextbox(txId) {
+		$("#"+txId).remove();
 	},
 	drawImgToCanvas(url, width, height, left, top, doneCallback) {
 		var _this = this;
@@ -635,6 +647,8 @@ var whiteboard = {
 				_this.addTextBox(data[0], data[1], data[2], data[3], data[4]);
 			} else if (tool === "setTextboxText") {
 				_this.setTextboxText(data[0], data[1]);
+			} else if (tool === "removeTextbox") {
+				_this.removeTextbox(data[0]);
 			} else if (tool === "clear") {
 				_this.canvas.height = _this.canvas.height;
 				_this.imgContainer.empty();
@@ -658,7 +672,7 @@ var whiteboard = {
 			}
 		});
 
-		if (isNewData && ["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText"].includes(tool)) {
+		if (isNewData && ["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox"].includes(tool)) {
 			content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;
 			content["username"] = content["username"] ? content["username"] : _this.settings.username;
 			_this.drawBuffer.push(content);
@@ -748,7 +762,7 @@ var whiteboard = {
 		if (_this.settings.sendFunction) {
 			_this.settings.sendFunction(content);
 		}
-		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText"].includes(tool)) {
+		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox"].includes(tool)) {
 			_this.drawBuffer.push(content);
 		}
 	},

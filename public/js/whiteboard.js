@@ -500,7 +500,7 @@ var whiteboard = {
 			'</div>');
 		imgDiv.find(".xCanvasBtn").click(function () {
 			_this.imgDragActive = false;
-			this.refreshCursorAppearance();
+			_this.refreshCursorAppearance();
 			imgDiv.remove();
 			if(wasTextTool) {
 				_this.setTool("text");

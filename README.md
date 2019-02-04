@@ -69,5 +69,9 @@ You can give each group its own whiteboard by changeing the WHITEBOARDNAME in th
 
 Note: You might have to serve the app with https (If your nextcloud server runs https). To do so, its recommend to run this app behind a reverse proxy. (as shown above)
 
+#### (Optional) Set whiteboard icon in nextcloud
+![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/iconPrev.jpg)
+
+Upload both icons present at /doc/nextcloud_icons/ to your nextcloud at the "external sites" admin section. Then set it as symbol on your link.
 
 ___ MIT License ___

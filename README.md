@@ -8,7 +8,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 * Undo function for each user (strg+z as well)
 * Drag & Drop Images to Whiteboard from PC and Browsers
 * Copy & Paste Images from Clipboard to the Whiteboard
-* Able to write text
+* Write text
 * Resize, Move & Draw Images to Canvas or Background
 * Save Whiteboard to Image and JSON
 * Draw angle lines by pressing "shift" while drawing (with line tool)
@@ -43,7 +43,10 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * You shoud be able to customize without ever toutching the whiteboard.js (take a look at index.html & main.js)
 
 ## ToDo
-* Add feedback for errors and things ...
+* Enable drag and drop for texts
+* Show indicator on slider which tool is active (Pen, Text...)
+* Make undo function more reliable on texts
+* Add more callbacks for errors and things ...
 
 ## Nginx Reverse Proxy configuration
 Add this to your server part:

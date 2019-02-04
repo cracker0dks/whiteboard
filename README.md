@@ -21,7 +21,7 @@ You can run this app with and without docker
 1. install the latest NodeJs
 2. Clone the app
 3. Run `npm i` inside the folder
-4. Run `node server.js`
+4. Run `npm start`
 5. Surf to http://YOURIP:8080
 
 ### With Docker

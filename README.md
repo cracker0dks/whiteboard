@@ -8,7 +8,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 * Undo function for each user (strg+z as well)
 * Drag & Drop Images to Whiteboard from PC and Browsers
 * Copy & Paste Images from Clipboard to the Whiteboard
-* Able to write text
+* Write text
 * Resize, Move & Draw Images to Canvas or Background
 * Save Whiteboard to Image and JSON
 * Draw angle lines by pressing "shift" while drawing (with line tool)
@@ -21,7 +21,7 @@ You can run this app with and without docker
 1. install the latest NodeJs
 2. Clone the app
 3. Run `npm i` inside the folder
-4. Run `node server.js`
+4. Run `npm start`
 5. Surf to http://YOURIP:8080
 
 ### With Docker
@@ -43,7 +43,10 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * You shoud be able to customize without ever toutching the whiteboard.js (take a look at index.html & main.js)
 
 ## ToDo
-* Add feedback for errors and things ...
+* Enable drag and drop for texts
+* Show indicator on slider which tool is active (Pen, Text...)
+* Make undo function more reliable on texts
+* Add more callbacks for errors and things ...
 
 ## Nginx Reverse Proxy configuration
 Add this to your server part:
@@ -66,5 +69,9 @@ You can give each group its own whiteboard by changeing the WHITEBOARDNAME in th
 
 Note: You might have to serve the app with https (If your nextcloud server runs https). To do so, its recommend to run this app behind a reverse proxy. (as shown above)
 
+#### (Optional) Set whiteboard icon in nextcloud
+![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/iconPrev.jpg)
+
+Upload both icons present at /doc/nextcloud_icons/ to your nextcloud at the "external sites" admin section. Then set it as symbol on your link.
 
 ___ MIT License ___

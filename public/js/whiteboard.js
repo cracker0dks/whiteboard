@@ -55,7 +55,7 @@ var whiteboard = {
 		// container for other users cursors
 		_this.cursorContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 		// container for texts by users
-		_this.textContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>');
+		_this.textContainer = $('<div class="textcontainer" style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>');
 		// mouse overlay for draw callbacks
 		_this.mouseOverlay = $('<div style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
@@ -128,7 +128,18 @@ var whiteboard = {
 			}
 		});
 
-		$(_this.mouseOverlay).on("mousemove touchmove", function (e) {
+		_this.textContainer.on("mousemove touchmove", function (e) {
+			e.preventDefault();
+			if (_this.imgDragActive || !$(e.target).hasClass("textcontainer")) {
+				return;
+			}
+
+			var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+			var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+			_this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+		})
+
+		_this.mouseOverlay.on("mousemove touchmove", function (e) {
 			e.preventDefault();
 			if (_this.imgDragActive) {
 				return;
@@ -205,7 +216,7 @@ var whiteboard = {
 			_this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
 		});
 
-		$(_this.mouseOverlay).on("mouseup touchend touchcancel", function (e) {
+		_this.mouseOverlay.on("mouseup touchend touchcancel", function (e) {
 			if (_this.imgDragActive) {
 				return;
 			}
@@ -302,7 +313,7 @@ var whiteboard = {
 			}
 		});
 
-		$(_this.mouseOverlay).on("mouseout", function (e) {
+		_this.mouseOverlay.on("mouseout", function (e) {
 			if (_this.imgDragActive) {
 				return;
 			}
@@ -316,7 +327,7 @@ var whiteboard = {
 			_this.sendFunction({ "t": "cursor", "event": "out" });
 		});
 
-		$(_this.mouseOverlay).on("mouseover", function (e) {
+		_this.mouseOverlay.on("mouseover", function (e) {
 			if (_this.imgDragActive) {
 				return;
 			}
@@ -336,7 +347,7 @@ var whiteboard = {
 		});
 
 		//On textcontainer click (Add a new textbox)
-		$(_this.textContainer).on("click", function (e) {
+		_this.textContainer.on("click", function (e) {
 			currX = (e.offsetX || e.pageX - $(e.target).offset().left);
 			currY = (e.offsetY || e.pageY - $(e.target).offset().top);
 			var fontsize = _this.thickness * 0.5;
@@ -545,6 +556,19 @@ var whiteboard = {
 			e.preventDefault();
 			return false;
 		})
+		textBox.on("mousemove touchmove", function (e) {
+			e.preventDefault();
+			if (_this.imgDragActive) {
+				return;
+			}
+			var textBoxPosition = textBox.position();
+			var currX = (e.offsetX + textBoxPosition.left);
+			var currY = (e.offsetY + textBoxPosition.top);
+			if($(e.target).hasClass("removeIcon")) {
+				currX+= textBox.width()-4;
+			}
+			_this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+		})
 		this.textContainer.append(textBox);
 		textBox.draggable({
 			handle: ".moveIcon",
@@ -552,7 +576,7 @@ var whiteboard = {
 				var textBoxPosition = textBox.position();
 				_this.sendFunction({ "t": "setTextboxPosition", "d": [txId, textBoxPosition.top, textBoxPosition.left] });
 			},
-			drag: function() {
+			drag: function () {
 				var textBoxPosition = textBox.position();
 				_this.sendFunction({ "t": "setTextboxPosition", "d": [txId, textBoxPosition.top, textBoxPosition.left] });
 			}
@@ -581,7 +605,7 @@ var whiteboard = {
 		$("#" + txId).remove();
 	},
 	setTextboxPosition(txId, top, left) {
-		$("#" + txId).css({"top" : top+"px", "left" : left+"px"});
+		$("#" + txId).css({ "top": top + "px", "left": left + "px" });
 	},
 	drawImgToCanvas(url, width, height, left, top, doneCallback) {
 		var _this = this;
@@ -664,7 +688,7 @@ var whiteboard = {
 				_this.setTextboxText(data[0], data[1]);
 			} else if (tool === "removeTextbox") {
 				_this.removeTextbox(data[0]);
-			} else if(tool === "setTextboxPosition") {
+			} else if (tool === "setTextboxPosition") {
 				_this.setTextboxPosition(data[0], data[1], data[2]);
 			} else if (tool === "clear") {
 				_this.canvas.height = _this.canvas.height;
@@ -675,10 +699,10 @@ var whiteboard = {
 			} else if (tool === "cursor" && _this.settings) {
 				if (content["event"] === "move") {
 					if (_this.cursorContainer.find("." + content["username"]).length >= 1) {
-						_this.cursorContainer.find("." + content["username"]).css({ "left": data[0] + "px", "top": data[1] + "px" });
+						_this.cursorContainer.find("." + content["username"]).css({ "left": data[0] + "px", "top": (data[1]-15) + "px" });
 					} else {
-						_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' + data[0] + '; top:' + data[1] + ';" class="userbadge ' + content["username"] + '">' +
-							'<div style="width:4px; height:4px; background:gray; position:absolute; top:-2px; left:-2px; border-radius:50%;"></div>' +
+						_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' + data[0] + 'px; top:' + (data[1]-151) + 'px;" class="userbadge ' + content["username"] + '">' +
+							'<div style="width:4px; height:4px; background:gray; position:absolute; top:13px; left:-2px; border-radius:50%;"></div>' +
 							content["username"] + '</div>');
 					}
 				} else {

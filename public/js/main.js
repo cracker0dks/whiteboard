@@ -62,7 +62,13 @@ $(document).ready(function () {
     $(".whiteboardTool").click(function () {
         $(".whiteboardTool").removeClass("active");
         $(this).addClass("active");
-        whiteboard.setTool($(this).attr("tool"));
+        var activeTool = $(this).attr("tool");
+        whiteboard.setTool(activeTool);
+        if(activeTool == "mouse" || activeTool == "recSelect") {
+            $(".activeToolIcon").empty();
+        } else {
+            $(".activeToolIcon").html($(this).html()); //Set Active icon the same as the button icon
+        }        
     });
 
     // upload image button

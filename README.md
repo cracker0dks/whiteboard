@@ -43,7 +43,6 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * You shoud be able to customize without ever toutching the whiteboard.js (take a look at index.html & main.js)
 
 ## ToDo
-* Show indicator on slider which tool is active (Pen, Text...)
 * Make undo function more reliable on texts
 * Add more callbacks for errors and things ...
 

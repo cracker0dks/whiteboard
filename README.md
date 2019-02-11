@@ -36,13 +36,17 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * username => The name witch is showing to others while drawing
 
 ## Security - AccessToken (Optional)
-To prevent clients who might know or guess the base URL to use the Server for file uploads and stuff..., you can set an accesstoken at server start.
+To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start.
 
 <b>Without docker:</b> `node server.js --accesstoken="mySecToken"`
 
 <b>With docker:</b> `docker run -d -e accesstoken="mySecToken" -p 8080:8080 rofl256/whiteboard`
 
+Then set the same token on the client side as well.
+
 <b>Client (With and without docker):</b> `http://YOURIP:8080?accesstoken=mySecToken&whiteboardid=MYID&username=MYNAME`
+
+Done!
 
 ## Things you may want to know
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)

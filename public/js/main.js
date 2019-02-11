@@ -1,7 +1,9 @@
 var whiteboardId = getQueryVariable("whiteboardid");
 whiteboardId = whiteboardId || "myNewWhiteboard";
 var myUsername = getQueryVariable("username");
+var accessToken = getQueryVariable("accesstoken");
 myUsername = myUsername || "unknown" + (Math.random() + "").substring(2, 6);
+accessToken = accessToken || "";
 
 var url = document.URL.substr(0, document.URL.lastIndexOf('/'));
 var signaling_socket = null;
@@ -27,7 +29,11 @@ signaling_socket.on('connect', function () {
         whiteboard.refreshUserBadges();
     });
 
-    signaling_socket.emit('joinWhiteboard', whiteboardId);
+    signaling_socket.on('wrongAccessToken', function () {
+        alert("Access denied! Wrong accessToken!")
+    });
+
+    signaling_socket.emit('joinWhiteboard', { wid : whiteboardId, at : accessToken });
 });
 
 $(document).ready(function () {
@@ -35,12 +41,13 @@ $(document).ready(function () {
         whiteboardId: whiteboardId,
         username: myUsername,
         sendFunction: function (content) {
+            content["at"] = accessToken;
             signaling_socket.emit('drawToWhiteboard', content);
         }
     });
 
     // request whiteboard from server
-    $.get(subdir + "/loadwhiteboard", { wid: whiteboardId }).done(function (data) {
+    $.get(subdir + "/loadwhiteboard", { wid: whiteboardId, at : accessToken }).done(function (data) {
         whiteboard.loadData(data)
     });
 
@@ -221,7 +228,8 @@ function uploadImgAndAddToWhiteboard(base64data) {
         data: {
             'imagedata': base64data,
             'whiteboardId': whiteboardId,
-            'date': date
+            'date': date,
+            'at' : accessToken
         },
         success: function (msg) {
             var filename = whiteboardId + "_" + date + ".png";

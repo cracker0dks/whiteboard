@@ -1,4 +1,5 @@
 var PORT = 8080; //Set port for the app
+var accessToken = ""; //Can be set here or as start parameter (node server.js --accesstoken=MYTOKEN)
 
 fs = require("fs-extra");
 var express = require('express');
@@ -12,11 +13,25 @@ server.listen(PORT);
 var io = require('socket.io')(server);
 console.log("Webserver & socketserver running on port:"+PORT);
 
+var startArgs = getArgs ();
+if(startArgs["accesstoken"]) {
+    accessToken = startArgs["accesstoken"];
+}
+if(accessToken!=="") {
+    console.log("AccessToken set to: "+accessToken);
+}
+
 app.get('/loadwhiteboard', function(req, res) {
     var wid = req["query"]["wid"];
-    var ret = s_whiteboard.loadStoredData(wid);
-    res.send(ret);
-    res.end();
+    var at = req["query"]["at"]; //accesstoken
+    if(accessToken==="" || accessToken==at) {
+        var ret = s_whiteboard.loadStoredData(wid);
+        res.send(ret);
+        res.end();
+    } else {
+        res.status(401);  //Unauthorized
+        res.end();
+    }
 });
 
 app.post('/upload', function(req, res) { //File upload
@@ -39,8 +54,13 @@ app.post('/upload', function(req, res) { //File upload
     });
 
     form.on('end', function() {
-        progressUploadFormData(formData);
-        res.send("done");
+        if(accessToken==="" || accessToken==formData["fields"]["at"]) {
+            progressUploadFormData(formData);
+            res.send("done");
+        } else {
+            res.status(401);  //Unauthorized
+            res.end();
+        }
         //End file upload
     });
     form.parse(req);
@@ -82,12 +102,21 @@ io.on('connection', function(socket){
 
     socket.on('drawToWhiteboard', function(content) {
         content = escapeAllContentStrings(content);
-        socket.broadcast.to(content["wid"]).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
-        s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
+        if(accessToken==="" || accessToken==content["at"]) {
+            socket.broadcast.to(content["wid"]).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
+            s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
+        } else {
+            socket.emit('wrongAccessToken', true);
+        }     
     });
 
-    socket.on('joinWhiteboard', function(wid) {
-        socket.join(wid); //Joins room name=wid
+    socket.on('joinWhiteboard', function(content) {
+        content = escapeAllContentStrings(content);
+        if(accessToken==="" || accessToken==content["at"]) {
+            socket.join(content["wid"]); //Joins room name=wid
+        } else {
+            socket.emit('wrongAccessToken', true);
+        }
     });
 });
 
@@ -108,3 +137,24 @@ function escapeAllContentStrings(content, cnt) {
     }
     return content;
 }
+
+function getArgs () {
+    const args = {}
+    process.argv
+      .slice(2, process.argv.length)
+      .forEach( arg => {
+        // long arg
+        if (arg.slice(0,2) === '--') {
+          const longArg = arg.split('=')
+          args[longArg[0].slice(2,longArg[0].length)] = longArg[1]
+        }
+       // flags
+        else if (arg[0] === '-') {
+          const flags = arg.slice(1,arg.length).split('')
+          flags.forEach(flag => {
+            args[flag] = true
+          })
+        }
+      })
+    return args
+  }

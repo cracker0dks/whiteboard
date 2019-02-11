@@ -5,7 +5,8 @@
   "main": "server.js",
   "directories": {},
   "scripts": {
-    "test": "echo \"No tests needed!\" && exit 1"
+    "test": "echo \"No tests needed!\" && exit 1",
+    "server": "node server.js"
   },
   "repository": {
     "type": "git",

@@ -57,6 +57,15 @@ $(document).ready(function () {
 
     // whiteboard clear button
     $("#whiteboardTrashBtn").click(function () {
+        $("#whiteboardTrashBtnConfirm").show().focus();
+    });
+
+    $("#whiteboardTrashBtnConfirm").focusout(function() {
+        $(this).hide();
+    });
+
+    $("#whiteboardTrashBtnConfirm").click(function () {
+        $(this).hide();
         whiteboard.clearWhiteboard();
     });
 

@@ -6,7 +6,7 @@
   "directories": {},
   "scripts": {
     "test": "echo \"No tests needed!\" && exit 1",
-    "server": "node server.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",

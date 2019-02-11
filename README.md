@@ -35,6 +35,14 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * whiteboardid => All people with the same ID are drawing on the same board
 * username => The name witch is showing to others while drawing
 
+## Security - AccessToken (Optional)
+To prevent clients who might know or guess the base URL to use the Server for file uploads and stuff..., you can set an accesstoken at server start.
+
+<b>Without docker:</b> `node server.js --accesstoken="mySecToken"`
+
+<b>With docker:</b> `docker run -d -e accesstoken="mySecToken" -p 8080:8080 rofl256/whiteboard`
+
+<b>Client (With and without docker):</b> `http://YOURIP:8080?accesstoken=mySecToken&whiteboardid=MYID&username=MYNAME`
 
 ## Things you may want to know
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
@@ -69,5 +77,8 @@ Note: You might have to serve the app with https (If your nextcloud server runs 
 ![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/iconPrev.jpg)
 
 Upload both icons present at /doc/nextcloud_icons/ to your nextcloud at the "external sites" admin section. Then set it as symbol on your link.
+
+
+
 
 ___ MIT License ___

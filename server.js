@@ -13,6 +13,10 @@ server.listen(PORT);
 var io = require('socket.io')(server);
 console.log("Webserver & socketserver running on port:"+PORT);
 
+if(process.env.accesstoken) {
+    accessToken = process.env.accesstoken;
+}
+
 var startArgs = getArgs ();
 if(startArgs["accesstoken"]) {
     accessToken = startArgs["accesstoken"];

@@ -20,6 +20,7 @@ var whiteboard = {
 	drawBuffer: [],
 	drawId: 0, //Used for undo function
 	imgDragActive: false,
+	latestActiveTextBoxId: false, //The id of the latest clicked Textbox (for font and color change)
 	pressedKeys: {},
 	settings: {
 		whiteboardId: "0",
@@ -378,7 +379,7 @@ var whiteboard = {
 			return { "x": currX, "y": currY };
 		}
 	},
-	entfKeyAction : function() {
+	entfKeyAction: function () {
 		var _this = this;
 		$.each(_this.mouseOverlay.find(".dragOutOverlay"), function () {
 			var width = $(this).width();
@@ -392,11 +393,11 @@ var whiteboard = {
 		});
 		_this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
 	},
-	escKeyAction : function() {
+	escKeyAction: function () {
 		var _this = this;
 		if (!_this.drawFlag) {
 			_this.svgContainer.empty();
-		}	
+		}
 		_this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
 	},
 	dragCanvasRectContent: function (xf, yf, xt, yt, width, height) {
@@ -471,6 +472,15 @@ var whiteboard = {
 		_this.drawBuffer = [];
 		_this.drawId = 0;
 	},
+	setStrokeThickness(thickness) {
+		var _this = this;
+		_this.thickness = thickness;
+		
+		if (_this.tool == "text" && _this.latestActiveTextBoxId) {
+			_this.sendFunction({ "t": "setTextboxFontSize", "d": [_this.latestActiveTextBoxId, thickness] });
+			_this.setTextboxFontSize(_this.latestActiveTextBoxId, thickness);
+		}
+	},
 	addImgToCanvasByUrl: function (url) {
 		var _this = this;
 		var wasTextTool = false;
@@ -532,8 +542,10 @@ var whiteboard = {
 			'<div title="remove textbox" class="removeIcon" style="position:absolute; cursor:pointer; top:-4px; right:2px;">x</div>' +
 			'<div title="move textbox" class="moveIcon" style="position:absolute; cursor:move; top:1px; left:2px; font-size: 0.5em;"><i class="fas fa-expand-arrows-alt"></i></div>' +
 			'</div>');
+		_this.latestActiveTextBoxId = txId;
 		textBox.click(function (e) {
 			e.preventDefault();
+			_this.latestActiveTextBoxId = txId;
 			return false;
 		})
 		textBox.on("mousemove touchmove", function (e) {
@@ -587,6 +599,12 @@ var whiteboard = {
 	setTextboxPosition(txId, top, left) {
 		$("#" + txId).css({ "top": top + "px", "left": left + "px" });
 	},
+	setTextboxFontSize(txId, fontSize) {
+		$("#" + txId).find(".textContent").css({ "font-size": fontSize + "em" });
+	},
+	setTextboxFontColor(txId, color) {
+		$("#" + txId).find(".textContent").css({ "color": color });
+	},
 	drawImgToCanvas(url, width, height, left, top, doneCallback) {
 		var _this = this;
 		var img = document.createElement('img');
@@ -635,6 +653,17 @@ var whiteboard = {
 		}
 		this.refreshCursorAppearance();
 		this.mouseOverlay.find(".xCanvasBtn").click();
+		this.latestActiveTextBoxId = null;
+	},
+	setDrawColor(color) {
+		var _this = this;
+		_this.drawcolor = color;
+		
+		if (_this.tool == "text" && _this.latestActiveTextBoxId) {
+			_this.sendFunction({ "t": "setTextboxFontColor", "d": [_this.latestActiveTextBoxId, color] });
+			_this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
+		}
+		
 	},
 	handleEventsAndData: function (content, isNewData, doneCallback) {
 		var _this = this;
@@ -670,6 +699,10 @@ var whiteboard = {
 				_this.removeTextbox(data[0]);
 			} else if (tool === "setTextboxPosition") {
 				_this.setTextboxPosition(data[0], data[1], data[2]);
+			} else if (tool === "setTextboxFontSize") {
+				_this.setTextboxFontSize(data[0], data[1]);
+			} else if (tool === "setTextboxFontColor") {
+				_this.setTextboxFontColor(data[0], data[1]);
 			} else if (tool === "clear") {
 				_this.canvas.height = _this.canvas.height;
 				_this.imgContainer.empty();
@@ -693,7 +726,7 @@ var whiteboard = {
 			}
 		});
 
-		if (isNewData && ["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition"].includes(tool)) {
+		if (isNewData && ["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
 			content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;
 			content["username"] = content["username"] ? content["username"] : _this.settings.username;
 			_this.drawBuffer.push(content);
@@ -783,7 +816,7 @@ var whiteboard = {
 		if (_this.settings.sendFunction) {
 			_this.settings.sendFunction(content);
 		}
-		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition"].includes(tool)) {
+		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
 			_this.drawBuffer.push(content);
 		}
 	},

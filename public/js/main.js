@@ -166,8 +166,8 @@ $(document).ready(function () {
     });
 
     // On thickness slider change
-    $("#whiteboardThicknessSlider").on("change", function () {
-        whiteboard.thickness = $(this).val();
+    $("#whiteboardThicknessSlider").on("input", function () {
+        whiteboard.setStrokeThickness($(this).val());
     });
 
     // handle drag&drop
@@ -242,7 +242,7 @@ $(document).ready(function () {
 
     $('#whiteboardColorpicker').colorPicker({
         renderCallback: function (elm) {
-            whiteboard.drawcolor = elm.val();
+            whiteboard.setDrawColor(elm.val());
         }
     });
 });

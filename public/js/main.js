@@ -55,6 +55,34 @@ $(document).ready(function () {
 	Whiteboard actions
     /----------------*/
 
+    //Handle key actions
+    $(document).on("keydown", function (e) {
+        if (e.which == 17) {
+            whiteboard.pressedKeys["strg"] = true;
+        } else if (e.which == 90) { //z key
+            if (whiteboard.pressedKeys["strg"] && !whiteboard.pressedKeys["z"]) {
+                whiteboard.undoWhiteboardClick();
+            }
+            whiteboard.pressedKeys["z"] = true;
+        } else if (e.which == 16) {
+            whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
+        } else if (e.which == 27) { //Esc
+            whiteboard.escKeyAction();
+        } else if (e.which == 46) { //Remove / Entf
+            whiteboard.entfKeyAction();
+        }
+        //console.log(e.which);
+    });
+    $(document).on("keyup", function (e) {
+        if (e.which == 17) {
+            whiteboard.pressedKeys["strg"] = false;
+        } else if (e.which == 90) {
+            whiteboard.pressedKeys["z"] = false;
+        } else if (e.which == 16) {
+            whiteboard.pressedKeys["shift"] = false;
+        }
+    });
+
     // whiteboard clear button
     $("#whiteboardTrashBtn").click(function () {
         $("#whiteboardTrashBtnConfirm").show().focus();

@@ -20,6 +20,7 @@ var whiteboard = {
 	drawBuffer: [],
 	drawId: 0, //Used for undo function
 	imgDragActive: false,
+	pressedKeys: {},
 	settings: {
 		whiteboardId: "0",
 		username: "unknown",
@@ -176,7 +177,7 @@ var whiteboard = {
 					_this.ownCursor.css({ "top": top + "px", "left": left + "px" });
 				} else if (_this.tool === "line") {
 					if (svgLine) {
-						if (shiftPressed) {
+						if (_this.pressedKeys.shift) {
 							var angs = getRoundedAngles(currX, currY);
 							currX = angs.x;
 							currY = angs.y;
@@ -188,7 +189,7 @@ var whiteboard = {
 					if (svgRect) {
 						var width = Math.abs(currX - startCoords[0]);
 						var height = Math.abs(currY - startCoords[1]);
-						if (shiftPressed) {
+						if (_this.pressedKeys.shift) {
 							height = width;
 							var x = currX < startCoords[0] ? startCoords[0] - width : startCoords[0];
 							var y = currY < startCoords[1] ? startCoords[1] - width : startCoords[1];
@@ -232,7 +233,7 @@ var whiteboard = {
 			}
 
 			if (_this.tool === "line") {
-				if (shiftPressed) {
+				if (_this.pressedKeys.shift) {
 					var angs = getRoundedAngles(currX, currY);
 					currX = angs.x;
 					currY = angs.y;
@@ -241,7 +242,7 @@ var whiteboard = {
 				_this.sendFunction({ "t": _this.tool, "d": [currX, currY, startCoords[0], startCoords[1]], "c": _this.drawcolor, "th": _this.thickness });
 				_this.svgContainer.find("line").remove();
 			} else if (_this.tool === "rect") {
-				if (shiftPressed) {
+				if (_this.pressedKeys.shift) {
 					if ((currY - startCoords[1]) * (currX - startCoords[0]) > 0) {
 						currY = startCoords[1] + (currX - startCoords[0]);
 					} else {
@@ -260,7 +261,7 @@ var whiteboard = {
 				_this.svgContainer.find("circle").remove();
 			} else if (_this.tool === "recSelect") {
 				_this.imgDragActive = true;
-				if (shiftPressed) {
+				if (_this.pressedKeys.shift) {
 					if ((currY - startCoords[1]) * (currX - startCoords[0]) > 0) {
 						currY = startCoords[1] + (currX - startCoords[0]);
 					} else {
@@ -356,48 +357,6 @@ var whiteboard = {
 			_this.addTextBox(_this.drawcolor, fontsize, currX, currY, txId, true);
 		});
 
-		var strgPressed = false;
-		var zPressed = false;
-		var shiftPressed = false;
-		$(document).on("keydown", function (e) {
-			if (e.which == 17) {
-				strgPressed = true;
-			} else if (e.which == 90) {
-				if (strgPressed && !zPressed) {
-					_this.undoWhiteboardClick();
-				}
-				zPressed = true;
-			} else if (e.which == 16) {
-				shiftPressed = true;
-			} else if (e.which == 27) { //Esc
-				if (!_this.drawFlag)
-					_this.svgContainer.empty();
-				_this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
-			} else if (e.which == 46) { //Remove / Entf
-				$.each(_this.mouseOverlay.find(".dragOutOverlay"), function () {
-					var width = $(this).width();
-					var height = $(this).height();
-					var p = $(this).position();
-					var left = Math.round(p.left * 100) / 100;
-					var top = Math.round(p.top * 100) / 100;
-					_this.drawId++;
-					_this.sendFunction({ "t": "eraseRec", "d": [left, top, width, height] });
-					_this.eraseRec(left, top, width, height);
-				});
-				_this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
-			}
-			//console.log(e.which);
-		});
-		$(document).on("keyup", function (e) {
-			if (e.which == 17) {
-				strgPressed = false;
-			} else if (e.which == 90) {
-				zPressed = false;
-			} else if (e.which == 16) {
-				shiftPressed = false;
-			}
-		});
-
 		function getRoundedAngles(currX, currY) { //For drawing lines at 0,45,90° ....
 			var x = currX - startCoords[0];
 			var y = currY - startCoords[1];
@@ -418,6 +377,27 @@ var whiteboard = {
 			}
 			return { "x": currX, "y": currY };
 		}
+	},
+	entfKeyAction : function() {
+		var _this = this;
+		$.each(_this.mouseOverlay.find(".dragOutOverlay"), function () {
+			var width = $(this).width();
+			var height = $(this).height();
+			var p = $(this).position();
+			var left = Math.round(p.left * 100) / 100;
+			var top = Math.round(p.top * 100) / 100;
+			_this.drawId++;
+			_this.sendFunction({ "t": "eraseRec", "d": [left, top, width, height] });
+			_this.eraseRec(left, top, width, height);
+		});
+		_this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
+	},
+	escKeyAction : function() {
+		var _this = this;
+		if (!_this.drawFlag) {
+			_this.svgContainer.empty();
+		}	
+		_this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
 	},
 	dragCanvasRectContent: function (xf, yf, xt, yt, width, height) {
 		var tempCanvas = document.createElement('canvas');
@@ -564,8 +544,8 @@ var whiteboard = {
 			var textBoxPosition = textBox.position();
 			var currX = (e.offsetX + textBoxPosition.left);
 			var currY = (e.offsetY + textBoxPosition.top);
-			if($(e.target).hasClass("removeIcon")) {
-				currX+= textBox.width()-4;
+			if ($(e.target).hasClass("removeIcon")) {
+				currX += textBox.width() - 4;
 			}
 			_this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
 		})
@@ -699,9 +679,9 @@ var whiteboard = {
 			} else if (tool === "cursor" && _this.settings) {
 				if (content["event"] === "move") {
 					if (_this.cursorContainer.find("." + content["username"]).length >= 1) {
-						_this.cursorContainer.find("." + content["username"]).css({ "left": data[0] + "px", "top": (data[1]-15) + "px" });
+						_this.cursorContainer.find("." + content["username"]).css({ "left": data[0] + "px", "top": (data[1] - 15) + "px" });
 					} else {
-						_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' + data[0] + 'px; top:' + (data[1]-151) + 'px;" class="userbadge ' + content["username"] + '">' +
+						_this.cursorContainer.append('<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' + data[0] + 'px; top:' + (data[1] - 151) + 'px;" class="userbadge ' + content["username"] + '">' +
 							'<div style="width:4px; height:4px; background:gray; position:absolute; top:13px; left:-2px; border-radius:50%;"></div>' +
 							content["username"] + '</div>');
 					}

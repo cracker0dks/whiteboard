@@ -148,6 +148,22 @@ $(document).ready(function () {
     $("#uploadJsonBtn").click(function () {
         $("#myFile").click();
     });
+    
+    $("#shareWhiteboardBtn").click(function () {
+        var url = window.location.href;
+        var s = url.indexOf("&username=")!==-1 ? "&username=" : "username="; //Remove username from url
+        var urlSlpit = url.split(s);
+        var urlStart = urlSlpit[0];
+        if(urlSlpit.length>1) {
+            var endSplit = urlSlpit[1].split("&");
+            endSplit = endSplit.splice(1, 1);
+            urlStart += "&"+endSplit.join("&");
+        }
+        $("<textarea/>").appendTo("body").val(urlStart).select().each(function () {
+            document.execCommand('copy');
+        }).remove();
+        alert("Copied Whiteboard-URL to clipboard.")
+    });
 
     // load json to whiteboard
     $("#myFile").on("change", function () {

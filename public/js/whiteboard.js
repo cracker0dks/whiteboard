@@ -747,6 +747,23 @@ var whiteboard = {
 		copyCanvas.height = height;
 		var ctx = copyCanvas.getContext("2d");
 
+		$.each($(".textBox"), function() {
+			var textContainer = $(this)
+			var textEl = $(this).find(".textContent");
+			var text = textEl.text();
+			var fontSize = textEl.css('font-size');
+			var fontColor = textEl.css('color');
+			var p = textContainer.position();
+			var left = Math.round(p.left * 100) / 100;
+			var top = Math.round(p.top * 100) / 100;
+			top+=25; //Fix top position
+			console.log(text, fontSize, fontColor, left, top)
+			ctx.font = fontSize+" monospace";
+			ctx.fillStyle = fontColor;
+			ctx.fillText(text, left, top);
+			
+		});
+
 		$.each(_this.imgContainer.find("img"), function () {
 			var width = $(this).width();
 			var height = $(this).height();

@@ -475,7 +475,7 @@ var whiteboard = {
 	setStrokeThickness(thickness) {
 		var _this = this;
 		_this.thickness = thickness;
-		
+
 		if (_this.tool == "text" && _this.latestActiveTextBoxId) {
 			_this.sendFunction({ "t": "setTextboxFontSize", "d": [_this.latestActiveTextBoxId, thickness] });
 			_this.setTextboxFontSize(_this.latestActiveTextBoxId, thickness);
@@ -658,12 +658,12 @@ var whiteboard = {
 	setDrawColor(color) {
 		var _this = this;
 		_this.drawcolor = color;
-		
+
 		if (_this.tool == "text" && _this.latestActiveTextBoxId) {
 			_this.sendFunction({ "t": "setTextboxFontColor", "d": [_this.latestActiveTextBoxId, color] });
 			_this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
 		}
-		
+
 	},
 	handleEventsAndData: function (content, isNewData, doneCallback) {
 		var _this = this;
@@ -747,24 +747,7 @@ var whiteboard = {
 		copyCanvas.height = height;
 		var ctx = copyCanvas.getContext("2d");
 
-		$.each($(".textBox"), function() {
-			var textContainer = $(this)
-			var textEl = $(this).find(".textContent");
-			var text = textEl.text();
-			var fontSize = textEl.css('font-size');
-			var fontColor = textEl.css('color');
-			var p = textContainer.position();
-			var left = Math.round(p.left * 100) / 100;
-			var top = Math.round(p.top * 100) / 100;
-			top+=25; //Fix top position
-			console.log(text, fontSize, fontColor, left, top)
-			ctx.font = fontSize+" monospace";
-			ctx.fillStyle = fontColor;
-			ctx.fillText(text, left, top);
-			
-		});
-
-		$.each(_this.imgContainer.find("img"), function () {
+		$.each(_this.imgContainer.find("img"), function () { //Draw Backgroundimages to the export canvas
 			var width = $(this).width();
 			var height = $(this).height();
 			var p = $(this).position();
@@ -773,8 +756,25 @@ var whiteboard = {
 			ctx.drawImage(this, left, top, width, height);
 		});
 
-		var destCtx = copyCanvas.getContext('2d');
+		var destCtx = copyCanvas.getContext('2d'); //Draw the maincanvas to the exportcanvas
 		destCtx.drawImage(this.canvas, 0, 0);
+
+		$.each($(".textBox"), function () { //Draw the text on top
+			var textContainer = $(this)
+			var textEl = $(this).find(".textContent");
+			var text = textEl.text();
+			var fontSize = textEl.css('font-size');
+			var fontColor = textEl.css('color');
+			var p = textContainer.position();
+			var left = Math.round(p.left * 100) / 100;
+			var top = Math.round(p.top * 100) / 100;
+			top += 25; //Fix top position
+			console.log(text, fontSize, fontColor, left, top)
+			ctx.font = fontSize + " monospace";
+			ctx.fillStyle = fontColor;
+			ctx.fillText(text, left, top);
+		});
+
 		var url = copyCanvas.toDataURL();
 		return url;
 	},

@@ -298,7 +298,7 @@ function uploadImgAndAddToWhiteboard(base64data) {
 // verify if filename refers to an image
 function isImageFileName(filename) {
     var extension = filename.split(".")[filename.split(".").length - 1];
-    var known_extensions = ["png", "jpg", "jpeg", "gif", "tiff"];
+    var known_extensions = ["png", "jpg", "jpeg", "gif", "tiff", "bmp"];
     return known_extensions.includes(extension.toLowerCase());
 }
 

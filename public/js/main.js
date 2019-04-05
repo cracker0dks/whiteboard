@@ -33,7 +33,7 @@ signaling_socket.on('connect', function () {
         alert("Access denied! Wrong accessToken!")
     });
 
-    signaling_socket.emit('joinWhiteboard', { wid : whiteboardId, at : accessToken });
+    signaling_socket.emit('joinWhiteboard', { wid: whiteboardId, at: accessToken });
 });
 
 $(document).ready(function () {
@@ -47,7 +47,7 @@ $(document).ready(function () {
     });
 
     // request whiteboard from server
-    $.get(subdir + "/loadwhiteboard", { wid: whiteboardId, at : accessToken }).done(function (data) {
+    $.get(subdir + "/loadwhiteboard", { wid: whiteboardId, at: accessToken }).done(function (data) {
         whiteboard.loadData(data)
     });
 
@@ -88,7 +88,7 @@ $(document).ready(function () {
         $("#whiteboardTrashBtnConfirm").show().focus();
     });
 
-    $("#whiteboardTrashBtnConfirm").focusout(function() {
+    $("#whiteboardTrashBtnConfirm").focusout(function () {
         $(this).hide();
     });
 
@@ -108,11 +108,11 @@ $(document).ready(function () {
         $(this).addClass("active");
         var activeTool = $(this).attr("tool");
         whiteboard.setTool(activeTool);
-        if(activeTool == "mouse" || activeTool == "recSelect") {
+        if (activeTool == "mouse" || activeTool == "recSelect") {
             $(".activeToolIcon").empty();
         } else {
             $(".activeToolIcon").html($(this).html()); //Set Active icon the same as the button icon
-        }        
+        }
     });
 
     // upload image button
@@ -123,41 +123,49 @@ $(document).ready(function () {
     // save image to png
     $("#saveAsImageBtn").click(function () {
         var imgData = whiteboard.getImageDataBase64();
-        var a = document.createElement('a');
-        a.href = imgData;
-        a.download = 'whiteboard.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+
+        var w = window.open('about:blank'); //Firefox will not allow downloads without extra window
+        setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
+            var a = document.createElement('a');
+            a.href = imgData;
+            a.download = 'whiteboard.png';
+            w.document.body.appendChild(a);
+            a.click();
+            w.document.body.removeChild(a);
+            setTimeout(function () { w.close(); }, 100);
+        }, 0);
     });
 
     // save image to json containing steps
     $("#saveAsJSONBtn").click(function () {
         var imgData = whiteboard.getImageDataJson();
-        var a = window.document.createElement('a');
-        a.href = window.URL.createObjectURL(new Blob([imgData], { type: 'text/json' }));
-        a.download = 'whiteboard.json';
-        // Append anchor to body.
-        document.body.appendChild(a);
-        a.click();
-        // Remove anchor from body
-        document.body.removeChild(a);
+
+        var w = window.open('about:blank'); //Firefox will not allow downloads without extra window
+        setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
+            var a = document.createElement('a');
+            a.href = window.URL.createObjectURL(new Blob([imgData], { type: 'text/json' }));
+            a.download = 'whiteboard.json';
+            w.document.body.appendChild(a);
+            a.click();
+            w.document.body.removeChild(a);
+            setTimeout(function () { w.close(); }, 100);
+        }, 0);
     });
 
     // upload json containing steps
     $("#uploadJsonBtn").click(function () {
         $("#myFile").click();
     });
-    
+
     $("#shareWhiteboardBtn").click(function () {
         var url = window.location.href;
-        var s = url.indexOf("&username=")!==-1 ? "&username=" : "username="; //Remove username from url
+        var s = url.indexOf("&username=") !== -1 ? "&username=" : "username="; //Remove username from url
         var urlSlpit = url.split(s);
         var urlStart = urlSlpit[0];
-        if(urlSlpit.length>1) {
+        if (urlSlpit.length > 1) {
             var endSplit = urlSlpit[1].split("&");
             endSplit = endSplit.splice(1, 1);
-            urlStart += "&"+endSplit.join("&");
+            urlStart += "&" + endSplit.join("&");
         }
         $("<textarea/>").appendTo("body").val(urlStart).select().each(function () {
             document.execCommand('copy');
@@ -282,7 +290,7 @@ function uploadImgAndAddToWhiteboard(base64data) {
             'imagedata': base64data,
             'whiteboardId': whiteboardId,
             'date': date,
-            'at' : accessToken
+            'at': accessToken
         },
         success: function (msg) {
             var filename = whiteboardId + "_" + date + ".png";

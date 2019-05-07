@@ -33,7 +33,11 @@ signaling_socket.on('connect', function () {
         alert("Access denied! Wrong accessToken!")
     });
 
-    signaling_socket.emit('joinWhiteboard', { wid: whiteboardId, at: accessToken });
+    signaling_socket.on('updateSmallestScreenResolution', function (widthHeight) {
+        whiteboard.updateSmallestScreenResolution(widthHeight["w"], widthHeight["h"]);
+    });
+
+    signaling_socket.emit('joinWhiteboard', { wid: whiteboardId, at: accessToken, windowWidthHeight: { w: $(window).width(), h: $(window).height() } });
 });
 
 $(document).ready(function () {
@@ -50,6 +54,11 @@ $(document).ready(function () {
     $.get(subdir + "/loadwhiteboard", { wid: whiteboardId, at: accessToken }).done(function (data) {
         whiteboard.loadData(data)
     });
+
+    $(window).resize(function () {
+        console.log("CHANGED!");
+        signaling_socket.emit('updateScreenResolution', { at: accessToken, windowWidthHeight: { w: $(window).width(), h: $(window).height() } });
+    })
 
     /*----------------/
 	Whiteboard actions
@@ -120,7 +129,7 @@ $(document).ready(function () {
         alert("Please drag the image into the browser.");
     });
 
-    // save image to png
+    // save image as png
     $("#saveAsImageBtn").click(function () {
         var imgData = whiteboard.getImageDataBase64();
 

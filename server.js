@@ -1,7 +1,8 @@
 var PORT = 8080; //Set port for the app
 var accessToken = ""; //Can be set here or as start parameter (node server.js --accesstoken=MYTOKEN)
+var disableSmallestScreen = false; //Can be set to true if you dont want to show (node server.js --disablesmallestscreen=true)
 
-fs = require("fs-extra");
+var fs = require("fs-extra");
 var express = require('express');
 var formidable = require('formidable'); //form upload processing
 
@@ -22,13 +23,23 @@ console.log("Webserver & socketserver running on port:" + PORT);
 if (process.env.accesstoken) {
     accessToken = process.env.accesstoken;
 }
+if (process.env.disablesmallestscreen) {
+    disablesmallestscreen = true;
+}
 
 var startArgs = getArgs();
 if (startArgs["accesstoken"]) {
     accessToken = startArgs["accesstoken"];
 }
+if (startArgs["disablesmallestscreen"]) {
+    disableSmallestScreen = true;
+}
+
 if (accessToken !== "") {
     console.log("AccessToken set to: " + accessToken);
+}
+if (disableSmallestScreen) {
+    console.log("Disabled showing smallest screen resolution!");
 }
 
 app.get('/loadwhiteboard', function (req, res) {
@@ -104,16 +115,20 @@ function progressUploadFormData(formData) {
     });
 }
 
+var smallestScreenResolutions = {};
 io.on('connection', function (socket) {
+    var whiteboardId = null;
 
     socket.on('disconnect', function () {
+        delete smallestScreenResolutions[whiteboardId][socket.id];
         socket.broadcast.emit('refreshUserBadges', null); //Removes old user Badges
+        sendSmallestScreenResolution();
     });
 
     socket.on('drawToWhiteboard', function (content) {
         content = escapeAllContentStrings(content);
         if (accessToken === "" || accessToken == content["at"]) {
-            socket.broadcast.to(content["wid"]).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
+            socket.broadcast.to(whiteboardId).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
             s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
         } else {
             socket.emit('wrongAccessToken', true);
@@ -123,11 +138,36 @@ io.on('connection', function (socket) {
     socket.on('joinWhiteboard', function (content) {
         content = escapeAllContentStrings(content);
         if (accessToken === "" || accessToken == content["at"]) {
-            socket.join(content["wid"]); //Joins room name=wid
+            whiteboardId = content["wid"];
+            socket.join(whiteboardId); //Joins room name=wid
+            smallestScreenResolutions[whiteboardId] = smallestScreenResolutions[whiteboardId] ? smallestScreenResolutions[whiteboardId] : {};
+            smallestScreenResolutions[whiteboardId][socket.id] = content["windowWidthHeight"] || { w: 10000, h: 10000 };
+            sendSmallestScreenResolution();
         } else {
             socket.emit('wrongAccessToken', true);
         }
     });
+
+    socket.on('updateScreenResolution', function (content) {
+        content = escapeAllContentStrings(content);
+        if (accessToken === "" || accessToken == content["at"]) {
+            smallestScreenResolutions[whiteboardId][socket.id] = content["windowWidthHeight"] || { w: 10000, h: 10000 };
+            sendSmallestScreenResolution();
+        }
+    });
+
+    function sendSmallestScreenResolution() {
+        if (disableSmallestScreen) {
+            return;
+        }
+        var smallestWidth = 10000;
+        var smallestHeight = 10000;
+        for (var i in smallestScreenResolutions[whiteboardId]) {
+            smallestWidth = smallestWidth > smallestScreenResolutions[whiteboardId][i]["w"] ? smallestScreenResolutions[whiteboardId][i]["w"] : smallestWidth;
+            smallestHeight = smallestHeight > smallestScreenResolutions[whiteboardId][i]["h"] ? smallestScreenResolutions[whiteboardId][i]["h"] : smallestHeight;
+        }
+        io.to(whiteboardId).emit('updateSmallestScreenResolution', { w: smallestWidth, h: smallestHeight });
+    }
 });
 
 //Prevent cross site scripting (xss)

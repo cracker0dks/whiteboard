@@ -44,7 +44,7 @@ var whiteboard = {
 		var svgRect = null;
 		var svgCirle = null;
 		var latestTouchCoods = null;
-		//background grid (repeating image)
+		//background grid (repeating image) and smallest screen indication
 		_this.backgroundGrid = $('<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url(\'' + _this.settings["backgroundGridUrl"] + '\'); height: 100%; width: 100%;"></div>');
 		// container for background images
 		_this.imgContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
@@ -658,12 +658,17 @@ var whiteboard = {
 	setDrawColor(color) {
 		var _this = this;
 		_this.drawcolor = color;
-
 		if (_this.tool == "text" && _this.latestActiveTextBoxId) {
 			_this.sendFunction({ "t": "setTextboxFontColor", "d": [_this.latestActiveTextBoxId, color] });
 			_this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
 		}
-
+	},
+	updateSmallestScreenResolution(width, height) {
+		this.backgroundGrid.empty();
+		if (width < $(window).width() || height < $(window).height()) {
+			this.backgroundGrid.append('<div style="position:absolute; left:0px; top:0px; border-right:3px dotted black; border-bottom:3px dotted black; width:' + width + 'px; height:' + height + 'px;"></div>');
+			this.backgroundGrid.append('<div style="position:absolute; left:' + (width + 5) + 'px; top:0px;">smallest screen participating</div>');
+		}
 	},
 	handleEventsAndData: function (content, isNewData, doneCallback) {
 		var _this = this;

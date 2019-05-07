@@ -1,5 +1,5 @@
 .btn-group button {
-    background-color: #808080; /* Green background */
+    background: transparent;
     border: 1px solid #636060; /* Green border */
     color: black; /* White text */
     padding: 11px 14px; /* Some padding */
@@ -21,7 +21,7 @@
 
 /* Add a background color on hover */
 .btn-group button:hover {
-    background-color: #a5a3a3;
+    background-color: #9a9a9a;
 }
 
 button {
@@ -29,7 +29,7 @@ button {
 }
 
 .btn-group {
-    background-color: #808080;
+    background-color: #808080ab;
     margin-left: 5px;
     float: left;
     position: relative;

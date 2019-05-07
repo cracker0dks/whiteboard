@@ -27,7 +27,7 @@ You can run this app with and without docker
 1. `docker run -d -p 8080:8080 rofl256/whiteboard`
 2. Surf to http://YOURIP:8080
 
-## API
+## URL Parameters
 Call your site with GET parameters to change the WhiteboardID or the Username
 
 `http://YOURIP:8080?whiteboardid=MYID&username=MYNAME`

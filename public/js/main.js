@@ -56,7 +56,6 @@ $(document).ready(function () {
     });
 
     $(window).resize(function () {
-        console.log("CHANGED!");
         signaling_socket.emit('updateScreenResolution', { at: accessToken, windowWidthHeight: { w: $(window).width(), h: $(window).height() } });
     })
 

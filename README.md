@@ -27,7 +27,7 @@ You can run this app with and without docker
 1. `docker run -d -p 8080:8080 rofl256/whiteboard`
 2. Surf to http://YOURIP:8080
 
-## API
+## URL Parameters
 Call your site with GET parameters to change the WhiteboardID or the Username
 
 `http://YOURIP:8080?whiteboardid=MYID&username=MYNAME`
@@ -52,9 +52,9 @@ Done!
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
 * You shoud be able to customize the layout without ever toutching the whiteboard.js (take a look at index.html & main.js)
 
-## All run parameters (also docker)
-* --accesstoken => take a look at "Security" for a full explanation
-* --disablesmallestscreen => can be set to "true" if you don't want show the "smallest screen" indicator (A dotted line) to the users
+## All server run parameters (also docker)
+* accesstoken => take a look at "Security - AccessToken" for a full explanation
+* disablesmallestscreen => set this to "true" if you don't want show the "smallest screen" indicator (A dotted gray line) to the users
 
 ## ToDo
 * Make undo function more reliable on texts
@@ -75,8 +75,8 @@ To run it at /whiteboard. Don't forget to change -> YOURIP!
 
 ## Nextcloud integration
 1. Install this app on your server
-2. Enable and go to "external sites" on your Nextcloud
-2. Add Link to your server: `https://YOURIP/whiteboard/?whiteboardid=WHITEBOARDNAME&username={uid}`
+2. Enable and go to "external sites" (app) on your Nextcloud
+2. Add a link to your server: `https://YOURIP/whiteboard/?whiteboardid=WHITEBOARDNAME&username={uid}`
 You can give each group its own whiteboard by changeing the WHITEBOARDNAME in the URL if you want.
 
 Note: You might have to serve the app with https (If your nextcloud server runs https). To do so, its recommend to run this app behind a reverse proxy. (as shown above)

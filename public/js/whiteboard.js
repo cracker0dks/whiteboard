@@ -1,7 +1,7 @@
 var whiteboard = {
 	canvas: null,
 	ctx: null,
-	drawcolor: "black",
+	drawcolor: "#000001",
 	tool: "pen",
 	thickness: 4,
 	prevX: null,
@@ -253,6 +253,9 @@ var whiteboard = {
 				_this.drawRec(startCoords[0], startCoords[1], currX, currY, _this.drawcolor, _this.thickness);
 				_this.sendFunction({ "t": _this.tool, "d": [startCoords[0], startCoords[1], currX, currY], "c": _this.drawcolor, "th": _this.thickness });
 				_this.svgContainer.find("rect").remove();
+			} else if (_this.tool === "fill") {
+				_this.fill(currX, currY, _this.drawcolor);
+				_this.sendFunction({ "t": _this.tool, "d": [currX, currY], "c": _this.drawcolor });
 			} else if (_this.tool === "circle") {
 				var a = currX - startCoords[0];
 				var b = currY - startCoords[1];
@@ -454,6 +457,67 @@ var whiteboard = {
 		_this.ctx.lineCap = _this.lineCap;
 		_this.ctx.stroke();
 		_this.ctx.closePath();
+	},
+	fill: function (startX, startY, color) { // Start painting with paint bucket tool starting from pixel specified by startX and startY
+		var _this = this;
+		var canvasWidth = $(window).width();
+		var canvasHeight = $(window).height();
+		var curColor = _this.getRGB($("div").css({ color: color }).css("color")); //Get current rgb color
+
+		var pixelStack = [[startX, startY]];
+
+		var colorLayerData = _this.ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+		var pixelPos = (startY * canvasWidth + startX) * 4,
+			r = colorLayerData.data[pixelPos],
+			g = colorLayerData.data[pixelPos + 1],
+			b = colorLayerData.data[pixelPos + 2],
+			a = colorLayerData.data[pixelPos + 3];
+		console.log(r, g, b, curColor);
+
+		if (r == curColor.r && g == curColor.g && b == curColor.b) {
+			// Return because trying to fill with the same color
+			console.log("SAME!")
+			return;
+		}
+
+		var doneObj = {};
+		while (pixelStack.length) {
+
+			newPos = pixelStack.pop();
+			x = newPos[0];
+			y = newPos[1];
+
+			if (!doneObj[x + "," + y] && y > 0 && y < canvasHeight && x > 0 && x < canvasWidth) {
+				doneObj[x + "," + y] = true;
+				// Get current pixel position
+				var pixelPos = (y * canvasWidth + x) * 4;
+				cr = colorLayerData.data[pixelPos],
+					cg = colorLayerData.data[pixelPos + 1],
+					cb = colorLayerData.data[pixelPos + 2],
+					ca = colorLayerData.data[pixelPos + 3];
+				if (cr == r && cg == g && cb == b) {
+					colorPixel(pixelPos, curColor.r, curColor.g, curColor.b, curColor.a);
+					pixelStack.push([x + 1, y]);
+					pixelStack.push([x + 1, y + 1]);
+					pixelStack.push([x + 1, y - 1]);
+					pixelStack.push([x - 1, y]);
+					pixelStack.push([x - 1, y + 1]);
+					pixelStack.push([x - 1, y - 1]);
+					pixelStack.push([x, y - 1]);
+				}
+			}
+		}
+
+		colorPixel(pixelPos, curColor.r, curColor.g, curColor.b, curColor.a);
+
+		_this.ctx.putImageData(colorLayerData, 0, 0);
+
+		function colorPixel(pixelPos, r, g, b, a) {
+			colorLayerData.data[pixelPos] = r;
+			colorLayerData.data[pixelPos + 1] = g;
+			colorLayerData.data[pixelPos + 2] = b;
+			colorLayerData.data[pixelPos + 3] = a > 0 ? a : 255;
+		}
 	},
 	drawCircle: function (fromX, fromY, radius, color, thickness) {
 		var _this = this;
@@ -682,6 +746,8 @@ var whiteboard = {
 				_this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness);
 			} else if (tool === "rect") {
 				_this.drawRec(data[0], data[1], data[2], data[3], color, thickness);
+			} else if (tool === "fill") {
+				_this.fill(data[0], data[1], color);
 			} else if (tool === "circle") {
 				_this.drawCircle(data[0], data[1], data[2], color, thickness);
 			} else if (tool === "eraser") {
@@ -731,7 +797,7 @@ var whiteboard = {
 			}
 		});
 
-		if (isNewData && ["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
+		if (isNewData && ["line", "pen", "rect", "fill", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
 			content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;
 			content["username"] = content["username"] ? content["username"] : _this.settings.username;
 			_this.drawBuffer.push(content);
@@ -838,7 +904,7 @@ var whiteboard = {
 		if (_this.settings.sendFunction) {
 			_this.settings.sendFunction(content);
 		}
-		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
+		if (["line", "pen", "rect", "fill", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
 			_this.drawBuffer.push(content);
 		}
 	},
@@ -856,6 +922,17 @@ var whiteboard = {
 			this.mouseOverlay.css({ "cursor": "default" });
 		} else { //Line, Rec, Circle, Cutting
 			_this.mouseOverlay.css({ "cursor": "crosshair" });
+		}
+	},
+	getRGB(str) {
+		var arr = str.split(")")[0].split("(")[1].split(",");
+		var a = $.trim(arr[3]) > 0 ? $.trim(arr[3]) : 1;
+		a = Math.round(a * 255);
+		return {
+			r: $.trim(arr[0]),
+			g: $.trim(arr[1]),
+			b: $.trim(arr[2]),
+			a: a
 		}
 	}
 }

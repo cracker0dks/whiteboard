@@ -274,7 +274,8 @@ $(document).ready(function () {
 
     $('#whiteboardColorpicker').colorPicker({
         renderCallback: function (elm) {
-            whiteboard.setDrawColor(elm.val());
+            var color = elm.val() == "#000000" ? "#000001" : elm.val(); //Dont draw pure black to differentiate from background
+            whiteboard.setDrawColor(color);
         }
     });
 });

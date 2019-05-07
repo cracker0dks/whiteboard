@@ -52,9 +52,9 @@ Done!
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
 * You shoud be able to customize the layout without ever toutching the whiteboard.js (take a look at index.html & main.js)
 
-## All run parameters (also docker)
-* --accesstoken => take a look at "Security" for a full explanation
-* --disablesmallestscreen => can be set to "true" if you don't want show the "smallest screen" indicator (A dotted line) to the users
+## All server run parameters (also docker)
+* accesstoken => take a look at "Security - AccessToken" for a full explanation
+* disablesmallestscreen => set this to "true" if you don't want show the "smallest screen" indicator (A dotted gray line) to the users
 
 ## ToDo
 * Make undo function more reliable on texts

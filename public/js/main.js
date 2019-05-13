@@ -181,6 +181,21 @@ $(document).ready(function () {
         alert("Copied Whiteboard-URL to clipboard.")
     });
 
+    var btnsMini = false;
+    $("#minMaxBtn").click(function(){
+        if(!btnsMini) {
+            $("#toolbar").find(".btn-group:not(.minGroup)").hide();
+            $(this).find("#minBtn").hide();
+            $(this).find("#maxBtn").show();
+        } else {
+            $("#toolbar").find(".btn-group").show();
+            $(this).find("#minBtn").show();
+            $(this).find("#maxBtn").hide();
+        }
+        btnsMini = !btnsMini;
+
+    })
+
     // load json to whiteboard
     $("#myFile").on("change", function () {
         var file = document.getElementById("myFile").files[0];

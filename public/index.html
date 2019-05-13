@@ -26,7 +26,7 @@
 	<div style="height: 100vh; width: 100%;" id="whiteboardContainer"></div>
 
 	<!---Toolbar -!-->
-	<div style="position: absolute; top: 10px; left: 10px;">
+	<div id="toolbar" style="position: absolute; top: 10px; left: 10px;">
 		<div class="btn-group">
 			<button id="whiteboardTrashBtn" title="Clear the whiteboard" type="button" class="whiteboardBtn">
 				<i class="fa fa-trash"></i>
@@ -104,21 +104,27 @@
 				<i style="position: absolute; top: 3px; left: 2px; color: #000000; font-size: 0.5em; "
 					class="fas fa-upload"></i>
 			</button>
-			
+
 			<button style="position: relative;" id="uploadJsonBtn" title="Load saved JSON to whiteboard" type="button"
 				class="whiteboardBtn">
-				
+
 				<i class="far fa-file-alt"></i>
 				<i style="position: absolute; top: 3px; left: 2px; color: #000000; font-size: 0.5em; "
 					class="fas fa-upload"></i>
 			</button>
-			<input style="display:none;" id="myFile" type="file"/>
+			<input style="display:none;" id="myFile" type="file" />
 
 			<button id="shareWhiteboardBtn" title="share whiteboard" type="button">
 				<i class="fas fa-share-square"></i>
 			</button>
 		</div>
 
+		<div class="btn-group minGroup">
+			<button style="width: 25px;	padding: 11px 11px;" id="minMaxBtn" title="hide buttons" type="button">
+				<i id="minBtn" style="position:relative; left:-5px;" class="fas fa-angle-left"></i>
+				<i id="maxBtn" style="position:relative; left:-5px; display: none;" class="fas fa-angle-right"></i>
+			</button>
+		</div>
 </body>
 
 </html>

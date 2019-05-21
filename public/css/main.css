@@ -1,18 +1,30 @@
 .btn-group button {
     background: transparent;
-    border: 1px solid #636060; /* Green border */
-    color: black; /* White text */
-    padding: 11px 14px; /* Some padding */
-    cursor: pointer; /* Pointer/hand icon */
-    float: left; /* Float the buttons side by side */
-     font-size: 1.2em;
+    border: 1px solid #636060;
+    /* Green border */
+    color: black;
+    /* White text */
+    padding: 11px 14px;
+    /* Some padding */
+    cursor: pointer;
+    /* Pointer/hand icon */
+    float: left;
+    /* Float the buttons side by side */
+    font-size: 1.2em;
+    height: 45px;
+}
+
+button::-moz-focus-inner {
+    border: 0;
 }
 
 .btn-group button:not(:last-child) {
-    border-right: none; /* Prevent double borders */
+    border-right: none;
+    /* Prevent double borders */
 }
 
 /* Clear floats (clearfix hack) */
+
 .btn-group:after {
     content: "";
     clear: both;
@@ -20,6 +32,7 @@
 }
 
 /* Add a background color on hover */
+
 .btn-group button:hover {
     background-color: #9a9a9a;
 }
@@ -54,10 +67,11 @@ button {
 .textBox.active {
     border: 1px dashed gray;
 }
-.textBox>.removeIcon,.textBox>.moveIcon {
-    display:none;
+
+.textBox>.removeIcon, .textBox>.moveIcon {
+    display: none;
 }
 
-.textBox.active>.removeIcon,.textBox.active>.moveIcon {
-    display:block;
+.textBox.active>.removeIcon, .textBox.active>.moveIcon {
+    display: block;
 }

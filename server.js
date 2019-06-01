@@ -111,6 +111,8 @@ function progressUploadFormData(formData) {
                     console.log("error", err);
                 }
             });
+        } else {
+            console.log("No image Data found for this upload!", name);
         }
     });
 }

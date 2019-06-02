@@ -122,7 +122,9 @@ io.on('connection', function (socket) {
     var whiteboardId = null;
 
     socket.on('disconnect', function () {
-        delete smallestScreenResolutions[whiteboardId][socket.id];
+        if(smallestScreenResolutions && smallestScreenResolutions[whiteboardId] && socket && socket.id) {
+            delete smallestScreenResolutions[whiteboardId][socket.id];
+        }
         socket.broadcast.emit('refreshUserBadges', null); //Removes old user Badges
         sendSmallestScreenResolution();
     });

@@ -182,8 +182,8 @@ $(document).ready(function () {
     });
 
     var btnsMini = false;
-    $("#minMaxBtn").click(function(){
-        if(!btnsMini) {
+    $("#minMaxBtn").click(function () {
+        if (!btnsMini) {
             $("#toolbar").find(".btn-group:not(.minGroup)").hide();
             $(this).find("#minBtn").hide();
             $(this).find("#maxBtn").show();

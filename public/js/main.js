@@ -4,6 +4,7 @@ var myUsername = getQueryVariable("username");
 var accessToken = getQueryVariable("accesstoken");
 myUsername = myUsername || "unknown" + (Math.random() + "").substring(2, 6);
 accessToken = accessToken || "";
+var accessDenied = false;
 
 var url = document.URL.substr(0, document.URL.lastIndexOf('/'));
 var signaling_socket = null;
@@ -30,7 +31,10 @@ signaling_socket.on('connect', function () {
     });
 
     signaling_socket.on('wrongAccessToken', function () {
-        alert("Access denied! Wrong accessToken!")
+        if(!accessDenied) {
+            accessDenied = true;
+            showBasicAlert("Access denied! Wrong accessToken!")
+        }
     });
 
     signaling_socket.on('updateSmallestScreenResolution', function (widthHeight) {

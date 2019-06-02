@@ -125,7 +125,7 @@ $(document).ready(function () {
 
     // upload image button
     $("#addImgToCanvasBtn").click(function () {
-        alert("Please drag the image into the browser.");
+        showBasicAlert("Please drag the image into the browser.");
     });
 
     // save image as png
@@ -178,7 +178,7 @@ $(document).ready(function () {
         $("<textarea/>").appendTo("body").val(urlStart).select().each(function () {
             document.execCommand('copy');
         }).remove();
-        alert("Copied Whiteboard-URL to clipboard.")
+        showBasicAlert("Copied Whiteboard-URL to clipboard.")
     });
 
     var btnsMini = false;
@@ -205,7 +205,7 @@ $(document).ready(function () {
                 var j = JSON.parse(e.target.result);
                 whiteboard.loadJsonData(j);
             } catch (e) {
-                alert("File was not a valid JSON!");
+                showBasicAlert("File was not a valid JSON!");
             }
         };
         reader.readAsText(file);
@@ -355,10 +355,12 @@ function isValidImageUrl(url, callback) {
 window.addEventListener("paste", function (e) {
     if (e.clipboardData) {
         var items = e.clipboardData.items;
+        var imgItemFound = false;
         if (items) {
             // Loop through all items, looking for any kind of image
             for (var i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf("image") !== -1) {
+                    imgItemFound = true;
                     // We need to represent the image as a file,
                     var blob = items[i].getAsFile();
 
@@ -372,8 +374,26 @@ window.addEventListener("paste", function (e) {
                 }
             }
         }
+
+        if (!imgItemFound) {
+            showBasicAlert("Please Drag&Drop the file into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)");
+        }
     }
 });
+
+function showBasicAlert(text) {
+    var alertHtml = $('<div style="position:absolute; top:0px; left:0px; width:100%; top:70px; font-family: monospace;">' +
+        '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">'+
+        '<div style="border-bottom: 1px solid #676767; background: #d25d5d; padding-left: 5px; font-size: 0.8em;">INFO MESSAGE</div>'+
+        '<div style="padding: 10px;">' + text + '</div>'+
+        '<div style="height: 20px; padding: 10px;"><button style="float: right; padding: 5px; border-radius: 5px; border: 0px; min-width: 50px; cursor: pointer;">Ok</button></div>'+
+        '</div>' +
+        '</div>');
+    $("body").append(alertHtml);
+    alertHtml.find("button").click(function () {
+        alertHtml.remove();
+    })
+}
 
 // get 'GET' parameter by variable name
 function getQueryVariable(variable) {

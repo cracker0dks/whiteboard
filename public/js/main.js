@@ -244,7 +244,6 @@ $(document).ready(function () {
             if (e.originalEvent.dataTransfer.files.length) { //File from harddisc
                 e.preventDefault();
                 e.stopPropagation();
-
                 var filename = e.originalEvent.dataTransfer.files[0]["name"];
                 if (isImageFileName(filename)) {
                     var blob = e.originalEvent.dataTransfer.files[0];
@@ -255,9 +254,10 @@ $(document).ready(function () {
                         uploadImgAndAddToWhiteboard(base64data);
                     }
                 } else {
-                    console.error("File must be an image!");
+                    showBasicAlert("File must be an image!");
                 }
             } else { //File from other browser
+                
                 var fileUrl = e.originalEvent.dataTransfer.getData('URL');
                 var imageUrl = e.originalEvent.dataTransfer.getData('text/html');
                 var rex = /src="?([^"\s]+)"?\s*/;
@@ -274,13 +274,13 @@ $(document).ready(function () {
                     } else {
                         isValidImageUrl(url, function (isImage) {
                             if (isImage) {
-                                if (isImageFileName(url)) {
+                                if (isImageFileName(url) || url.startsWith("http")) {
                                     whiteboard.addImgToCanvasByUrl(url);
                                 } else {
-                                    uploadImgAndAddToWhiteboard(url);
+                                    uploadImgAndAddToWhiteboard(url); //Last option maybe its base64
                                 }
                             } else {
-                                console.error("Can only upload imagedata!");
+                                showBasicAlert("Can only upload Imagedata!");
                             }
                         });
                     }
@@ -325,7 +325,7 @@ function uploadImgAndAddToWhiteboard(base64data) {
             console.log("Image uploaded!");
         },
         error: function (err) {
-            console.error("Failed to upload frame: " + JSON.stringify(err));
+            showBasicAlert("Failed to upload frame: " + JSON.stringify(err));
         }
     });
 }

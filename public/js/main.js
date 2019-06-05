@@ -379,8 +379,8 @@ window.addEventListener("paste", function (e) {
             }
         }
 
-        if (!imgItemFound) {
-            showBasicAlert("Please Drag&Drop the file into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)");
+        if (!imgItemFound && whiteboard.tool!="text") {
+            showBasicAlert("Please Drag&Drop the image into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)");
         }
     }
 });

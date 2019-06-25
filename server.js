@@ -89,7 +89,7 @@ app.post('/upload', function (req, res) { //File upload
 
 function progressUploadFormData(formData) {
     console.log("Progress new Form Data");
-    var fields = formData.fields;
+    var fields = escapeAllContentStrings(formData.fields);
     var files = formData.files;
     var whiteboardId = fields["whiteboardId"];
 
@@ -122,7 +122,7 @@ io.on('connection', function (socket) {
     var whiteboardId = null;
 
     socket.on('disconnect', function () {
-        if(smallestScreenResolutions && smallestScreenResolutions[whiteboardId] && socket && socket.id) {
+        if (smallestScreenResolutions && smallestScreenResolutions[whiteboardId] && socket && socket.id) {
             delete smallestScreenResolutions[whiteboardId][socket.id];
         }
         socket.broadcast.emit('refreshUserBadges', null); //Removes old user Badges

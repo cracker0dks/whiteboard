@@ -1,7 +1,7 @@
 var PORT = 8080; //Set port for the app
 var accessToken = ""; //Can be set here or as start parameter (node server.js --accesstoken=MYTOKEN)
 var disableSmallestScreen = false; //Can be set to true if you dont want to show (node server.js --disablesmallestscreen=true)
-var enableWebDavSave = false; //Can be set to true if you want to allow webdav save (node server.js --webdavsave=true)
+var webdav = false; //Can be set to true if you want to allow webdav save (node server.js --webdav=true)
 
 var fs = require("fs-extra");
 var express = require('express');
@@ -29,8 +29,8 @@ if (process.env.accesstoken) {
 if (process.env.disablesmallestscreen) {
     disablesmallestscreen = true;
 }
-if (process.env.webdavsave) {
-    enableWebDavSave = true;
+if (process.env.webdav) {
+    webdav = true;
 }
 
 var startArgs = getArgs();
@@ -40,8 +40,8 @@ if (startArgs["accesstoken"]) {
 if (startArgs["disablesmallestscreen"]) {
     disableSmallestScreen = true;
 }
-if (startArgs["webdavsave"]) {
-    enableWebDavSave = true;
+if (startArgs["webdav"]) {
+    webdav = true;
 }
 
 if (accessToken !== "") {
@@ -49,6 +49,9 @@ if (accessToken !== "") {
 }
 if (disableSmallestScreen) {
     console.log("Disabled showing smallest screen resolution!");
+}
+if (webdav) {
+    consolewebDav.log("Webdav save is enabled!");
 }
 
 app.get('/loadwhiteboard', function (req, res) {
@@ -136,7 +139,7 @@ function progressUploadFormData(formData, callback) {
                     callback(err);
                 } else {
                     if (webdavaccess) { //Save image to webdav
-                        if (enableWebDavSave) {
+                        if (webdav) {
                             saveImageToWebdav('./public/uploads/' + filename, filename, webdavaccess, function (err) {
                                 if (err) {
                                     console.log("error", err);

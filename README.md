@@ -38,13 +38,28 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 ## Security - AccessToken (Optional)
 To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start.
 
-<b>Without docker:</b> `node server.js --accesstoken="mySecToken"`
+<b>Server (Without docker):</b> `node server.js --accesstoken="mySecToken"`
 
-<b>With docker:</b> `docker run -d -e accesstoken="mySecToken" -p 8080:8080 rofl256/whiteboard`
+<b>Server (With docker):</b> `docker run -d -e accesstoken="mySecToken" -p 8080:8080 rofl256/whiteboard`
 
-Then set the same token on the client side as well.
+Then set the same token on the client side as well:
 
 <b>Client (With and without docker):</b> `http://YOURIP:8080?accesstoken=mySecToken&whiteboardid=MYID&username=MYNAME`
+
+Done!
+
+## WebDAV (Optional)
+This function allow your users to save the whiteboard directly to a webdav server as image.
+
+<b>Server (Without docker):</b> `node server.js --webdav=true`
+
+<b>Server (With docker):</b> `docker run -d -e webdav=true -p 8080:8080 rofl256/whiteboard`
+
+Then set the same parameter on the client side as well:
+
+<b>Client (With and without docker):</b> `http://YOURIP:8080?webdav=true&whiteboardid=MYID&username=MYNAME`
+
+Refresh the site and You will notice an extra save button in the top panel.
 
 Done!
 
@@ -55,10 +70,10 @@ Done!
 ## All server run parameters (also docker)
 * accesstoken => take a look at "Security - AccessToken" for a full explanation
 * disablesmallestscreen => set this to "true" if you don't want show the "smallest screen" indicator (A dotted gray line) to the users
+* webdav => Enable the function to save to a webdav-server (Must also be enabled on the client; Take a look at the webdav section)
 
 ## ToDo
 * Make undo function more reliable on texts
-* Add more callbacks for errors and things ...
 
 ## Nginx Reverse Proxy configuration
 Add this to your server part:

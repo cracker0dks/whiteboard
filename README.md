@@ -49,7 +49,7 @@ Then set the same token on the client side as well:
 Done!
 
 ## WebDAV (Optional)
-This function allow your users to save the whiteboard directly to a webdav server as image.
+This function allows your users to save the whiteboard directly to a webdav server as image without downloading it.
 
 <b>Server (Without docker):</b> `node server.js --webdav=true`
 
@@ -59,9 +59,12 @@ Then set the same parameter on the client side as well:
 
 <b>Client (With and without docker):</b> `http://YOURIP:8080?webdav=true&whiteboardid=MYID&username=MYNAME`
 
-Refresh the site and You will notice an extra save button in the top panel.
+Refresh the site and You will notice an extra save button in the top panel. Set your WebDav Parameters, and you are good to go!
+
+Note: For the most owncloud/nextcloud setups you have to set the Server URL to: https://YourDomain.tl/remote.php/webdav/
 
 Done!
+
 
 ## Things you may want to know
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)

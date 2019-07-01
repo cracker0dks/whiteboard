@@ -51,7 +51,7 @@ if (disableSmallestScreen) {
     console.log("Disabled showing smallest screen resolution!");
 }
 if (webdav) {
-    consolewebDav.log("Webdav save is enabled!");
+    console.log("Webdav save is enabled!");
 }
 
 app.get('/loadwhiteboard', function (req, res) {

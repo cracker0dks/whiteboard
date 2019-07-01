@@ -180,7 +180,7 @@ $(document).ready(function () {
         var webDavHtml = $('<div>' +
             '<table>' +
             '<tr>' +
-            '<td>Webdav-Server:</td>' +
+            '<td>Server URL:</td>' +
             '<td><input class="webdavserver" type="text" value="'+webdavserver+'" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
             '<td></td>' +
             '</tr>' +

@@ -64,7 +64,7 @@ Then set the same parameter on the client side as well:
 
 Refresh the site and You will notice an extra save button in the top panel. Set your WebDav Parameters, and you are good to go!
 
-Note: For the most owncloud/nextcloud setups you have to set the Server URL to: https://YourDomain.tl/remote.php/webdav/ ; With 2FA Activated You have to create a app password in your nextcloud.
+Note: For the most owncloud/nextcloud setups you have to set the WebDav-Server URL to: https://YourDomain.tl/remote.php/webdav/
 
 Done!
 

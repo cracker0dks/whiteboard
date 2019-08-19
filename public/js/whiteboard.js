@@ -298,12 +298,9 @@ var whiteboard = {
 				imgDiv.find(".addToCanvasBtn").click(function () {
 					_this.imgDragActive = false;
 					_this.refreshCursorAppearance();
-					var widthT = imgDiv.width();
-					var heightT = imgDiv.height();
 					var p = imgDiv.position();
 					var leftT = Math.round(p.left * 100) / 100;
 					var topT = Math.round(p.top * 100) / 100;
-					//xf, yf, xt, yt, width, height
 					_this.drawId++;
 					_this.sendFunction({ "t": _this.tool, "d": [left, top, leftT, topT, width, height] });
 					_this.dragCanvasRectContent(left, top, leftT, topT, width, height);
@@ -774,7 +771,6 @@ var whiteboard = {
 			var left = Math.round(p.left * 100) / 100;
 			var top = Math.round(p.top * 100) / 100;
 			top += 25; //Fix top position
-			console.log(text, fontSize, fontColor, left, top)
 			ctx.font = fontSize + " monospace";
 			ctx.fillStyle = fontColor;
 			ctx.fillText(text, left, top);
@@ -801,7 +797,7 @@ var whiteboard = {
 			}
 		});
 	},
-	loadDataInSteps(content, isNewData, callAfterEveryStep, doneCallback) {
+	loadDataInSteps(content, isNewData, callAfterEveryStep) {
 		var _this = this;
 		function lData(index) {
 			for (var i = index; i < content.length; i++) {
@@ -819,12 +815,15 @@ var whiteboard = {
 		}
 		lData(0);
 	},
-	loadJsonData(content) {
+	loadJsonData(content, doneCallback) {
 		var _this = this;
 		_this.loadDataInSteps(content, false, function (stepData, index) {
 			_this.sendFunction(stepData);
 			if (index >= content.length - 1) { //Done with all data
 				_this.drawId++;
+				if(doneCallback) {
+					doneCallback();
+				}
 			}
 		});
 	},
@@ -841,12 +840,6 @@ var whiteboard = {
 		if (["line", "pen", "rect", "circle", "eraser", "addImgBG", "recSelect", "eraseRec", "addTextBox", "setTextboxText", "removeTextbox", "setTextboxPosition", "setTextboxFontSize", "setTextboxFontColor"].includes(tool)) {
 			_this.drawBuffer.push(content);
 		}
-	},
-	isRecRecCollision: function (rx1, ry1, rw1, rh1, rx2, ry2, rw2, rh2) {
-		return rx1 < rx2 + rw2 && rx1 + rw1 > rx2 && ry1 < ry2 + rh2 && rh1 + ry1 > ry2;
-	},
-	isRecPointCollision: function (rx, ry, rw, rh, px, py) {
-		return rx <= px && px <= rx + rw && ry <= py && py <= ry + rh;
 	},
 	refreshCursorAppearance() { //Set cursor depending on current active tool
 		var _this = this;

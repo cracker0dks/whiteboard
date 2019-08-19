@@ -31,7 +31,7 @@ signaling_socket.on('connect', function () {
     });
 
     signaling_socket.on('wrongAccessToken', function () {
-        if(!accessDenied) {
+        if (!accessDenied) {
             accessDenied = true;
             showBasicAlert("Access denied! Wrong accessToken!")
         }
@@ -45,6 +45,10 @@ signaling_socket.on('connect', function () {
 });
 
 $(document).ready(function () {
+    if (getQueryVariable("webdav") == "true") {
+        $("#uploadWebDavBtn").show();
+    }
+
     whiteboard.loadWhiteboard("#whiteboardContainer", { //Load the whiteboard
         whiteboardId: whiteboardId,
         username: myUsername,
@@ -164,6 +168,80 @@ $(document).ready(function () {
         }, 0);
     });
 
+    $("#uploadWebDavBtn").click(function () {
+        if ($(".webdavUploadBtn").length > 0) {
+            return;
+        }
+        
+        var webdavserver = localStorage.getItem('webdavserver') || ""
+        var webdavpath = localStorage.getItem('webdavpath') || "/"
+        var webdavusername = localStorage.getItem('webdavusername') || ""
+        var webdavpassword =localStorage.getItem('webdavpassword') || ""
+        var webDavHtml = $('<div>' +
+            '<table>' +
+            '<tr>' +
+            '<td>Server URL:</td>' +
+            '<td><input class="webdavserver" type="text" value="'+webdavserver+'" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
+            '<td></td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Path:</td>' +
+            '<td><input class="webdavpath" type="text" placeholder="folder" value="'+webdavpath+'"></td>' +
+            '<td style="font-size: 0.7em;"><i>path always have to start & end with "/"</i></td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Username:</td>' +
+            '<td><input class="webdavusername" type="text" value="'+webdavusername+'" placeholder="username"></td>' +
+            '<td style="font-size: 0.7em;"></td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Password:</td>' +
+            '<td><input class="webdavpassword" type="password" value="'+webdavpassword+'" placeholder="password"></td>' +
+            '<td style="font-size: 0.7em;"></td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td style="font-size: 0.7em;" colspan="3">Note: You have to generate and use app credentials if you have 2 Factor Auth activated on your dav/nextcloud server!</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td></td>' +
+            '<td colspan="2"><span class="loadingWebdavText" style="display:none;">Saving to webdav, please wait...</span><button class="modalBtn webdavUploadBtn"><i class="fas fa-upload"></i> Start Upload</button></td>' +
+            '</tr>' +
+            '</table>' +
+            '</div>');
+        webDavHtml.find(".webdavUploadBtn").click(function () {
+            var webdavserver = webDavHtml.find(".webdavserver").val();
+            localStorage.setItem('webdavserver', webdavserver);
+            var webdavpath = webDavHtml.find(".webdavpath").val();
+            localStorage.setItem('webdavpath', webdavpath);
+            var webdavusername = webDavHtml.find(".webdavusername").val();
+            localStorage.setItem('webdavusername', webdavusername);
+            var webdavpassword = webDavHtml.find(".webdavpassword").val();
+            localStorage.setItem('webdavpassword', webdavpassword);
+            var base64data = whiteboard.getImageDataBase64();
+            var webdavaccess = {
+                webdavserver: webdavserver,
+                webdavpath: webdavpath,
+                webdavusername: webdavusername,
+                webdavpassword: webdavpassword
+            }
+            webDavHtml.find(".loadingWebdavText").show();
+            webDavHtml.find(".webdavUploadBtn").hide();
+            saveWhiteboardToWebdav(base64data, webdavaccess, function (err) {
+                if (err) {
+                    webDavHtml.find(".loadingWebdavText").hide();
+                    webDavHtml.find(".webdavUploadBtn").show();
+                } else {
+                    webDavHtml.parents(".basicalert").remove();
+                }
+            });
+        })
+        showBasicAlert(webDavHtml, {
+            header: "Save to Webdav",
+            okBtnText: "cancel",
+            headercolor: "#0082c9"
+        })
+    });
+
     // upload json containing steps
     $("#uploadJsonBtn").click(function () {
         $("#myFile").click();
@@ -257,7 +335,7 @@ $(document).ready(function () {
                     showBasicAlert("File must be an image!");
                 }
             } else { //File from other browser
-                
+
                 var fileUrl = e.originalEvent.dataTransfer.getData('URL');
                 var imageUrl = e.originalEvent.dataTransfer.getData('text/html');
                 var rex = /src="?([^"\s]+)"?\s*/;
@@ -330,6 +408,36 @@ function uploadImgAndAddToWhiteboard(base64data) {
     });
 }
 
+function saveWhiteboardToWebdav(base64data, webdavaccess, callback) {
+    var date = (+new Date());
+    $.ajax({
+        type: 'POST',
+        url: document.URL.substr(0, document.URL.lastIndexOf('/')) + '/upload',
+        data: {
+            'imagedata': base64data,
+            'whiteboardId': whiteboardId,
+            'date': date,
+            'at': accessToken,
+            'webdavaccess': JSON.stringify(webdavaccess)
+        },
+        success: function (msg) {
+            showBasicAlert("Whiteboard was saved to Webdav!", {
+                headercolor: "#5c9e5c"
+            });
+            console.log("Image uploaded for webdav!");
+            callback();
+        },
+        error: function (err) {
+            if (err.status == 403) {
+                showBasicAlert("Could not connect to Webdav folder! Please check the credentials and paths and try again!");
+            } else {
+                showBasicAlert("Unknown Webdav error! ", err);
+            }
+            callback(err);
+        }
+    });
+}
+
 // verify if filename refers to an image
 function isImageFileName(filename) {
     var extension = filename.split(".")[filename.split(".").length - 1];
@@ -357,6 +465,9 @@ function isValidImageUrl(url, callback) {
 
 // handle pasting from clipboard
 window.addEventListener("paste", function (e) {
+    if($(".basicalert").length>0) {
+        return;
+    }
     if (e.clipboardData) {
         var items = e.clipboardData.items;
         var imgItemFound = false;
@@ -379,22 +490,33 @@ window.addEventListener("paste", function (e) {
             }
         }
 
-        if (!imgItemFound && whiteboard.tool!="text") {
+        if (!imgItemFound && whiteboard.tool != "text") {
             showBasicAlert("Please Drag&Drop the image into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)");
         }
     }
 });
 
-function showBasicAlert(text) {
-    var alertHtml = $('<div style="position:absolute; top:0px; left:0px; width:100%; top:70px; font-family: monospace;">' +
-        '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">'+
-        '<div style="border-bottom: 1px solid #676767; background: #d25d5d; padding-left: 5px; font-size: 0.8em;">INFO MESSAGE</div>'+
-        '<div style="padding: 10px;">' + text + '</div>'+
-        '<div style="height: 20px; padding: 10px;"><button style="float: right; padding: 5px; border-radius: 5px; border: 0px; min-width: 50px; cursor: pointer;">Ok</button></div>'+
+function showBasicAlert(html, newOptions) {
+    var options = {
+        header: "INFO MESSAGE",
+        okBtnText: "Ok",
+        headercolor: "#d25d5d"
+    }
+    if (newOptions) {
+        for (var i in newOptions) {
+            options[i] = newOptions[i];
+        }
+    }
+    var alertHtml = $('<div class="basicalert" style="position:absolute; top:0px; left:0px; width:100%; top:70px; font-family: monospace;">' +
+        '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">' +
+        '<div style="border-bottom: 1px solid #676767; background: ' + options["headercolor"] + '; padding-left: 5px; font-size: 0.8em;">' + options["header"] + '</div>' +
+        '<div style="padding: 10px;" class="htmlcontent"></div>' +
+        '<div style="height: 20px; padding: 10px;"><button class="modalBtn okbtn" style="float: right;">' + options["okBtnText"] + '</button></div>' +
         '</div>' +
         '</div>');
+    alertHtml.find(".htmlcontent").append(html);
     $("body").append(alertHtml);
-    alertHtml.find("button").click(function () {
+    alertHtml.find(".okbtn").click(function () {
         alertHtml.remove();
     })
 }

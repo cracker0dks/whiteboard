@@ -75,3 +75,11 @@ button {
 .textBox.active>.removeIcon, .textBox.active>.moveIcon {
     display: block;
 }
+
+.modalBtn {
+    padding: 5px;
+    border-radius: 5px;
+    border: 0px;
+    min-width: 50px;
+    cursor: pointer;
+}

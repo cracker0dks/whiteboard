@@ -6,6 +6,7 @@ var whiteboard = {
 	thickness: 4,
 	prevX: null,
 	prevY: null,
+	latestTouchCoods: [],
 	drawFlag: false,
 	oldGCO: null,
 	mouseover: false,
@@ -43,7 +44,6 @@ var whiteboard = {
 		var svgLine = null;
 		var svgRect = null;
 		var svgCirle = null;
-		var latestTouchCoods = null;
 		//background grid (repeating image) and smallest screen indication
 		_this.backgroundGrid = $('<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url(\'' + _this.settings["backgroundGridUrl"] + '\'); height: 100%; width: 100%;"></div>');
 		// container for background images
@@ -76,16 +76,17 @@ var whiteboard = {
 		this.oldGCO = this.ctx.globalCompositeOperation;
 
 		$(_this.mouseOverlay).on("mousedown touchstart", function (e) {
-			if (_this.imgDragActive) {
+			if (_this.imgDragActive || _this.drawFlag) {
 				return;
 			}
+			
 			_this.drawFlag = true;
-			_this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left)+1;
-			_this.prevY = (e.offsetY || e.pageY - $(e.target).offset().top)+1;
-			if (!_this.prevX || !_this.prevY) {
+			_this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left) + 1;
+			_this.prevY = (e.offsetY || e.pageY - $(e.target).offset().top) + 1;
+			if (!_this.prevX || !_this.prevY || (_this.prevX == 1 && _this.prevY == 1)) {
 				var touche = e.touches[0];
-				_this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left+1;
-				_this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top+1;
+				_this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left + 1;
+				_this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top + 1;
 				latestTouchCoods = [_this.prevX, _this.prevY];
 			}
 
@@ -132,6 +133,7 @@ var whiteboard = {
 
 		_this.textContainer.on("mousemove touchmove", function (e) {
 			e.preventDefault();
+			
 			if (_this.imgDragActive || !$(e.target).hasClass("textcontainer")) {
 				return;
 			}
@@ -153,8 +155,8 @@ var whiteboard = {
 					var touche = e.touches[0];
 					currX = touche.clientX - $(_this.mouseOverlay).offset().left;
 					currY = touche.clientY - $(_this.mouseOverlay).offset().top;
-					latestTouchCoods = [currX, currY];
 				}
+				_this.latestTouchCoods = [currX, currY];
 
 				if (_this.drawFlag) {
 					if (_this.tool === "pen") {
@@ -171,11 +173,11 @@ var whiteboard = {
 				if (_this.tool === "eraser") {
 					var left = currX - _this.thickness;
 					var top = currY - _this.thickness;
-					_this.ownCursor.css({ "top": top + "px", "left": left + "px" });
+					if(_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
 				} else if (_this.tool === "pen") {
 					var left = currX - _this.thickness / 2;
 					var top = currY - _this.thickness / 2;
-					_this.ownCursor.css({ "top": top + "px", "left": left + "px" });
+					if(_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
 				} else if (_this.tool === "line") {
 					if (svgLine) {
 						if (_this.pressedKeys.shift) {
@@ -227,9 +229,10 @@ var whiteboard = {
 			_this.ctx.globalCompositeOperation = _this.oldGCO;
 			var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
 			var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-			if ((!currX || !currY) && e.touches[0]) {
-				currX = latestTouchCoods[0];
-				currY = latestTouchCoods[1];
+
+			if (!currX || !currY) {
+				currX = _this.latestTouchCoods[0];
+				currY = _this.latestTouchCoods[1];
 				_this.sendFunction({ "t": "cursor", "event": "out", "username": _this.settings.username });
 			}
 
@@ -319,7 +322,7 @@ var whiteboard = {
 			_this.drawFlag = false;
 			_this.mouseover = false;
 			_this.ctx.globalCompositeOperation = _this.oldGCO;
-			_this.ownCursor.remove();
+			if(_this.ownCursor) _this.ownCursor.remove();
 			_this.svgContainer.find("line").remove();
 			_this.svgContainer.find("rect").remove();
 			_this.svgContainer.find("circle").remove();
@@ -821,7 +824,7 @@ var whiteboard = {
 			_this.sendFunction(stepData);
 			if (index >= content.length - 1) { //Done with all data
 				_this.drawId++;
-				if(doneCallback) {
+				if (doneCallback) {
 					doneCallback();
 				}
 			}

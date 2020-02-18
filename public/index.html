@@ -5,7 +5,8 @@
 	<title>Whiteboard</title>
 
 	<!--- Set width for Mobile Devices -!-->
-	<meta name="viewport" content="width=1200" />
+	
+	
 
 	<!--- JS References -!-->
 	<script type="text/javascript" src="./js/jquery-3.2.1.min.js"></script>
@@ -22,6 +23,15 @@
 	<link rel="stylesheet" href="./css/jquery-ui.min.css">
 	<link href="./css/main.css" rel="stylesheet">
 
+	<script>
+		//Set correct width height on mobile browsers
+		var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+		if(isChrome) {
+			$('head').append('<meta name="viewport" content="width=device-width, initial-scale=0.52, maximum-scale=1" />');
+		} else {
+			$('head').append('<meta name="viewport" content="width=1400" />');
+		}
+	</script>
 </head>
 
 <body style="position: relative; margin: 0px; height: 100vh; height: calc(var(--vh, 1vh) * 100); width: 100%;  overflow: hidden;">

@@ -80,12 +80,12 @@ var whiteboard = {
 				return;
 			}
 			_this.drawFlag = true;
-			_this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left);
-			_this.prevY = (e.offsetY || e.pageY - $(e.target).offset().top);
+			_this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left)+1;
+			_this.prevY = (e.offsetY || e.pageY - $(e.target).offset().top)+1;
 			if (!_this.prevX || !_this.prevY) {
 				var touche = e.touches[0];
-				_this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left;
-				_this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top;
+				_this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left+1;
+				_this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top+1;
 				latestTouchCoods = [_this.prevX, _this.prevY];
 			}
 
@@ -102,8 +102,8 @@ var whiteboard = {
 				svgLine.setAttribute('stroke-dasharray', '5, 5');
 				svgLine.setAttribute('x1', _this.prevX);
 				svgLine.setAttribute('y1', _this.prevY);
-				svgLine.setAttribute('x2', _this.prevX + 1);
-				svgLine.setAttribute('y2', _this.prevY + 1);
+				svgLine.setAttribute('x2', _this.prevX);
+				svgLine.setAttribute('y2', _this.prevY);
 				_this.svgContainer.append(svgLine);
 			} else if (_this.tool === "rect" || _this.tool === "recSelect") {
 				_this.svgContainer.find("rect").remove();

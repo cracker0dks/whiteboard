@@ -4,6 +4,8 @@
 <head>
 	<title>Whiteboard</title>
 
+	<meta name="viewport" content="width=device-width, initial-scale=0.41, maximum-scale=1" />
+
 	<!--- JS References -!-->
 	<script type="text/javascript" src="./js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="./js/jquery-ui.min.js"></script>
@@ -21,9 +23,9 @@
 
 </head>
 
-<body style="position: relative; margin: 0px; height: 100vh; width: 100%; overflow: hidden;">
+<body style="position: relative; margin: 0px; height: 100vh; height: calc(var(--vh, 1vh) * 100); width: 100%;  overflow: hidden;">
 	<!---Whiteboard container -!-->
-	<div style="height: 100vh; width: 100%;" id="whiteboardContainer"></div>
+	<div style="height: 100vh; height: calc(var(--vh, 1vh) * 100); width: 100%;" id="whiteboardContainer"></div>
 
 	<!---Toolbar -!-->
 	<div id="toolbar" style="position: absolute; top: 10px; left: 10px;">

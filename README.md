@@ -3,6 +3,9 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 
 ![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/start.png)
 
+## Demowhiteboard ##
+[HERE](https://cloud13.de/testwhiteboard/) (Resets every night)
+
 ## Some Features
 * Shows remote user cursors while drawing
 * Undo function for each user (strg+z)

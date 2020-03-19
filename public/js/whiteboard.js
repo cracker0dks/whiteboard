@@ -27,8 +27,6 @@ var whiteboard = {
 		whiteboardId: "0",
 		username: "unknown",
 		sendFunction: null,
-		canvasWidth: 3000,
-		canvasHeight: 2000,
 		backgroundGridUrl: './images/KtEBa2.png'
 	},
 	loadWhiteboard: function (whiteboardContainer, newSettings) {
@@ -51,7 +49,7 @@ var whiteboard = {
 		// whiteboard canvas
 		_this.canvasElement = $('<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0; cursor:crosshair;"></canvas>');
 		// SVG container holding drawing or moving previews
-		_this.svgContainer = $('<svg style="position: absolute; top:0px; left:0px;" width="' + _this.settings.canvasWidth + '" height="' + _this.settings.canvasHeight + '"></svg>');
+		_this.svgContainer = $('<svg style="position: absolute; top:0px; left:0px;" width="100%" height="100%"></svg>');
 		// drag and drop indicator, hidden by default
 		_this.dropIndicator = $('<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="far fa-plus-square" aria-hidden="true"></i></div>')
 		// container for other users cursors
@@ -70,16 +68,24 @@ var whiteboard = {
 			.append(_this.textContainer)
 			.append(_this.mouseOverlay);
 		this.canvas = $("#whiteboardCanvas")[0];
-		this.canvas.height = _this.settings.canvasHeight;
-		this.canvas.width = _this.settings.canvasWidth;
+		this.canvas.height = $(window).height();
+		this.canvas.width = $(window).width();
 		this.ctx = this.canvas.getContext("2d");
 		this.oldGCO = this.ctx.globalCompositeOperation;
+
+		$(window).resize(function () { //Handel resize
+			var dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); //Copy the buffer
+			_this.canvas.width = $(window).width();
+			_this.canvas.height = $(window).height(); //Set new canvas height
+			_this.drawBuffer = [];
+			_this.loadData(dbCp); //draw old content in
+		});
 
 		$(_this.mouseOverlay).on("mousedown touchstart", function (e) {
 			if (_this.imgDragActive || _this.drawFlag) {
 				return;
 			}
-			
+
 			_this.drawFlag = true;
 			_this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left) + 1;
 			_this.prevY = (e.offsetY || e.pageY - $(e.target).offset().top) + 1;
@@ -133,7 +139,7 @@ var whiteboard = {
 
 		_this.textContainer.on("mousemove touchmove", function (e) {
 			e.preventDefault();
-			
+
 			if (_this.imgDragActive || !$(e.target).hasClass("textcontainer")) {
 				return;
 			}
@@ -173,11 +179,11 @@ var whiteboard = {
 				if (_this.tool === "eraser") {
 					var left = currX - _this.thickness;
 					var top = currY - _this.thickness;
-					if(_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
+					if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
 				} else if (_this.tool === "pen") {
 					var left = currX - _this.thickness / 2;
 					var top = currY - _this.thickness / 2;
-					if(_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
+					if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
 				} else if (_this.tool === "line") {
 					if (svgLine) {
 						if (_this.pressedKeys.shift) {
@@ -322,7 +328,7 @@ var whiteboard = {
 			_this.drawFlag = false;
 			_this.mouseover = false;
 			_this.ctx.globalCompositeOperation = _this.oldGCO;
-			if(_this.ownCursor) _this.ownCursor.remove();
+			if (_this.ownCursor) _this.ownCursor.remove();
 			_this.svgContainer.find("line").remove();
 			_this.svgContainer.find("rect").remove();
 			_this.svgContainer.find("circle").remove();

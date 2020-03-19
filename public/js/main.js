@@ -102,14 +102,17 @@ $(document).ready(function () {
     // whiteboard clear button
     $("#whiteboardTrashBtn").click(function () {
         $("#whiteboardTrashBtnConfirm").show().focus();
+        $(this).css({visibility: "hidden"});
     });
 
-    $("#whiteboardTrashBtnConfirm").focusout(function () {
+    $("#whiteboardTrashBtnConfirm").mouseout(function () {
         $(this).hide();
+        $("#whiteboardTrashBtn").css({visibility: "inherit"});
     });
 
     $("#whiteboardTrashBtnConfirm").click(function () {
         $(this).hide();
+        $("#whiteboardTrashBtn").css({visibility: "inherit"});
         whiteboard.clearWhiteboard();
     });
 

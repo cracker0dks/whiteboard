@@ -1,3 +1,16 @@
+body {
+    position: relative;
+    margin: 0px;
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100%;
+    overflow: hidden;
+}
+
+#whiteboardContainer {
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100%;
+}
+
 .btn-group button {
     background: transparent;
     border: 1px solid #636060;

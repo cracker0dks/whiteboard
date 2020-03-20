@@ -48,10 +48,10 @@ $(document).ready(function () {
     if (getQueryVariable("webdav") == "true") {
         $("#uploadWebDavBtn").show();
     }
-
+    console.log(myUsername)
     whiteboard.loadWhiteboard("#whiteboardContainer", { //Load the whiteboard
         whiteboardId: whiteboardId,
-        username: myUsername,
+        username: btoa(myUsername),
         sendFunction: function (content) {
             content["at"] = accessToken;
             signaling_socket.emit('drawToWhiteboard', content);
@@ -102,17 +102,17 @@ $(document).ready(function () {
     // whiteboard clear button
     $("#whiteboardTrashBtn").click(function () {
         $("#whiteboardTrashBtnConfirm").show().focus();
-        $(this).css({visibility: "hidden"});
+        $(this).css({ visibility: "hidden" });
     });
 
     $("#whiteboardTrashBtnConfirm").mouseout(function () {
         $(this).hide();
-        $("#whiteboardTrashBtn").css({visibility: "inherit"});
+        $("#whiteboardTrashBtn").css({ visibility: "inherit" });
     });
 
     $("#whiteboardTrashBtnConfirm").click(function () {
         $(this).hide();
-        $("#whiteboardTrashBtn").css({visibility: "inherit"});
+        $("#whiteboardTrashBtn").css({ visibility: "inherit" });
         whiteboard.clearWhiteboard();
     });
 
@@ -175,31 +175,31 @@ $(document).ready(function () {
         if ($(".webdavUploadBtn").length > 0) {
             return;
         }
-        
+
         var webdavserver = localStorage.getItem('webdavserver') || ""
         var webdavpath = localStorage.getItem('webdavpath') || "/"
         var webdavusername = localStorage.getItem('webdavusername') || ""
-        var webdavpassword =localStorage.getItem('webdavpassword') || ""
+        var webdavpassword = localStorage.getItem('webdavpassword') || ""
         var webDavHtml = $('<div>' +
             '<table>' +
             '<tr>' +
             '<td>Server URL:</td>' +
-            '<td><input class="webdavserver" type="text" value="'+webdavserver+'" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
+            '<td><input class="webdavserver" type="text" value="' + webdavserver + '" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
             '<td></td>' +
             '</tr>' +
             '<tr>' +
             '<td>Path:</td>' +
-            '<td><input class="webdavpath" type="text" placeholder="folder" value="'+webdavpath+'"></td>' +
+            '<td><input class="webdavpath" type="text" placeholder="folder" value="' + webdavpath + '"></td>' +
             '<td style="font-size: 0.7em;"><i>path always have to start & end with "/"</i></td>' +
             '</tr>' +
             '<tr>' +
             '<td>Username:</td>' +
-            '<td><input class="webdavusername" type="text" value="'+webdavusername+'" placeholder="username"></td>' +
+            '<td><input class="webdavusername" type="text" value="' + webdavusername + '" placeholder="username"></td>' +
             '<td style="font-size: 0.7em;"></td>' +
             '</tr>' +
             '<tr>' +
             '<td>Password:</td>' +
-            '<td><input class="webdavpassword" type="password" value="'+webdavpassword+'" placeholder="password"></td>' +
+            '<td><input class="webdavpassword" type="password" value="' + webdavpassword + '" placeholder="password"></td>' +
             '<td style="font-size: 0.7em;"></td>' +
             '</tr>' +
             '<tr>' +
@@ -468,7 +468,7 @@ function isValidImageUrl(url, callback) {
 
 // handle pasting from clipboard
 window.addEventListener("paste", function (e) {
-    if($(".basicalert").length>0) {
+    if ($(".basicalert").length > 0) {
         return;
     }
     if (e.clipboardData) {

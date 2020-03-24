@@ -18,6 +18,10 @@ var whiteboard = {
     svgContainer: null, //For draw prev
     mouseOverlay: null,
     ownCursor: null,
+    startCoords: [],
+    svgLine: null,
+    svgRect: null,
+    svgCirle: null,
     drawBuffer: [],
     drawId: 0, //Used for undo function
     imgDragActive: false,
@@ -38,10 +42,6 @@ var whiteboard = {
         this.settings["username"] = this.settings["username"].replace(/[^0-9a-z]/gi, '');
         this.settings["whiteboardId"] = this.settings["whiteboardId"].replace(/[^0-9a-z]/gi, '');
 
-        var startCoords = [];
-        var svgLine = null;
-        var svgRect = null;
-        var svgCirle = null;
         //background grid (repeating image) and smallest screen indication
         _this.backgroundGrid = $('<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url(\'' + _this.settings["backgroundGridUrl"] + '\'); height: 100%; width: 100%;"></div>');
         // container for background images
@@ -103,37 +103,37 @@ var whiteboard = {
                 _this.drawEraserLine(_this.prevX, _this.prevY, _this.prevX, _this.prevY, _this.thickness);
                 _this.sendFunction({ "t": _this.tool, "d": [_this.prevX, _this.prevY, _this.prevX, _this.prevY], "th": _this.thickness });
             } else if (_this.tool === "line") {
-                startCoords = [_this.prevX, _this.prevY];
-                svgLine = document.createElementNS(svgns, 'line');
-                svgLine.setAttribute('stroke', 'gray');
-                svgLine.setAttribute('stroke-dasharray', '5, 5');
-                svgLine.setAttribute('x1', _this.prevX);
-                svgLine.setAttribute('y1', _this.prevY);
-                svgLine.setAttribute('x2', _this.prevX);
-                svgLine.setAttribute('y2', _this.prevY);
-                _this.svgContainer.append(svgLine);
+                _this.startCoords = [_this.prevX, _this.prevY];
+                _this.svgLine = document.createElementNS(svgns, 'line');
+                _this.svgLine.setAttribute('stroke', 'gray');
+                _this.svgLine.setAttribute('stroke-dasharray', '5, 5');
+                _this.svgLine.setAttribute('x1', _this.prevX);
+                _this.svgLine.setAttribute('y1', _this.prevY);
+                _this.svgLine.setAttribute('x2', _this.prevX);
+                _this.svgLine.setAttribute('y2', _this.prevY);
+                _this.svgContainer.append(_this.svgLine);
             } else if (_this.tool === "rect" || _this.tool === "recSelect") {
                 _this.svgContainer.find("rect").remove();
-                svgRect = document.createElementNS(svgns, 'rect');
-                svgRect.setAttribute('stroke', 'gray');
-                svgRect.setAttribute('stroke-dasharray', '5, 5');
-                svgRect.setAttribute('style', 'fill-opacity:0.0;');
-                svgRect.setAttribute('x', _this.prevX);
-                svgRect.setAttribute('y', _this.prevY);
-                svgRect.setAttribute('width', 0);
-                svgRect.setAttribute('height', 0);
-                _this.svgContainer.append(svgRect);
-                startCoords = [_this.prevX, _this.prevY];
+                _this.svgRect = document.createElementNS(svgns, 'rect');
+                _this.svgRect.setAttribute('stroke', 'gray');
+                _this.svgRect.setAttribute('stroke-dasharray', '5, 5');
+                _this.svgRect.setAttribute('style', 'fill-opacity:0.0;');
+                _this.svgRect.setAttribute('x', _this.prevX);
+                _this.svgRect.setAttribute('y', _this.prevY);
+                _this.svgRect.setAttribute('width', 0);
+                _this.svgRect.setAttribute('height', 0);
+                _this.svgContainer.append(_this.svgRect);
+                _this.startCoords = [_this.prevX, _this.prevY];
             } else if (_this.tool === "circle") {
-                svgCirle = document.createElementNS(svgns, 'circle');
-                svgCirle.setAttribute('stroke', 'gray');
-                svgCirle.setAttribute('stroke-dasharray', '5, 5');
-                svgCirle.setAttribute('style', 'fill-opacity:0.0;');
-                svgCirle.setAttribute('cx', _this.prevX);
-                svgCirle.setAttribute('cy', _this.prevY);
-                svgCirle.setAttribute('r', 0);
-                _this.svgContainer.append(svgCirle);
-                startCoords = [_this.prevX, _this.prevY];
+                _this.svgCirle = document.createElementNS(svgns, 'circle');
+                _this.svgCirle.setAttribute('stroke', 'gray');
+                _this.svgCirle.setAttribute('stroke-dasharray', '5, 5');
+                _this.svgCirle.setAttribute('style', 'fill-opacity:0.0;');
+                _this.svgCirle.setAttribute('cx', _this.prevX);
+                _this.svgCirle.setAttribute('cy', _this.prevY);
+                _this.svgCirle.setAttribute('r', 0);
+                _this.svgContainer.append(_this.svgCirle);
+                _this.startCoords = [_this.prevX, _this.prevY];
             }
         });
 
@@ -151,79 +151,7 @@ var whiteboard = {
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
             e.preventDefault();
-            if (_this.imgDragActive) {
-                return;
-            }
-            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-            window.requestAnimationFrame(function () {
-                if ((!currX || !currY) && e.touches && e.touches[0]) {
-                    var touche = e.touches[0];
-                    currX = touche.clientX - $(_this.mouseOverlay).offset().left;
-                    currY = touche.clientY - $(_this.mouseOverlay).offset().top;
-                }
-                _this.latestTouchCoods = [currX, currY];
-
-                if (_this.drawFlag) {
-                    if (_this.tool === "pen") {
-                        _this.drawPenLine(currX, currY, _this.prevX, _this.prevY, _this.drawcolor, _this.thickness);
-                        _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.prevX, _this.prevY], "c": _this.drawcolor, "th": _this.thickness });
-                    } else if (_this.tool == "eraser") {
-                        _this.drawEraserLine(currX, currY, _this.prevX, _this.prevY, _this.thickness);
-                        _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.prevX, _this.prevY], "th": _this.thickness });
-                    }
-                    _this.prevX = currX;
-                    _this.prevY = currY;
-                }
-
-                if (_this.tool === "eraser") {
-                    var left = currX - _this.thickness;
-                    var top = currY - _this.thickness;
-                    if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
-                } else if (_this.tool === "pen") {
-                    var left = currX - _this.thickness / 2;
-                    var top = currY - _this.thickness / 2;
-                    if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
-                } else if (_this.tool === "line") {
-                    if (svgLine) {
-                        if (_this.pressedKeys.shift) {
-                            var angs = getRoundedAngles(currX, currY);
-                            currX = angs.x;
-                            currY = angs.y;
-                        }
-                        svgLine.setAttribute('x2', currX);
-                        svgLine.setAttribute('y2', currY);
-                    }
-                } else if (_this.tool === "rect" || (_this.tool === "recSelect" && _this.drawFlag)) {
-                    if (svgRect) {
-                        var width = Math.abs(currX - startCoords[0]);
-                        var height = Math.abs(currY - startCoords[1]);
-                        if (_this.pressedKeys.shift) {
-                            height = width;
-                            var x = currX < startCoords[0] ? startCoords[0] - width : startCoords[0];
-                            var y = currY < startCoords[1] ? startCoords[1] - width : startCoords[1];
-                            svgRect.setAttribute('x', x);
-                            svgRect.setAttribute('y', y);
-                        } else {
-                            var x = currX < startCoords[0] ? currX : startCoords[0];
-                            var y = currY < startCoords[1] ? currY : startCoords[1];
-                            svgRect.setAttribute('x', x);
-                            svgRect.setAttribute('y', y);
-                        }
-
-                        svgRect.setAttribute('width', width);
-                        svgRect.setAttribute('height', height);
-                    }
-                } else if (_this.tool === "circle") {
-                    var a = currX - startCoords[0];
-                    var b = currY - startCoords[1];
-                    var r = Math.sqrt(a * a + b * b);
-                    if (svgCirle) {
-                        svgCirle.setAttribute('r', r);
-                    }
-                }
-            });
-            _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+            _this.triggerMouseMove(e);
         });
 
         _this.mouseOverlay.on("mouseup touchend touchcancel", function (e) {
@@ -248,41 +176,41 @@ var whiteboard = {
                     currX = angs.x;
                     currY = angs.y;
                 }
-                _this.drawPenLine(currX, currY, startCoords[0], startCoords[1], _this.drawcolor, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [currX, currY, startCoords[0], startCoords[1]], "c": _this.drawcolor, "th": _this.thickness });
+                _this.drawPenLine(currX, currY, _this.startCoords[0], _this.startCoords[1], _this.drawcolor, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.startCoords[0], _this.startCoords[1]], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "rect") {
                 if (_this.pressedKeys.shift) {
-                    if ((currY - startCoords[1]) * (currX - startCoords[0]) > 0) {
-                        currY = startCoords[1] + (currX - startCoords[0]);
+                    if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
+                        currY = _this.startCoords[1] + (currX - _this.startCoords[0]);
                     } else {
-                        currY = startCoords[1] - (currX - startCoords[0]);
+                        currY = _this.startCoords[1] - (currX - _this.startCoords[0]);
                     }
                 }
-                _this.drawRec(startCoords[0], startCoords[1], currX, currY, _this.drawcolor, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [startCoords[0], startCoords[1], currX, currY], "c": _this.drawcolor, "th": _this.thickness });
+                _this.drawRec(_this.startCoords[0], _this.startCoords[1], currX, currY, _this.drawcolor, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [_this.startCoords[0], _this.startCoords[1], currX, currY], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("rect").remove();
             } else if (_this.tool === "circle") {
-                var a = currX - startCoords[0];
-                var b = currY - startCoords[1];
+                var a = currX - _this.startCoords[0];
+                var b = currY - _this.startCoords[1];
                 var r = Math.sqrt(a * a + b * b);
-                _this.drawCircle(startCoords[0], startCoords[1], r, _this.drawcolor, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [startCoords[0], startCoords[1], r], "c": _this.drawcolor, "th": _this.thickness });
+                _this.drawCircle(_this.startCoords[0], _this.startCoords[1], r, _this.drawcolor, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [_this.startCoords[0], _this.startCoords[1], r], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("circle").remove();
             } else if (_this.tool === "recSelect") {
                 _this.imgDragActive = true;
                 if (_this.pressedKeys.shift) {
-                    if ((currY - startCoords[1]) * (currX - startCoords[0]) > 0) {
-                        currY = startCoords[1] + (currX - startCoords[0]);
+                    if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
+                        currY = _this.startCoords[1] + (currX - _this.startCoords[0]);
                     } else {
-                        currY = startCoords[1] - (currX - startCoords[0]);
+                        currY = _this.startCoords[1] - (currX - _this.startCoords[0]);
                     }
                 }
 
-                var width = Math.abs(startCoords[0] - currX);
-                var height = Math.abs(startCoords[1] - currY);
-                var left = startCoords[0] < currX ? startCoords[0] : currX;
-                var top = startCoords[1] < currY ? startCoords[1] : currY;
+                var width = Math.abs(_this.startCoords[0] - currX);
+                var height = Math.abs(_this.startCoords[1] - currY);
+                var left = _this.startCoords[0] < currX ? _this.startCoords[0] : currX;
+                var top = _this.startCoords[1] < currY ? _this.startCoords[1] : currY;
                 _this.mouseOverlay.css({ "cursor": "default" });
                 var imgDiv = $('<div style="position:absolute; left:' + left + 'px; top:' + top + 'px; width:' + width + 'px; border: 2px dotted gray; overflow: hidden; height:' + height + 'px;" cursor:move;">' +
                     '<canvas style="cursor:move; position:absolute; top:0px; left:0px;" width="' + width + '" height="' + height + '"/>' +
@@ -322,36 +250,11 @@ var whiteboard = {
         });
 
         _this.mouseOverlay.on("mouseout", function (e) {
-            if (_this.imgDragActive) {
-                return;
-            }
-            _this.drawFlag = false;
-            _this.mouseover = false;
-            _this.ctx.globalCompositeOperation = _this.oldGCO;
-            if (_this.ownCursor) _this.ownCursor.remove();
-            _this.svgContainer.find("line").remove();
-            _this.svgContainer.find("rect").remove();
-            _this.svgContainer.find("circle").remove();
-            _this.sendFunction({ "t": "cursor", "event": "out" });
+            _this.triggerMouseOut();
         });
 
         _this.mouseOverlay.on("mouseover", function (e) {
-            if (_this.imgDragActive) {
-                return;
-            }
-            if (!_this.mouseover) {
-                var color = _this.drawcolor;
-                var widthHeight = _this.thickness;
-                if (_this.tool === "eraser") {
-                    color = "#00000000";
-                    widthHeight = widthHeight * 2;
-                }
-                if (_this.tool === "eraser" || _this.tool === "pen") {
-                    _this.ownCursor = $('<div id="ownCursor" style="background:' + color + '; border:1px solid gray; position:absolute; width:' + widthHeight + 'px; height:' + widthHeight + 'px; border-radius:50%;"></div>');
-                    _this.cursorContainer.append(_this.ownCursor);
-                }
-            }
-            _this.mouseover = true;
+            _this.triggerMouseOver();
         });
 
         //On textcontainer click (Add a new textbox)
@@ -365,27 +268,142 @@ var whiteboard = {
         });
 
         function getRoundedAngles(currX, currY) { //For drawing lines at 0,45,90° ....
-            var x = currX - startCoords[0];
-            var y = currY - startCoords[1];
+            var x = currX - _this.startCoords[0];
+            var y = currY - _this.startCoords[1];
             var angle = Math.atan2(x, y) * (180 / Math.PI);
             var angle45 = Math.round(angle / 45) * 45;
             if (angle45 % 90 == 0) {
-                if (Math.abs(currX - startCoords[0]) > Math.abs(currY - startCoords[1])) {
-                    currY = startCoords[1]
+                if (Math.abs(currX - _this.startCoords[0]) > Math.abs(currY - _this.startCoords[1])) {
+                    currY = _this.startCoords[1]
                 } else {
-                    currX = startCoords[0]
+                    currX = _this.startCoords[0]
                 }
             } else {
-                if ((currY - startCoords[1]) * (currX - startCoords[0]) > 0) {
-                    currX = startCoords[0] + (currY - startCoords[1]);
+                if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
+                    currX = _this.startCoords[0] + (currY - _this.startCoords[1]);
                 } else {
-                    currX = startCoords[0] - (currY - startCoords[1]);
+                    currX = _this.startCoords[0] - (currY - _this.startCoords[1]);
                 }
             }
             return { "x": currX, "y": currY };
         }
     },
-    entfKeyAction: function () {
+    triggerMouseMove: function (e) {
+        var _this = this;
+        if (_this.imgDragActive) {
+            return;
+        }
+        var currX = e.currX || (e.offsetX || e.pageX - $(e.target).offset().left);
+        var currY = e.currY || (e.offsetY || e.pageY - $(e.target).offset().top);
+        window.requestAnimationFrame(function () {
+            if ((!currX || !currY) && e.touches && e.touches[0]) {
+                var touche = e.touches[0];
+                currX = touche.clientX - $(_this.mouseOverlay).offset().left;
+                currY = touche.clientY - $(_this.mouseOverlay).offset().top;
+            }
+            _this.latestTouchCoods = [currX, currY];
+
+            if (_this.drawFlag) {
+                if (_this.tool === "pen") {
+                    _this.drawPenLine(currX, currY, _this.prevX, _this.prevY, _this.drawcolor, _this.thickness);
+                    _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.prevX, _this.prevY], "c": _this.drawcolor, "th": _this.thickness });
+                } else if (_this.tool == "eraser") {
+                    _this.drawEraserLine(currX, currY, _this.prevX, _this.prevY, _this.thickness);
+                    _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.prevX, _this.prevY], "th": _this.thickness });
+                }
+            }
+
+            if (_this.tool === "eraser") {
+                var left = currX - _this.thickness;
+                var top = currY - _this.thickness;
+                if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
+            } else if (_this.tool === "pen") {
+                var left = currX - _this.thickness / 2;
+                var top = currY - _this.thickness / 2;
+                if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
+            } else if (_this.tool === "line") {
+                if (_this.svgLine) {
+                    if (_this.pressedKeys.shift) {
+                        var angs = getRoundedAngles(currX, currY);
+                        currX = angs.x;
+                        currY = angs.y;
+                    }
+                    _this.svgLine.setAttribute('x2', currX);
+                    _this.svgLine.setAttribute('y2', currY);
+                }
+            } else if (_this.tool === "rect" || (_this.tool === "recSelect" && _this.drawFlag)) {
+                if (_this.svgRect) {
+                    var width = Math.abs(currX - _this.startCoords[0]);
+                    var height = Math.abs(currY - _this.startCoords[1]);
+                    if (_this.pressedKeys.shift) {
+                        height = width;
+                        var x = currX < _this.startCoords[0] ? _this.startCoords[0] - width : _this.startCoords[0];
+                        var y = currY < _this.startCoords[1] ? _this.startCoords[1] - width : _this.startCoords[1];
+                        _this.svgRect.setAttribute('x', x);
+                        _this.svgRect.setAttribute('y', y);
+                    } else {
+                        var x = currX < _this.startCoords[0] ? currX : _this.startCoords[0];
+                        var y = currY < _this.startCoords[1] ? currY : _this.startCoords[1];
+                        _this.svgRect.setAttribute('x', x);
+                        _this.svgRect.setAttribute('y', y);
+                    }
+
+                    _this.svgRect.setAttribute('width', width);
+                    _this.svgRect.setAttribute('height', height);
+                }
+            } else if (_this.tool === "circle") {
+                var a = currX - _this.startCoords[0];
+                var b = currY - _this.startCoords[1];
+                var r = Math.sqrt(a * a + b * b);
+                if (_this.svgCirle) {
+                    _this.svgCirle.setAttribute('r', r);
+                }
+            }
+            _this.prevX = currX;
+            _this.prevY = currY;
+        });
+        _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+    },
+    triggerMouseOver: function () {
+        var _this = this;
+        if (_this.imgDragActive) {
+            return;
+        }
+        if (!_this.mouseover) {
+            var color = _this.drawcolor;
+            var widthHeight = _this.thickness;
+            if (_this.tool === "eraser") {
+                color = "#00000000";
+                widthHeight = widthHeight * 2;
+            }
+            if (_this.tool === "eraser" || _this.tool === "pen") {
+                _this.ownCursor = $('<div id="ownCursor" style="background:' + color + '; border:1px solid gray; position:absolute; width:' + widthHeight + 'px; height:' + widthHeight + 'px; border-radius:50%;"></div>');
+                _this.cursorContainer.append(_this.ownCursor);
+            }
+        }
+        _this.mouseover = true;
+    },
+    triggerMouseOut: function () {
+        var _this = this;
+        if (_this.imgDragActive) {
+            return;
+        }
+        _this.drawFlag = false;
+        _this.mouseover = false;
+        _this.ctx.globalCompositeOperation = _this.oldGCO;
+        if (_this.ownCursor) _this.ownCursor.remove();
+        _this.svgContainer.find("line").remove();
+        _this.svgContainer.find("rect").remove();
+        _this.svgContainer.find("circle").remove();
+        _this.sendFunction({ "t": "cursor", "event": "out" });
+    },
+    redrawMouseCursor: function () {
+        var _this = this;
+        _this.triggerMouseOut();
+        _this.triggerMouseOver();
+        _this.triggerMouseMove({ currX: whiteboard.prevX, currY: whiteboard.prevY });
+    },
+    delKeyAction: function () {
         var _this = this;
         $.each(_this.mouseOverlay.find(".dragOutOverlay"), function () {
             var width = $(this).width();
@@ -398,6 +416,7 @@ var whiteboard = {
             _this.eraseRec(left, top, width, height);
         });
         _this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
+        _this.textContainer.find("#" + _this.latestActiveTextBoxId).find(".removeIcon").click();
     },
     escKeyAction: function () {
         var _this = this;

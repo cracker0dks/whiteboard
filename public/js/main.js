@@ -48,7 +48,6 @@ $(document).ready(function () {
     if (getQueryVariable("webdav") == "true") {
         $("#uploadWebDavBtn").show();
     }
-    console.log(myUsername)
     whiteboard.loadWhiteboard("#whiteboardContainer", { //Load the whiteboard
         whiteboardId: whiteboardId,
         username: btoa(myUsername),
@@ -73,31 +72,122 @@ $(document).ready(function () {
 
     //Handle key actions
     $(document).on("keydown", function (e) {
-        if (e.which == 17) {
-            whiteboard.pressedKeys["strg"] = true;
-        } else if (e.which == 90) { //z key
-            if (whiteboard.pressedKeys["strg"] && !whiteboard.pressedKeys["z"]) {
-                whiteboard.undoWhiteboardClick();
-            }
-            whiteboard.pressedKeys["z"] = true;
-        } else if (e.which == 16) {
+        if (e.which == 16) {
             whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
-        } else if (e.which == 27) { //Esc
-            whiteboard.escKeyAction();
-        } else if (e.which == 46) { //Remove / Entf
-            whiteboard.entfKeyAction();
         }
         //console.log(e.which);
     });
     $(document).on("keyup", function (e) {
-        if (e.which == 17) {
-            whiteboard.pressedKeys["strg"] = false;
-        } else if (e.which == 90) {
-            whiteboard.pressedKeys["z"] = false;
-        } else if (e.which == 16) {
+        if (e.which == 16) {
             whiteboard.pressedKeys["shift"] = false;
         }
     });
+
+    var shortcutFunctions = {
+        clearWhiteboard: function () { whiteboard.clearWhiteboard(); },
+        undoStep: function () { whiteboard.undoWhiteboardClick(); },
+        setTool_mouse: function () { $(".whiteboardTool[tool=mouse]").click(); },
+        setTool_recSelect: function () { $(".whiteboardTool[tool=recSelect]").click(); },
+        setTool_pen: function () {
+            $(".whiteboardTool[tool=pen]").click();
+            whiteboard.redrawMouseCursor();
+        },
+        setTool_line: function () { $(".whiteboardTool[tool=line]").click(); },
+        setTool_rect: function () { $(".whiteboardTool[tool=rect]").click(); },
+        setTool_circle: function () { $(".whiteboardTool[tool=circle]").click(); },
+        setTool_text: function () { $(".whiteboardTool[tool=text]").click(); },
+        setTool_eraser: function () {
+            $(".whiteboardTool[tool=eraser]").click();
+            whiteboard.redrawMouseCursor();
+        },
+        thickness_bigger: function () {
+            var thickness = parseInt($("#whiteboardThicknessSlider").val()) + 1;
+            $("#whiteboardThicknessSlider").val(thickness);
+            whiteboard.setStrokeThickness(thickness);
+            whiteboard.redrawMouseCursor();
+        },
+        thickness_smaller: function () {
+            var thickness = parseInt($("#whiteboardThicknessSlider").val()) - 1;
+            $("#whiteboardThicknessSlider").val(thickness);
+            whiteboard.setStrokeThickness(thickness);
+            whiteboard.redrawMouseCursor();
+        },
+        openColorPicker: function () { $("#whiteboardColorpicker").click(); },
+        saveWhiteboardAsImage: function () { $("#saveAsImageBtn").click(); },
+        saveWhiteboardAsJson: function () { $("#saveAsImageBtn").click(); },
+        uploadWhiteboardToWebDav: function () { $("#uploadWebDavBtn").click(); },
+        uploadJsonToWhiteboard: function () { $("#uploadJsonBtn").click(); },
+        shareWhiteboard: function () { $("#shareWhiteboardBtn").click(); },
+        hideShowControls: function () { $("#minMaxBtn").click(); },
+
+        setDrawColorBlack: function () {
+            whiteboard.setDrawColor("black");
+            whiteboard.redrawMouseCursor();
+            $("#whiteboardColorpicker").css({ "background": "black" });
+        },
+        setDrawColorRed: function () {
+            whiteboard.setDrawColor("red");
+            whiteboard.redrawMouseCursor();
+            $("#whiteboardColorpicker").css({ "background": "red" });
+        },
+        setDrawColorGreen: function () {
+            whiteboard.setDrawColor("green");
+            whiteboard.redrawMouseCursor();
+            $("#whiteboardColorpicker").css({ "background": "green" });
+        },
+        setDrawColorBlue: function () {
+            whiteboard.setDrawColor("blue");
+            whiteboard.redrawMouseCursor();
+            $("#whiteboardColorpicker").css({ "background": "blue" });
+        },
+        setDrawColorYellow: function () {
+            whiteboard.setDrawColor("yellow");
+            whiteboard.redrawMouseCursor();
+            $("#whiteboardColorpicker").css({ "background": "yellow" });
+        },
+
+        switchLineRecCircle: function () {
+            var activeTool = $(".whiteboardTool.active").attr("tool");
+            if (activeTool == "line") {
+                $(".whiteboardTool[tool=rect]").click();
+            } else if (activeTool == "rect") {
+                $(".whiteboardTool[tool=circle]").click();
+            } else {
+                $(".whiteboardTool[tool=line]").click();
+            }
+        },
+
+        moveDraggableUp: function () {
+            var p = $($(".ui-draggable")[0]).position();
+            $($(".ui-draggable")[0]).css({ top: p.top - 5, left: p.left })
+        },
+        moveDraggableDown: function () {
+            var p = $($(".ui-draggable")[0]).position();
+            $($(".ui-draggable")[0]).css({ top: p.top + 5, left: p.left })
+        },
+        moveDraggableLeft: function () {
+            var p = $($(".ui-draggable")[0]).position();
+            $($(".ui-draggable")[0]).css({ top: p.top, left: p.left - 5 })
+        },
+        moveDraggableRight: function () {
+            var p = $($(".ui-draggable")[0]).position();
+            $($(".ui-draggable")[0]).css({ top: p.top, left: p.left + 5 })
+        },
+        dropDraggable: function () {
+            var p = $($(".ui-draggable")[0]).find('.addToCanvasBtn').click();
+        },
+        cancelAllActions: function () { whiteboard.escKeyAction(); },
+        deleteSelection: function () { whiteboard.delKeyAction(); },
+    }
+
+    //Load keybindings from keybinds.js to given functions
+    for (var i in keybinds) {
+        if (shortcutFunctions[keybinds[i]]) {
+            keymage(i, shortcutFunctions[keybinds[i]], { preventDefault: true });
+        } else {
+            console.error("function you want to keybind on key:", i, "named:", keybinds[i], "is not available!")
+        }
+    }
 
     // whiteboard clear button
     $("#whiteboardTrashBtn").click(function () {
@@ -263,7 +353,7 @@ $(document).ready(function () {
         $("<textarea/>").appendTo("body").val(urlStart).select().each(function () {
             document.execCommand('copy');
         }).remove();
-        showBasicAlert("Copied Whiteboard-URL to clipboard.")
+        showBasicAlert("Copied Whiteboard-URL to clipboard.", { hideAfter: 2 })
     });
 
     var btnsMini = false;
@@ -278,7 +368,6 @@ $(document).ready(function () {
             $(this).find("#maxBtn").hide();
         }
         btnsMini = !btnsMini;
-
     })
 
     // load json to whiteboard
@@ -503,7 +592,8 @@ function showBasicAlert(html, newOptions) {
     var options = {
         header: "INFO MESSAGE",
         okBtnText: "Ok",
-        headercolor: "#d25d5d"
+        headercolor: "#d25d5d",
+        hideAfter: false
     }
     if (newOptions) {
         for (var i in newOptions) {
@@ -522,6 +612,11 @@ function showBasicAlert(html, newOptions) {
     alertHtml.find(".okbtn").click(function () {
         alertHtml.remove();
     })
+    if (options.hideAfter) {
+        setTimeout(function () {
+            alertHtml.find(".okbtn").click();
+        }, 1000 * options.hideAfter)
+    }
 }
 
 // get 'GET' parameter by variable name

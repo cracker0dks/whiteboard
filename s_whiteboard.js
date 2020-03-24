@@ -34,7 +34,6 @@ module.exports = {
                     }
                 }
             }
-            console.log(content)
             savedBoards[wid].push(content);
         }
     },

@@ -114,7 +114,7 @@ $(document).ready(function () {
         },
         openColorPicker: function () { $("#whiteboardColorpicker").click(); },
         saveWhiteboardAsImage: function () { $("#saveAsImageBtn").click(); },
-        saveWhiteboardAsJson: function () { $("#saveAsImageBtn").click(); },
+        saveWhiteboardAsJson: function () { $("#saveAsJSONBtn").click(); },
         uploadWhiteboardToWebDav: function () { $("#uploadWebDavBtn").click(); },
         uploadJsonToWhiteboard: function () { $("#uploadJsonBtn").click(); },
         shareWhiteboard: function () { $("#shareWhiteboardBtn").click(); },
@@ -146,7 +146,7 @@ $(document).ready(function () {
             $("#whiteboardColorpicker").css({ "background": "yellow" });
         },
 
-        switchLineRecCircle: function () {
+        toggleLineRecCircle: function () {
             var activeTool = $(".whiteboardTool.active").attr("tool");
             if (activeTool == "line") {
                 $(".whiteboardTool[tool=rect]").click();
@@ -156,25 +156,54 @@ $(document).ready(function () {
                 $(".whiteboardTool[tool=line]").click();
             }
         },
+        togglePenEraser: function () {
+            var activeTool = $(".whiteboardTool.active").attr("tool");
+            if (activeTool == "pen") {
+                $(".whiteboardTool[tool=eraser]").click();
+            } else {
+                $(".whiteboardTool[tool=pen]").click();
+            }
+        },
+        toggleMainColors: function () {
+            var bgColor = $("#whiteboardColorpicker")[0].style.backgroundColor;
+            if (bgColor == "blue") {
+                shortcutFunctions.setDrawColorGreen();
+            } else if (bgColor == "green") {
+                shortcutFunctions.setDrawColorYellow();
+            } else if (bgColor == "yellow") {
+                shortcutFunctions.setDrawColorRed();
+            } else if (bgColor == "red") {
+                shortcutFunctions.setDrawColorBlack();
+            } else {
+                shortcutFunctions.setDrawColorBlue();
+            }
+        },
 
         moveDraggableUp: function () {
-            var p = $($(".ui-draggable")[0]).position();
-            $($(".ui-draggable")[0]).css({ top: p.top - 5, left: p.left })
+            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var p = $(elm).position();
+            $(elm).css({ top: p.top - 5, left: p.left })
         },
         moveDraggableDown: function () {
-            var p = $($(".ui-draggable")[0]).position();
-            $($(".ui-draggable")[0]).css({ top: p.top + 5, left: p.left })
+            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var p = $(elm).position();
+            $(elm).css({ top: p.top + 5, left: p.left })
         },
         moveDraggableLeft: function () {
-            var p = $($(".ui-draggable")[0]).position();
-            $($(".ui-draggable")[0]).css({ top: p.top, left: p.left - 5 })
+            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var p = $(elm).position();
+            $(elm).css({ top: p.top, left: p.left - 5 })
         },
         moveDraggableRight: function () {
-            var p = $($(".ui-draggable")[0]).position();
-            $($(".ui-draggable")[0]).css({ top: p.top, left: p.left + 5 })
+            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var p = $(elm).position();
+            $(elm).css({ top: p.top, left: p.left + 5 })
         },
         dropDraggable: function () {
-            var p = $($(".ui-draggable")[0]).find('.addToCanvasBtn').click();
+            $($(".dragMe")[0]).find('.addToCanvasBtn').click();
+        },
+        addToBackground: function () {
+            $($(".dragMe")[0]).find('.addToBackgroundBtn').click();
         },
         cancelAllActions: function () { whiteboard.escKeyAction(); },
         deleteSelection: function () { whiteboard.delKeyAction(); },

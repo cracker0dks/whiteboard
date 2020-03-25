@@ -15,7 +15,9 @@ var keybinds = {
     'defmod-l' : 'setTool_line',
     'defmod-r' : 'setTool_rect',
     'defmod-c' : 'setTool_circle',
-    'defmod-d' : 'switchLineRecCircle',
+    'shift-f' : 'toggleLineRecCircle',
+    'shift-p' : 'togglePenEraser',
+    'shift-r' : 'toggleMainColors',
     'defmod-a' : 'setTool_text',
     'defmod-e' : 'setTool_eraser',
     'defmod-up' : 'thickness_bigger',
@@ -28,7 +30,7 @@ var keybinds = {
     'shift-4' : 'setDrawColorRed',
     'defmod-s' : 'saveWhiteboardAsImage',
     'defmod-j' : 'saveWhiteboardAsJson',
-    'defmod-w' : 'uploadWhiteboardToWebDav',
+    'shift-w' : 'uploadWhiteboardToWebDav',
     'shift-j' : 'uploadJsonToWhiteboard',
     'shift-s' : 'shareWhiteboard',
     'tab' : 'hideShowControls',
@@ -37,6 +39,7 @@ var keybinds = {
     'left' : 'moveDraggableLeft',
     'right' : 'moveDraggableRight',
     'enter' : 'dropDraggable',
+    'shift-enter' : 'addToBackground',
     'escape' : 'cancelAllActions',
     'del' : 'deleteSelection'
 }

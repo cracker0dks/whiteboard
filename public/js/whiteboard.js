@@ -212,7 +212,7 @@ var whiteboard = {
                 var left = _this.startCoords[0] < currX ? _this.startCoords[0] : currX;
                 var top = _this.startCoords[1] < currY ? _this.startCoords[1] : currY;
                 _this.mouseOverlay.css({ "cursor": "default" });
-                var imgDiv = $('<div style="position:absolute; left:' + left + 'px; top:' + top + 'px; width:' + width + 'px; border: 2px dotted gray; overflow: hidden; height:' + height + 'px;" cursor:move;">' +
+                var imgDiv = $('<div class="dragMe" style="position:absolute; left:' + left + 'px; top:' + top + 'px; width:' + width + 'px; border: 2px dotted gray; overflow: hidden; height:' + height + 'px;" cursor:move;">' +
                     '<canvas style="cursor:move; position:absolute; top:0px; left:0px;" width="' + width + '" height="' + height + '"/>' +
                     '<div style="position:absolute; right:5px; top:3px;">' +
                     '<button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Drop</button> ' +
@@ -515,11 +515,11 @@ var whiteboard = {
         }
         _this.imgDragActive = true;
         _this.mouseOverlay.css({ "cursor": "default" });
-        var imgDiv = $('<div style="border: 2px dashed gray; position:absolute; left:200px; top:200px; min-width:160px; min-height:100px; cursor:move;">' +
+        var imgDiv = $('<div class="dragMe" style="border: 2px dashed gray; position:absolute; left:200px; top:200px; min-width:160px; min-height:100px; cursor:move;">' +
             '<img style="width:100%; height:100%;" src="' + url + '">' +
             '<div style="position:absolute; right:5px; top:3px;">' +
             '<button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Draw to canvas</button> ' +
-            '<button draw="0" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Add to background</button> ' +
+            '<button draw="0" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToBackgroundBtn btn btn-default">Add to background</button> ' +
             '<button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>' +
             '</div>' +
             '<i style="position:absolute; bottom: -4px; right: 2px; font-size: 2em; color: gray; transform: rotate(-45deg);" class="fas fa-sort-down" aria-hidden="true"></i>' +
@@ -532,7 +532,7 @@ var whiteboard = {
                 _this.setTool("text");
             }
         });
-        imgDiv.find(".addToCanvasBtn").click(function () {
+        imgDiv.find(".addToCanvasBtn,.addToBackgroundBtn").click(function () {
             var draw = $(this).attr("draw");
             _this.imgDragActive = false;
             _this.refreshCursorAppearance();

@@ -1,5 +1,6 @@
 var whiteboardId = getQueryVariable("whiteboardid");
 whiteboardId = whiteboardId || "myNewWhiteboard";
+whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9 ]/g, "");
 var myUsername = getQueryVariable("username");
 var accessToken = getQueryVariable("accesstoken");
 myUsername = myUsername || "unknown" + (Math.random() + "").substring(2, 6);

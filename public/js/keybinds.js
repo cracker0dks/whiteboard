@@ -38,7 +38,7 @@ var keybinds = {
     'down' : 'moveDraggableDown',
     'left' : 'moveDraggableLeft',
     'right' : 'moveDraggableRight',
-    'enter' : 'dropDraggable',
+    'defmod-enter' : 'dropDraggable',
     'shift-enter' : 'addToBackground',
     'escape' : 'cancelAllActions',
     'del' : 'deleteSelection'

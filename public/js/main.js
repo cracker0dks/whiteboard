@@ -7,6 +7,13 @@ myUsername = myUsername || "unknown" + (Math.random() + "").substring(2, 6);
 accessToken = accessToken || "";
 var accessDenied = false;
 
+// Custom Html Title
+var title = getQueryVariable("title");
+if(!title === false){
+    document.title = title;
+}
+
+
 var url = document.URL.substr(0, document.URL.lastIndexOf('/'));
 var signaling_socket = null;
 var urlSplit = url.split("/");

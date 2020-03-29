@@ -10,9 +10,8 @@ var accessDenied = false;
 // Custom Html Title
 var title = getQueryVariable("title");
 if(!title === false){
-    document.title = title;
+    document.title = decodeURIComponent(title);
 }
-
 
 var url = document.URL.substr(0, document.URL.lastIndexOf('/'));
 var signaling_socket = null;

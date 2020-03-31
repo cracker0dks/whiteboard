@@ -4,11 +4,11 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 ![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/start.png)
 
 ## Demowhiteboard ##
-[HERE](https://cloud13.de/testwhiteboard/) (Resets every night)
+[HERE](https://cloud13.de/testwhiteboard/) (Reset every night)
 
 ## Some Features
 * Shows remote user cursors while drawing
-* Undo function for each user (strg+z)
+* Undo function for each user
 * Drag+Drop / Copy+Paste Images to Whiteboard from PC and Browsers
 * Resize, Move & Draw Images to Canvas or Background
 * Write text
@@ -16,7 +16,21 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 * Draw angle lines by pressing "shift" while drawing (with line tool)
 * Draw square by pressing "shift" while drawing (with rectangle tool)
 * Indicator that shows the smallest screen participating
+* Keybindings for ALL the functions
 * Working on PC, Tablet & Mobile
+
+## Install the App
+You can run this app with and without docker
+### Without Docker
+1. install the latest NodeJs
+2. Clone the app
+3. Run `npm i` inside the folder
+4. Run `node server.js`
+5. Surf to http://YOURIP:8080
+
+### With Docker
+1. `docker run -d -p 8080:8080 rofl256/whiteboard`
+2. Surf to http://YOURIP:8080
 
 ## Default keyboard shortcuts
 Use keyboard shortcuts to become more productive while using Whiteboard.
@@ -62,19 +76,6 @@ Drop object | Ctrl + Enter | Command + Enter
 Add Image to backgroud | Shift + Enter | Shift + Enter
 Cancel all actions | Escape | Escape
 Delete selected object | Delete | Delete
-
-## Install the App
-You can run this app with and without docker
-### Without Docker
-1. install the latest NodeJs
-2. Clone the app
-3. Run `npm i` inside the folder
-4. Run `node server.js`
-5. Surf to http://YOURIP:8080
-
-### With Docker
-1. `docker run -d -p 8080:8080 rofl256/whiteboard`
-2. Surf to http://YOURIP:8080
 
 ## URL Parameters
 Call your site with GET parameters to change the WhiteboardID or the Username

@@ -1,4 +1,12 @@
 var whiteboardId = getQueryVariable("whiteboardid");
+var randomid = getQueryVariable("randomid");
+if (randomid && !whiteboardId) { //set random whiteboard on empty whiteboardid
+    whiteboardId = Array(2).fill(null).map(() => Math.random().toString(36).substr(2)).join('');
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('whiteboardid', whiteboardId);
+    window.location.search = urlParams;
+}
+
 whiteboardId = whiteboardId || "myNewWhiteboard";
 whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9 ]/g, "");
 var myUsername = getQueryVariable("username");
@@ -9,7 +17,7 @@ var accessDenied = false;
 
 // Custom Html Title
 var title = getQueryVariable("title");
-if(!title === false){
+if (!title === false) {
     document.title = decodeURIComponent(title);
 }
 
@@ -187,22 +195,22 @@ $(document).ready(function () {
         },
 
         moveDraggableUp: function () {
-            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
             var p = $(elm).position();
             $(elm).css({ top: p.top - 5, left: p.left })
         },
         moveDraggableDown: function () {
-            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
             var p = $(elm).position();
             $(elm).css({ top: p.top + 5, left: p.left })
         },
         moveDraggableLeft: function () {
-            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
             var p = $(elm).position();
             $(elm).css({ top: p.top, left: p.left - 5 })
         },
         moveDraggableRight: function () {
-            var elm = whiteboard.tool == "text" ? $("#"+whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+            var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
             var p = $(elm).position();
             $(elm).css({ top: p.top, left: p.left + 5 })
         },

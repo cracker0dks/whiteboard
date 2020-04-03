@@ -172,7 +172,7 @@ var whiteboard = {
 
             if (_this.tool === "line") {
                 if (_this.pressedKeys.shift) {
-                    var angs = getRoundedAngles(currX, currY);
+                    var angs = _this.getRoundedAngles(currX, currY);
                     currX = angs.x;
                     currY = angs.y;
                 }
@@ -266,27 +266,27 @@ var whiteboard = {
             _this.sendFunction({ "t": "addTextBox", "d": [_this.drawcolor, fontsize, currX, currY, txId] });
             _this.addTextBox(_this.drawcolor, fontsize, currX, currY, txId, true);
         });
-
-        function getRoundedAngles(currX, currY) { //For drawing lines at 0,45,90° ....
-            var x = currX - _this.startCoords[0];
-            var y = currY - _this.startCoords[1];
-            var angle = Math.atan2(x, y) * (180 / Math.PI);
-            var angle45 = Math.round(angle / 45) * 45;
-            if (angle45 % 90 == 0) {
-                if (Math.abs(currX - _this.startCoords[0]) > Math.abs(currY - _this.startCoords[1])) {
-                    currY = _this.startCoords[1]
-                } else {
-                    currX = _this.startCoords[0]
-                }
+    },
+    getRoundedAngles: function (currX, currY) { //For drawing lines at 0,45,90° ....
+        var _this = this;
+        var x = currX - _this.startCoords[0];
+        var y = currY - _this.startCoords[1];
+        var angle = Math.atan2(x, y) * (180 / Math.PI);
+        var angle45 = Math.round(angle / 45) * 45;
+        if (angle45 % 90 == 0) {
+            if (Math.abs(currX - _this.startCoords[0]) > Math.abs(currY - _this.startCoords[1])) {
+                currY = _this.startCoords[1]
             } else {
-                if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
-                    currX = _this.startCoords[0] + (currY - _this.startCoords[1]);
-                } else {
-                    currX = _this.startCoords[0] - (currY - _this.startCoords[1]);
-                }
+                currX = _this.startCoords[0]
             }
-            return { "x": currX, "y": currY };
+        } else {
+            if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
+                currX = _this.startCoords[0] + (currY - _this.startCoords[1]);
+            } else {
+                currX = _this.startCoords[0] - (currY - _this.startCoords[1]);
+            }
         }
+        return { "x": currX, "y": currY };
     },
     triggerMouseMove: function (e) {
         var _this = this;
@@ -324,7 +324,7 @@ var whiteboard = {
             } else if (_this.tool === "line") {
                 if (_this.svgLine) {
                     if (_this.pressedKeys.shift) {
-                        var angs = getRoundedAngles(currX, currY);
+                        var angs = _this.getRoundedAngles(currX, currY);
                         currX = angs.x;
                         currY = angs.y;
                     }

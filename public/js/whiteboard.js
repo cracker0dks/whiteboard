@@ -1,22 +1,3 @@
-function lanczosKernel (x) {
-    if(x==0) {
-        return 1.0;
-    }
-    return 2*Math.sin(Math.PI*x)*Math.sin(Math.PI*x/2)/Math.pow(Math.PI*x,2);
-}
-function lanczosInterpolate (xm1, ym1, x0, y0, x1, y1, x2, y2, a) {
-        var cm1 = lanczosKernel(1+a);
-        var c0 = lanczosKernel(a);
-        var c1 = lanczosKernel(1-a);
-        var c2 = lanczosKernel(2-a);
-        var delta = (cm1+c0+c1+c2-1)/4;
-        cm1 -= delta;
-        c0 -= delta;
-        c1 -= delta;
-        c2 -= delta;
-        return [cm1*xm1 + c0*x0 + c1*x1 + c2*x2, cm1*ym1 + c0*y0 + c1*y1 + c2*y2];
-}
-
 var whiteboard = {
     canvas: null,
     ctx: null,
@@ -117,7 +98,7 @@ var whiteboard = {
             }
 
             if (_this.tool === "pen") {
-		_this.penSmoothLastCoords = [_this.prevX, _this.prevY, _this.prevX, _this.prevY, _this.prevX, _this.prevY]
+                _this.penSmoothLastCoords = [_this.prevX, _this.prevY, _this.prevX, _this.prevY, _this.prevX, _this.prevY]
             } else if (_this.tool === "eraser") {
                 _this.drawEraserLine(_this.prevX, _this.prevY, _this.prevX, _this.prevY, _this.thickness);
                 _this.sendFunction({ "t": _this.tool, "d": [_this.prevX, _this.prevY, _this.prevX, _this.prevY], "th": _this.thickness });
@@ -447,11 +428,11 @@ var whiteboard = {
     },
     pushPointSmoothPen: function (X, Y) {
         var _this = this;
-        if(_this.penSmoothLastCoords.length>=8) {
+        if (_this.penSmoothLastCoords.length >= 8) {
             _this.penSmoothLastCoords = [_this.penSmoothLastCoords[2], _this.penSmoothLastCoords[3], _this.penSmoothLastCoords[4], _this.penSmoothLastCoords[5], _this.penSmoothLastCoords[6], _this.penSmoothLastCoords[7]]
         }
         _this.penSmoothLastCoords.push(X, Y)
-        if(_this.penSmoothLastCoords.length>=8) {
+        if (_this.penSmoothLastCoords.length >= 8) {
             _this.drawPenSmoothLine(_this.penSmoothLastCoords, _this.drawcolor, _this.thickness);
             _this.sendFunction({ "t": _this.tool, "d": _this.penSmoothLastCoords, "c": _this.drawcolor, "th": _this.thickness });
         }
@@ -496,12 +477,12 @@ var whiteboard = {
         var y1 = coords[5];
         var x2 = coords[6];
         var y2 = coords[7];
-        var length = Math.sqrt(Math.pow(x0-x1,2)+Math.pow(y0-y1,2));
-        var steps = Math.ceil(length/5);
+        var length = Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
+        var steps = Math.ceil(length / 5);
         _this.ctx.beginPath();
         _this.ctx.moveTo(x0, y0);
-        for (var i=0; i<steps; i++) {
-            var point = lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, (i+1)/steps);
+        for (var i = 0; i < steps; i++) {
+            var point = lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, (i + 1) / steps);
             _this.ctx.lineTo(point[0], point[1]);
         }
         _this.ctx.strokeStyle = color;
@@ -759,7 +740,7 @@ var whiteboard = {
         var thickness = content["th"];
         window.requestAnimationFrame(function () {
             if (tool === "line" || tool === "pen") {
-                if(data.length == 4) {
+                if (data.length == 4) { //Only used for old json imports
                     _this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness);
                 } else {
                     _this.drawPenSmoothLine(data, color, thickness);
@@ -939,4 +920,24 @@ var whiteboard = {
             _this.mouseOverlay.css({ "cursor": "crosshair" });
         }
     }
+}
+
+function lanczosKernel(x) {
+    if (x == 0) {
+        return 1.0;
+    }
+    return 2 * Math.sin(Math.PI * x) * Math.sin(Math.PI * x / 2) / Math.pow(Math.PI * x, 2);
+}
+
+function lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, a) {
+    var cm1 = lanczosKernel(1 + a);
+    var c0 = lanczosKernel(a);
+    var c1 = lanczosKernel(1 - a);
+    var c2 = lanczosKernel(2 - a);
+    var delta = (cm1 + c0 + c1 + c2 - 1) / 4;
+    cm1 -= delta;
+    c0 -= delta;
+    c1 -= delta;
+    c2 -= delta;
+    return [cm1 * xm1 + c0 * x0 + c1 * x1 + c2 * x2, cm1 * ym1 + c0 * y0 + c1 * y1 + c2 * y2];
 }

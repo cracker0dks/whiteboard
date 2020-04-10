@@ -85,6 +85,7 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 * whiteboardid => All people with the same ID are drawing on the same board
 * username => The name witch is showing to others while drawing
 * title => Change the name of the Browser Tab
+* randomid => if set to true, a random whiteboardId will be generated if not given aswell
 
 ## Security - AccessToken (Optional)
 To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start.

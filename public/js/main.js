@@ -256,6 +256,11 @@ $(document).ready(function () {
         whiteboard.undoWhiteboardClick();
     });
 
+    // redo button
+    $("#whiteboardRedoBtn").click(function () {
+        whiteboard.redoWhiteboardClick();
+    });
+
     // switch tool
     $(".whiteboardTool").click(function () {
         $(".whiteboardTool").removeClass("active");

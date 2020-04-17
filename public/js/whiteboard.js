@@ -24,7 +24,8 @@ var whiteboard = {
     svgRect: null,
     svgCirle: null,
     drawBuffer: [],
-    drawId: 0, //Used for undo function
+    undoBuffer: [],
+    drawId: 0, //Used for undo/redo functions
     imgDragActive: false,
     latestActiveTextBoxId: false, //The id of the latest clicked Textbox (for font and color change)
     pressedKeys: {},
@@ -531,6 +532,7 @@ var whiteboard = {
         _this.textContainer.empty();
         _this.sendFunction({ "t": "clear" });
         _this.drawBuffer = [];
+        _this.undoBuffer = [];
         _this.drawId = 0;
     },
     setStrokeThickness(thickness) {
@@ -687,7 +689,34 @@ var whiteboard = {
                 var drawId = _this.drawBuffer[i]["drawId"];
                 for (var i = _this.drawBuffer.length - 1; i >= 0; i--) {
                     if (_this.drawBuffer[i]["drawId"] == drawId && _this.drawBuffer[i]["username"] == username) {
+                        _this.undoBuffer.push(_this.drawBuffer[i])
                         _this.drawBuffer.splice(i, 1);
+                    }
+                }
+                break;
+            }
+        }
+        if (_this.undoBuffer.length > 1000) {
+            _this.undoBuffer.splice(0, _this.undoBuffer.length-1000);
+        }
+        _this.canvas.height = _this.canvas.height;
+        _this.imgContainer.empty();
+        _this.loadDataInSteps(_this.drawBuffer, false, function (stepData) {
+            //Nothing to do
+        });
+    },
+    redoWhiteboard: function (username) { //Not call this directly because you will get out of sync whit others...
+        var _this = this;
+        if (!username) {
+            username = _this.settings.username;
+        }
+        for (var i = _this.undoBuffer.length - 1; i >= 0; i--) {
+            if (_this.undoBuffer[i]["username"] == username) {
+                var drawId = _this.undoBuffer[i]["drawId"];
+                for (var i = _this.undoBuffer.length - 1; i >= 0; i--) {
+                    if (_this.undoBuffer[i]["drawId"] == drawId && _this.undoBuffer[i]["username"] == username) {
+                        _this.drawBuffer.push(_this.undoBuffer[i])
+                        _this.undoBuffer.splice(i, 1);
                     }
                 }
                 break;
@@ -702,6 +731,10 @@ var whiteboard = {
     undoWhiteboardClick: function () {
         this.sendFunction({ "t": "undo" });
         this.undoWhiteboard();
+    },
+    redoWhiteboardClick: function () {
+        this.sendFunction({ "t": "redo" });
+        this.redoWhiteboard();
     },
     setTool: function (tool) {
         this.tool = tool;
@@ -778,6 +811,7 @@ var whiteboard = {
                 _this.imgContainer.empty();
                 _this.textContainer.empty();
                 _this.drawBuffer = [];
+                _this.undoBuffer = [];
                 _this.drawId = 0;
             } else if (tool === "cursor" && _this.settings) {
                 if (content["event"] === "move") {
@@ -793,6 +827,8 @@ var whiteboard = {
                 }
             } else if (tool === "undo") {
                 _this.undoWhiteboard(username);
+            } else if (tool === "redo") {
+                _this.redoWhiteboard(username);
             }
         });
 

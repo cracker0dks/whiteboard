@@ -101,6 +101,7 @@ $(document).ready(function () {
     var shortcutFunctions = {
         clearWhiteboard: function () { whiteboard.clearWhiteboard(); },
         undoStep: function () { whiteboard.undoWhiteboardClick(); },
+        redoStep: function () { whiteboard.redoWhiteboardClick(); },
         setTool_mouse: function () { $(".whiteboardTool[tool=mouse]").click(); },
         setTool_recSelect: function () { $(".whiteboardTool[tool=recSelect]").click(); },
         setTool_pen: function () {

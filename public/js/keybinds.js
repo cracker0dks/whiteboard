@@ -9,6 +9,7 @@ var keybinds = {
     // 'key(s)' : 'function',
     'defmod-shift-z' : 'clearWhiteboard',
     'defmod-z' : 'undoStep', 
+    'defmod-shift-z' : 'redoStep',
     'defmod-x' : 'setTool_recSelect',
     'defmod-m' : 'setTool_mouse',
     'defmod-p' : 'setTool_pen',

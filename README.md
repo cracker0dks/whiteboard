@@ -43,6 +43,7 @@ Result | Windows and Linux | macOS
 ------ | -------------------- | -------
 Clear the whiteboard | Ctrl + Shift + Z | Command + Shift + Z
 Undo your last step | Ctrl + Z | Command + Z
+Redo your last undo | Ctrl + Shift + Z | Command + + Shift + Z
 Select an area | Ctrl + X | Command + X
 Take the mouse | Ctrl + M | Command + M
 Take the pen | Ctrl + P | Command + P

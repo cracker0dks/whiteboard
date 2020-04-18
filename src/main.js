@@ -1,3 +1,5 @@
+import keymage from "keymage";
+
 var whiteboardId = getQueryVariable("whiteboardid");
 var randomid = getQueryVariable("randomid");
 if (randomid && !whiteboardId) { //set random whiteboard on empty whiteboardid

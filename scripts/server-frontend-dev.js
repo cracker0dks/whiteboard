@@ -6,6 +6,7 @@ const devServerConfig = {
     maxModules: 0
   },
   proxy: {
+    // proxies for the backend
     '/api': 'http://localhost:3000',
     '/uploads': 'http://localhost:3000',
     '/ws-api': {

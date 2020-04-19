@@ -11,7 +11,7 @@ const devConfig = merge(baseConfig, {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
+    new webpack.NoEmitOnErrorsPlugin(),
   ].concat(baseConfig.plugins),
 });
 

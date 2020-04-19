@@ -24,13 +24,17 @@ You can run this app with and without docker
 ### Without Docker
 1. install the latest NodeJs
 2. Clone the app
-3. Run `npm i` inside the folder
-4. Run `node server.js`
+3. Run `npm ci` inside the folder
+4. Run `npm run start:prod`
 5. Surf to http://YOURIP:8080
 
 ### With Docker
 1. `docker run -d -p 8080:8080 rofl256/whiteboard`
 2. Surf to http://YOURIP:8080
+
+## Development
+
+After you have installed the app, run `npm run start:dev` to lunch the backend and a frontend development server. The website will be accessible on http://locahost:8080.
 
 ## Default keyboard shortcuts
 Use keyboard shortcuts to become more productive while using Whiteboard.

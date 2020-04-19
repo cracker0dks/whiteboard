@@ -1,4 +1,26 @@
-FROM node:11
+FROM node:11 as base
+
+# Create app directory
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+
+# Install app dependencies
+COPY ./package.json package-lock.json ./
+RUN npm ci
+
+# Bundle frontend
+COPY src ./src
+COPY assets ./assets
+COPY config ./config
+RUN npm run build
+
+
+#####################
+# Final image
+#####################
+
+FROM node:11-alpine
+ENV NODE_ENV=prod
 
 MAINTAINER cracker0dks
 
@@ -6,12 +28,11 @@ MAINTAINER cracker0dks
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-# Install app dependencies
-COPY ./package.json /opt/app
-RUN npm install
+COPY ./package.json ./package-lock.json ./
+RUN npm ci --only=prod
 
-# Bundle app source
-COPY . /opt/app
+COPY scripts ./scripts
+COPY --from=base /opt/app/public ./public
 
 EXPOSE 8080
-CMD [ "npm", "start" ]
+ENTRYPOINT [ "npm", "run", "start:prod-no-build" ]

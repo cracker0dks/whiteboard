@@ -1,9 +1,8 @@
 import "jquery-ui/ui/core";
 import "jquery-ui/ui/widgets/draggable";
-import "@fortawesome/fontawesome-free/js/all";
-
 import "../css/main.css";
 
+import "./icons";
 import main from "./main";
 
 $(document).ready(function () {

@@ -510,9 +510,11 @@ $(document).ready(function () {
         whiteboard.dropIndicator.hide();
     });
 
-    $('#whiteboardColorpicker').colorPicker({
-        renderCallback: function (elm) {
-            whiteboard.setDrawColor(elm.val());
+    new Picker({
+        parent: $('#whiteboardColorpicker')[0],
+        color: "#000000",
+        onChange: function(color) {
+            whiteboard.setDrawColor(color.rgbaString);
         }
     });
 });

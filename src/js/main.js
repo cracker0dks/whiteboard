@@ -469,7 +469,7 @@ function main(){
                         var reader = new window.FileReader();
                         reader.readAsDataURL(blob);
                         reader.onloadend = function () {
-                            base64data = reader.result;
+                            const base64data = reader.result;
                             uploadImgAndAddToWhiteboard(base64data);
                         }
                     } else {
@@ -651,7 +651,7 @@ function main(){
                 options[i] = newOptions[i];
             }
         }
-        var alertHtml = $('<div class="basicalert" style="position:absolute; top:0px; left:0px; width:100%; top:70px; font-family: monospace;">' +
+        var alertHtml = $('<div class="basicalert" style="position:absolute; left:0px; width:100%; top:70px; font-family: monospace;">' +
             '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">' +
             '<div style="border-bottom: 1px solid #676767; background: ' + options["headercolor"] + '; padding-left: 5px; font-size: 0.8em;">' + options["header"] + '</div>' +
             '<div style="padding: 10px;" class="htmlcontent"></div>' +

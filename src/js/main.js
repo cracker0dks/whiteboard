@@ -36,11 +36,7 @@ var subdir = "";
 for (var i = 3; i < urlSplit.length; i++) {
     subdir = subdir + '/' + urlSplit[i];
 }
-if (subdir != "") {
-    signaling_socket = io("", { "path": subdir + "/socket.io" }); //Connect even if we are in a subdir behind a reverse proxy
-} else {
-    signaling_socket = io();
-}
+signaling_socket = io("", { "path": subdir + "/ws-api" }); // Connect even if we are in a subdir behind a reverse proxy
 
 signaling_socket.on('connect', function () {
     console.log("Websocket connected!");
@@ -81,7 +77,7 @@ $(document).ready(function () {
     });
 
     // request whiteboard from server
-    $.get(subdir + "/loadwhiteboard", { wid: whiteboardId, at: accessToken }).done(function (data) {
+    $.get(subdir + "/api/loadwhiteboard", { wid: whiteboardId, at: accessToken }).done(function (data) {
         whiteboard.loadData(data)
     });
 
@@ -535,7 +531,7 @@ function uploadImgAndAddToWhiteboard(base64data) {
     var date = (+new Date());
     $.ajax({
         type: 'POST',
-        url: document.URL.substr(0, document.URL.lastIndexOf('/')) + '/upload',
+        url: document.URL.substr(0, document.URL.lastIndexOf('/')) + '/api/upload',
         data: {
             'imagedata': base64data,
             'whiteboardId': whiteboardId,
@@ -557,7 +553,7 @@ function saveWhiteboardToWebdav(base64data, webdavaccess, callback) {
     var date = (+new Date());
     $.ajax({
         type: 'POST',
-        url: document.URL.substr(0, document.URL.lastIndexOf('/')) + '/upload',
+        url: document.URL.substr(0, document.URL.lastIndexOf('/')) + 'api/upload',
         data: {
             'imagedata': base64data,
             'whiteboardId': whiteboardId,

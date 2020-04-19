@@ -1,4 +1,4 @@
-var whiteboard = {
+const whiteboard = {
     canvas: null,
     ctx: null,
     drawcolor: "black",
@@ -95,7 +95,7 @@ var whiteboard = {
                 var touche = e.touches[0];
                 _this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left + 1;
                 _this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top + 1;
-                latestTouchCoods = [_this.prevX, _this.prevY];
+                _this.latestTouchCoods = [_this.prevX, _this.prevY];
             }
 
             if (_this.tool === "pen") {
@@ -264,8 +264,8 @@ var whiteboard = {
 
         //On textcontainer click (Add a new textbox)
         _this.textContainer.on("click", function (e) {
-            currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
             var fontsize = _this.thickness * 0.5;
             var txId = 'tx' + (+new Date());
             _this.sendFunction({ "t": "addTextBox", "d": [_this.drawcolor, fontsize, currX, currY, txId] });
@@ -754,6 +754,7 @@ var whiteboard = {
     setDrawColor(color) {
         var _this = this;
         _this.drawcolor = color;
+        $("#whiteboardColorpicker").css({ "background": color });
         if (_this.tool == "text" && _this.latestActiveTextBoxId) {
             _this.sendFunction({ "t": "setTextboxFontColor", "d": [_this.latestActiveTextBoxId, color] });
             _this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
@@ -847,7 +848,7 @@ var whiteboard = {
         this.cursorContainer.find(".userbadge").remove();
     },
     getImageDataBase64() {
-        _this = this;
+        var _this = this;
         var width = this.mouseOverlay.width();
         var height = this.mouseOverlay.height();
         var copyCanvas = document.createElement('canvas');
@@ -979,3 +980,5 @@ function lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, a) {
     c2 -= delta;
     return [cm1 * xm1 + c0 * x0 + c1 * x1 + c2 * x2, cm1 * ym1 + c0 * y0 + c1 * y1 + c2 * y2];
 }
+
+export default whiteboard;

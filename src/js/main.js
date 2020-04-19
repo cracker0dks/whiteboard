@@ -1,4 +1,10 @@
 import keymage from "keymage";
+import io from 'socket.io-client';
+import whiteboard from "./whiteboard";
+import keybinds from "./keybinds";
+import Picker from "vanilla-picker";
+
+function main(){
 
 var whiteboardId = getQueryVariable("whiteboardid");
 var randomid = getQueryVariable("randomid");
@@ -141,27 +147,22 @@ $(document).ready(function () {
         setDrawColorBlack: function () {
             whiteboard.setDrawColor("black");
             whiteboard.redrawMouseCursor();
-            $("#whiteboardColorpicker").css({ "background": "black" });
         },
         setDrawColorRed: function () {
             whiteboard.setDrawColor("red");
             whiteboard.redrawMouseCursor();
-            $("#whiteboardColorpicker").css({ "background": "red" });
         },
         setDrawColorGreen: function () {
             whiteboard.setDrawColor("green");
             whiteboard.redrawMouseCursor();
-            $("#whiteboardColorpicker").css({ "background": "green" });
         },
         setDrawColorBlue: function () {
             whiteboard.setDrawColor("blue");
             whiteboard.redrawMouseCursor();
-            $("#whiteboardColorpicker").css({ "background": "blue" });
         },
         setDrawColorYellow: function () {
             whiteboard.setDrawColor("yellow");
             whiteboard.redrawMouseCursor();
-            $("#whiteboardColorpicker").css({ "background": "yellow" });
         },
 
         toggleLineRecCircle: function () {
@@ -683,3 +684,7 @@ function getQueryVariable(variable) {
     }
     return false;
 }
+
+}
+
+export default main;

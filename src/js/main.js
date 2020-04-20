@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import whiteboard from "./whiteboard";
 import keybinds from "./keybinds";
 import Picker from "vanilla-picker";
+import { dom } from "@fortawesome/fontawesome-svg-core";
 
 function main(){
 
@@ -382,6 +383,8 @@ function main(){
                 okBtnText: "cancel",
                 headercolor: "#0082c9"
             })
+            // render newly added icons
+            dom.i2svg();
         });
 
         // upload json containing steps

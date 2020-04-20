@@ -1,3 +1,5 @@
+import { dom } from "@fortawesome/fontawesome-svg-core";
+
 const whiteboard = {
     canvas: null,
     ctx: null,
@@ -69,6 +71,10 @@ const whiteboard = {
             .append(_this.cursorContainer)
             .append(_this.textContainer)
             .append(_this.mouseOverlay);
+        
+        // render newly added icons
+        dom.i2svg()
+
         this.canvas = $("#whiteboardCanvas")[0];
         this.canvas.height = $(window).height();
         this.canvas.width = $(window).width();
@@ -596,6 +602,9 @@ const whiteboard = {
         _this.mouseOverlay.append(imgDiv);
         imgDiv.draggable();
         imgDiv.resizable();
+
+        // render newly added icons
+        dom.i2svg();
     },
     drawImgToBackground(url, width, height, left, top) {
         this.imgContainer.append('<img crossorigin="anonymous" style="width:' + width + 'px; height:' + height + 'px; position:absolute; top:' + top + 'px; left:' + left + 'px;" src="' + url + '">')
@@ -654,6 +663,9 @@ const whiteboard = {
         if (this.tool === "text") {
             textBox.addClass("active");
         }
+
+        // render newly added icons
+        dom.i2svg();
     },
     setTextboxText(txId, text) {
         $("#" + txId).find(".textContent").html(decodeURIComponent(escape(atob(text)))); //Set decoded base64 as html

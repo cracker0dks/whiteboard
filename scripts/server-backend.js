@@ -20,7 +20,8 @@ function startBackendServer(port) {
     var s_whiteboard = require("./s_whiteboard.js");
     
     var app = express();
-    app.use(express.static(path.join(__dirname, '..', 'public')));
+    app.use(express.static(path.join(__dirname, '..', 'dist')));
+    app.use("/uploads", express.static(path.join(__dirname, '..', 'public', 'uploads')));
     var server = require('http').Server(app);
     server.listen(port);
     var io = require('socket.io')(server, {path: "/ws-api", });

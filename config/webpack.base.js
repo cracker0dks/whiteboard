@@ -9,7 +9,7 @@ const config = {
     main: ["./src/js/index.js"],
   },
   output: {
-    path: path.join(__dirname, "..", "public"),
+    path: path.join(__dirname, "..", "dist"),
     filename: "[name]-[hash].js"
   },
   resolve: {

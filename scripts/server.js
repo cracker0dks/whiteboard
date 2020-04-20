@@ -9,8 +9,13 @@ const SERVER_MODES = {
 
 const args = getArgs();
 
-if ( typeof args.mode === "undefined" || (args.mode !== "production" && args.mode !== "development")) {
-    throw new Error("--mode=development or --mode=production is expected")
+if ( typeof args.mode === "undefined") {
+    // default to production mode
+    args.mode = "production";
+}
+
+if (args.mode !== "production" && args.mode !== "development") {
+    throw new Error("--mode can only be 'development' or 'production'")
 }
 
 const server_mode = args.mode === "production" ? SERVER_MODES.PRODUCTION : SERVER_MODES.DEVELOPMENT;

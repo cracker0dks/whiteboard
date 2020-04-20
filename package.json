@@ -7,8 +7,7 @@
   "scripts": {
     "build": "webpack --config config/webpack.build.js",
     "start:dev": "node scripts/server.js --mode=development",
-    "start:prod": "npm run build && npm run start:prod-no-build",
-    "start:prod-no-build": "node scripts/server.js --mode=production",
+    "start:prod": "npm run build && node scripts/server.js --mode=production",
     "test": "echo \"No tests needed!\" && exit 1"
   },
   "repository": {

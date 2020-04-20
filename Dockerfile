@@ -32,7 +32,7 @@ COPY ./package.json ./package-lock.json ./
 RUN npm ci --only=prod
 
 COPY scripts ./scripts
-COPY --from=base /opt/app/public ./public
+COPY --from=base /opt/app/dist ./dist
 
 EXPOSE 8080
 ENTRYPOINT [ "npm", "run", "start:prod-no-build" ]

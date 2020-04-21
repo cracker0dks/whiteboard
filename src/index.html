@@ -4,37 +4,6 @@
 <head>
 	<title>Whiteboard</title>
 	<meta charset="utf-8" />
-
-	<!--- jquery and dragabbles -!-->
-	<script type="text/javascript" src="./js/libs/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="./js/libs/jquery-ui.min.js"></script>
-	<!--- For icons -!-->
-	<script type="text/javascript" src="./js/libs/fontawseome5.8.1.min.js"></script>
-	<!--- Socket connection -!-->
-	<script type="text/javascript" src="./js/libs/socketio2.0.4.min.js"></script>
-	<!--- Colorpicker -!-->
-	<script type="text/javascript" src="./js/libs/jqColorPicker.min.js"></script>
-	<!--- For keybindings -!-->
-	<script type="text/javascript" src="./js/libs/keymage.min.js"></script>
-
-	<script type="text/javascript" src="./js/keybinds.js"></script>
-	<script type="text/javascript" src="./js/whiteboard.js"></script>
-	<script type="text/javascript" src="./js/main.js"></script>
-
-	<!--- CSS References -!-->
-	<link rel="stylesheet" href="./css/jquery-ui.min.css">
-	<link href="./css/main.css" rel="stylesheet">
-
-	<!--- Set width for Mobile Devices -!-->
-	<script>
-		//Set correct width height on mobile browsers
-		var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-		if (isChrome) {
-			$('head').append('<meta name="viewport" content="width=device-width, initial-scale=0.52, maximum-scale=1" />');
-		} else {
-			$('head').append('<meta name="viewport" content="width=1400" />');
-		}
-	</script>
 </head>
 
 <body>
@@ -97,11 +66,9 @@
 				<input title="Thickness" id="whiteboardThicknessSlider"
 					style="position: absolute; left:9px; width: 130px; top: 15px;" type="range" min="1" max="50"
 					value="3">
-				<div title="Colorpicker"
-					style="position: absolute; left: 155px; top: 10px; width: 26px; height: 23px; border-radius: 3px; overflow: hidden; border: 1px solid darkgrey;">
-					<div id="whiteboardColorpicker" value="#000000"
-						style="width: 40px; height: 35px; border: 0px; padding: 0px; position: relative; top: 0px; left: -5px;">
-					</div>
+				<div id="whiteboardColorpicker"
+					style="position: absolute; left: 155px; top: 10px; width: 26px; height: 23px; border-radius: 3px; border: 1px solid darkgrey;"
+					data-color="#000000">
 				</div>
 			</button>
 		</div>
@@ -154,6 +121,8 @@
 				<i id="maxBtn" style="position:relative; left:-5px; display: none;" class="fas fa-angle-right"></i>
 			</button>
 		</div>
+	</div>
+
 </body>
 
 </html>

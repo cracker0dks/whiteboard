@@ -1,7 +1,7 @@
 # whiteboard
 This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easily be customized...
 
-![start](https://raw.githubusercontent.com/cracker0dks/whiteboard/master/doc/start.png)
+![start](./doc/start.png)
 
 ## Demowhiteboard ##
 [HERE](https://cloud13.de/testwhiteboard/) (Reset every night)
@@ -24,20 +24,24 @@ You can run this app with and without docker
 ### Without Docker
 1. install the latest NodeJs
 2. Clone the app
-3. Run `npm i` inside the folder
-4. Run `node server.js`
+3. Run `npm ci` inside the folder
+4. Run `npm run start:prod`
 5. Surf to http://YOURIP:8080
 
 ### With Docker
 1. `docker run -d -p 8080:8080 rofl256/whiteboard`
 2. Surf to http://YOURIP:8080
 
+## Development
+
+After you have installed the app, run `npm run start:dev` to start the backend and a frontend development server. The website will be accessible on http://locahost:8080.
+
 ## Default keyboard shortcuts
 Use keyboard shortcuts to become more productive while using Whiteboard.
 
 They are especially useful if you work with interactive displays such as XP-Pen Artist, Huion Kamvas and Wacom Cintiq. These devices have quick buttons (6-8 buttons and scrolling). By default, the buttons on these displays are mapped to standard Photoshop keyboard shortcuts. Keys can be configured to function effectively in other software.
 
-The following are predefined shortcuts that you can override in the file [/public/js/keybinds.js](https://github.com/cracker0dks/whiteboard/blob/master/public/js/keybinds.js)
+The following are predefined shortcuts that you can override in the file [./src/js/keybinds.js](./src/js/keybinds.js)
 
 Result | Windows and Linux | macOS
 ------ | -------------------- | -------
@@ -91,9 +95,9 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 ## Security - AccessToken (Optional)
 To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start.
 
-<b>Server (Without docker):</b> `node server.js --accesstoken="mySecToken"`
+<b>Server (Without docker):</b> `node scripts/server.js --accesstoken="mySecToken"`
 
-<b>Server (With docker):</b> `docker run -d -e accesstoken="mySecToken" -p 8080:8080 rofl256/whiteboard`
+<b>Server (With docker):</b> `docker run -d -p 8080:8080 rofl256/whiteboard --accesstoken="mySecToken"`
 
 Then set the same token on the client side as well:
 
@@ -106,9 +110,9 @@ This function allows your users to save the whiteboard directly to a webdav serv
 
 To enable it:
 
-<b>Server (Without docker):</b> `node server.js --webdav=true`
+<b>Server (Without docker):</b> `node scripts/server.js --webdav=true`
 
-<b>Server (With docker):</b> `docker run -d -e webdav=true -p 8080:8080 rofl256/whiteboard`
+<b>Server (With docker):</b> `docker run -d -p 8080:8080 rofl256/whiteboard --webdav=true`
 
 Then set the same parameter on the client side as well:
 
@@ -123,7 +127,7 @@ Done!
 
 ## Things you may want to know
 * Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
-* You shoud be able to customize the layout without ever toutching the whiteboard.js (take a look at index.html & main.js)
+* You should be able to customize the layout without ever touching the whiteboard.js (take a look at index.html & main.js)
 
 ## All server start parameters (also docker)
 * accesstoken => take a look at "Security - AccessToken" for a full explanation

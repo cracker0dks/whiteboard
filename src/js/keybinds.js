@@ -5,7 +5,7 @@
 //> defmod is "command" on OS X and "ctrl" elsewhere
 //Advanced Example: 'defmod-k j' -> For this to fire you have to first press both ctrl and k, and then j. 
 
-var keybinds = {
+const keybinds = {
     // 'key(s)' : 'function',
     'defmod-shift-z' : 'clearWhiteboard',
     'defmod-z' : 'undoStep', 
@@ -44,3 +44,5 @@ var keybinds = {
     'escape' : 'cancelAllActions',
     'del' : 'deleteSelection'
 }
+
+export default keybinds;

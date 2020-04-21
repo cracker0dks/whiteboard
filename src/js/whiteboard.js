@@ -1,4 +1,6 @@
-var whiteboard = {
+import { dom } from "@fortawesome/fontawesome-svg-core";
+
+const whiteboard = {
     canvas: null,
     ctx: null,
     drawcolor: "black",
@@ -45,7 +47,7 @@ var whiteboard = {
         this.settings["whiteboardId"] = this.settings["whiteboardId"].replace(/[^0-9a-z]/gi, '');
 
         //background grid (repeating image) and smallest screen indication
-        _this.backgroundGrid = $('<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url(\'' + _this.settings["backgroundGridUrl"] + '\'); height: 100%; width: 100%;"></div>');
+        _this.backgroundGrid = $(`<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url('${_this.settings["backgroundGridUrl"]}'); height: 100%; width: 100%;"></div>`);
         // container for background images
         _this.imgContainer = $('<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
         // whiteboard canvas
@@ -69,6 +71,10 @@ var whiteboard = {
             .append(_this.cursorContainer)
             .append(_this.textContainer)
             .append(_this.mouseOverlay);
+        
+        // render newly added icons
+        dom.i2svg()
+
         this.canvas = $("#whiteboardCanvas")[0];
         this.canvas.height = $(window).height();
         this.canvas.width = $(window).width();
@@ -95,7 +101,7 @@ var whiteboard = {
                 var touche = e.touches[0];
                 _this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left + 1;
                 _this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top + 1;
-                latestTouchCoods = [_this.prevX, _this.prevY];
+                _this.latestTouchCoods = [_this.prevX, _this.prevY];
             }
 
             if (_this.tool === "pen") {
@@ -264,8 +270,8 @@ var whiteboard = {
 
         //On textcontainer click (Add a new textbox)
         _this.textContainer.on("click", function (e) {
-            currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
             var fontsize = _this.thickness * 0.5;
             var txId = 'tx' + (+new Date());
             _this.sendFunction({ "t": "addTextBox", "d": [_this.drawcolor, fontsize, currX, currY, txId] });
@@ -596,6 +602,9 @@ var whiteboard = {
         _this.mouseOverlay.append(imgDiv);
         imgDiv.draggable();
         imgDiv.resizable();
+
+        // render newly added icons
+        dom.i2svg();
     },
     drawImgToBackground(url, width, height, left, top) {
         this.imgContainer.append('<img crossorigin="anonymous" style="width:' + width + 'px; height:' + height + 'px; position:absolute; top:' + top + 'px; left:' + left + 'px;" src="' + url + '">')
@@ -654,6 +663,9 @@ var whiteboard = {
         if (this.tool === "text") {
             textBox.addClass("active");
         }
+
+        // render newly added icons
+        dom.i2svg();
     },
     setTextboxText(txId, text) {
         $("#" + txId).find(".textContent").html(decodeURIComponent(escape(atob(text)))); //Set decoded base64 as html
@@ -754,6 +766,7 @@ var whiteboard = {
     setDrawColor(color) {
         var _this = this;
         _this.drawcolor = color;
+        $("#whiteboardColorpicker").css({ "background": color });
         if (_this.tool == "text" && _this.latestActiveTextBoxId) {
             _this.sendFunction({ "t": "setTextboxFontColor", "d": [_this.latestActiveTextBoxId, color] });
             _this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
@@ -847,7 +860,7 @@ var whiteboard = {
         this.cursorContainer.find(".userbadge").remove();
     },
     getImageDataBase64() {
-        _this = this;
+        var _this = this;
         var width = this.mouseOverlay.width();
         var height = this.mouseOverlay.height();
         var copyCanvas = document.createElement('canvas');
@@ -979,3 +992,5 @@ function lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, a) {
     c2 -= delta;
     return [cm1 * xm1 + c0 * x0 + c1 * x1 + c2 * x2, cm1 * ym1 + c0 * y0 + c1 * y1 + c2 * y2];
 }
+
+export default whiteboard;

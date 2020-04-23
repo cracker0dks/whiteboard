@@ -629,7 +629,7 @@ function main(){
                         reader.readAsDataURL(blob);
                         reader.onloadend = function () {
                             console.log("Uploading image!");
-                            base64data = reader.result;
+                            let base64data = reader.result;
                             uploadImgAndAddToWhiteboard(base64data);
                         }
                     }

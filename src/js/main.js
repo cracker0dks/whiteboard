@@ -726,7 +726,7 @@ function main() {
             }
 
             if (!imgItemFound && whiteboard.tool != "text") {
-                showBasicAlert("Please Drag&Drop the image into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)");
+                showBasicAlert("Please Drag&Drop the image or pdf into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)");
             }
         }
     });

@@ -484,56 +484,79 @@ function main() {
                         var reader = new window.FileReader();
                         reader.onloadend = function () {
                             var pdfData = new Uint8Array(this.result);
-                            var loadingTask = pdfjsLib.getDocument({ data: pdfData });
-                            loadingTask.promise.then(function (pdf) {
-                                console.log('PDF loaded');
 
-                                // Fetch the first page
-                                var pageNumber = 1;
-                                pdf.getPage(pageNumber).then(function (page) {
-                                    console.log('Page loaded');
+                            var currentDataUrl = null;
+                            var modalDiv = $('<div>' +
+                                'Page: <select></select>' +
+                                '<br><button>Upload to Whiteboard</button>' +
+                                '<img style="width:100%;" src=""/>' +
+                                '</div>')
+
+                            modalDiv.find("select").change(function () {
+                                showPDFPageAsImage(parseInt($(this).val()));
+                            })
+
+                            modalDiv.find("button").click(function () {
+                                if (currentDataUrl) {
+                                    $(".basicalert").remove();
+                                    uploadImgAndAddToWhiteboard(currentDataUrl);
+                                }
+                            })
+
+                            showBasicAlert(modalDiv, {
+                                header: "Pdf to Image",
+                                okBtnText: "cancel",
+                                headercolor: "#0082c9"
+                            })
+
+                            showPDFPageAsImage(1);
+                            function showPDFPageAsImage(pageNumber) {
+                                var loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                                loadingTask.promise.then(function (pdf) {
+                                    console.log('PDF loaded');
+
+                                    if (!currentDataUrl) { //First load
+                                        for (var i = 1; i < pdf.numPages + 1; i++) {
+                                            modalDiv.find("select").append('<option value="' + i + '">' + i + '</option>')
+                                        }
+                                    }
+
+                                    // Fetch the page
+                                    pdf.getPage(pageNumber).then(function (page) {
+                                        console.log('Page loaded');
 
 
-                                    var scale = 1.5;
-                                    var viewport = page.getViewport({ scale: scale });
+                                        var scale = 1.5;
+                                        var viewport = page.getViewport({ scale: scale });
 
-                                    // Prepare canvas using PDF page dimensions
-                                    var canvas = $("<canvas></canvas>")[0];
-                                    var context = canvas.getContext('2d');
-                                    canvas.height = viewport.height;
-                                    canvas.width = viewport.width;
+                                        // Prepare canvas using PDF page dimensions
+                                        var canvas = $("<canvas></canvas>")[0];
+                                        var context = canvas.getContext('2d');
+                                        canvas.height = viewport.height;
+                                        canvas.width = viewport.width;
 
-                                    // Render PDF page into canvas context
-                                    var renderContext = {
-                                        canvasContext: context,
-                                        viewport: viewport
-                                    };
-                                    var renderTask = page.render(renderContext);
-                                    renderTask.promise.then(function () {
+                                        // Render PDF page into canvas context
+                                        var renderContext = {
+                                            canvasContext: context,
+                                            viewport: viewport
+                                        };
+                                        var renderTask = page.render(renderContext);
+                                        renderTask.promise.then(function () {
+                                            var dataUrl = canvas.toDataURL("image/jpeg", 1.0);
+                                            currentDataUrl = dataUrl;
+                                            modalDiv.find("img").attr("src", dataUrl);
+                                            console.log('Page rendered');
 
-                                        var dataUrl = canvas.toDataURL("image/jpeg", 1.0);
-                                        console.log('Page rendered');
-
-                                        var modalDiv = $('<div>' +
-                                            '<img style="width:100%;" src="' + dataUrl + '"/>' +
-                                            '<br><button>Upload to Whiteboard</button>' +
-                                            '</div>')
-                                        modalDiv.find("button").click(function () {
-                                            $(".basicalert").remove();
-                                            uploadImgAndAddToWhiteboard(dataUrl);
-                                        })
-                                        showBasicAlert(modalDiv, {
-                                            header: "Pdf to Image",
-                                            okBtnText: "cancel",
-                                            headercolor: "#0082c9"
-                                        })
+                                        });
                                     });
+
+                                }, function (reason) {
+                                    // PDF loading error
+
+                                    showBasicAlert("Error loading pdf as image! Check that this is a vaild pdf file!");
+                                    console.error(reason);
                                 });
-                            }, function (reason) {
-                                // PDF loading error
-                                showBasicAlert("Error loading pdf as image! Check that this is a vaild pdf file!");
-                                console.error(reason);
-                            });
+                            }
                         }
                         reader.readAsArrayBuffer(blob);
                     } else {

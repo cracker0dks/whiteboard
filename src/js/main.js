@@ -4,8 +4,10 @@ import whiteboard from "./whiteboard";
 import keybinds from "./keybinds";
 import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
+import pdfjsLib from "pdfjs-dist/build/pdf";
+import pdfjsLibWorker from "pdfjs-dist/build/pdf.worker";
 
-function main(){
+function main() {
 
     var whiteboardId = getQueryVariable("whiteboardid");
     var randomid = getQueryVariable("randomid");
@@ -475,6 +477,65 @@ function main(){
                             const base64data = reader.result;
                             uploadImgAndAddToWhiteboard(base64data);
                         }
+                    } else if (isPDFFileName(filename)) {
+                        var blob = e.originalEvent.dataTransfer.files[0];
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsLibWorker;
+
+                        var reader = new window.FileReader();
+                        reader.onloadend = function () {
+                            var pdfData = new Uint8Array(this.result);
+                            var loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                            loadingTask.promise.then(function (pdf) {
+                                console.log('PDF loaded');
+
+                                // Fetch the first page
+                                var pageNumber = 1;
+                                pdf.getPage(pageNumber).then(function (page) {
+                                    console.log('Page loaded');
+
+
+                                    var scale = 1.5;
+                                    var viewport = page.getViewport({ scale: scale });
+
+                                    // Prepare canvas using PDF page dimensions
+                                    var canvas = $("<canvas></canvas>")[0];
+                                    var context = canvas.getContext('2d');
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
+
+                                    // Render PDF page into canvas context
+                                    var renderContext = {
+                                        canvasContext: context,
+                                        viewport: viewport
+                                    };
+                                    var renderTask = page.render(renderContext);
+                                    renderTask.promise.then(function () {
+
+                                        var dataUrl = canvas.toDataURL("image/jpeg", 1.0);
+                                        console.log('Page rendered');
+
+                                        var modalDiv = $('<div>' +
+                                            '<img style="width:100%;" src="' + dataUrl + '"/>' +
+                                            '<br><button>Upload to Whiteboard</button>' +
+                                            '</div>')
+                                        modalDiv.find("button").click(function () {
+                                            $(".basicalert").remove();
+                                            uploadImgAndAddToWhiteboard(dataUrl);
+                                        })
+                                        showBasicAlert(modalDiv, {
+                                            header: "Pdf to Image",
+                                            okBtnText: "cancel",
+                                            headercolor: "#0082c9"
+                                        })
+                                    });
+                                });
+                            }, function (reason) {
+                                // PDF loading error
+                                showBasicAlert("Error loading pdf as image! Check that this is a vaild pdf file!");
+                                console.error(reason);
+                            });
+                        }
+                        reader.readAsArrayBuffer(blob);
                     } else {
                         showBasicAlert("File must be an image!");
                     }
@@ -516,7 +577,7 @@ function main(){
         new Picker({
             parent: $('#whiteboardColorpicker')[0],
             color: "#000000",
-            onChange: function(color) {
+            onChange: function (color) {
                 whiteboard.setDrawColor(color.rgbaString);
             }
         });
@@ -591,6 +652,13 @@ function main(){
         return known_extensions.includes(extension.toLowerCase());
     }
 
+    // verify if filename refers to an pdf
+    function isPDFFileName(filename) {
+        var extension = filename.split(".")[filename.split(".").length - 1];
+        var known_extensions = ["pdf"];
+        return known_extensions.includes(extension.toLowerCase());
+    }
+
     // verify if given url is url to an image
     function isValidImageUrl(url, callback) {
         var img = new Image();
@@ -647,7 +715,8 @@ function main(){
             header: "INFO MESSAGE",
             okBtnText: "Ok",
             headercolor: "#d25d5d",
-            hideAfter: false
+            hideAfter: false,
+            onOkClick: false
         }
         if (newOptions) {
             for (var i in newOptions) {
@@ -656,7 +725,8 @@ function main(){
         }
         var alertHtml = $('<div class="basicalert" style="position:absolute; left:0px; width:100%; top:70px; font-family: monospace;">' +
             '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">' +
-            '<div style="border-bottom: 1px solid #676767; background: ' + options["headercolor"] + '; padding-left: 5px; font-size: 0.8em;">' + options["header"] + '</div>' +
+            '<div style="border-bottom: 1px solid #676767; background: ' + options["headercolor"] + '; padding-left: 5px; font-size: 0.8em;">' + options["header"] +
+            '<div style="float: right; margin-right: 4px; color: #373737; cursor: pointer;" class="closeAlert">x</div></div>' +
             '<div style="padding: 10px;" class="htmlcontent"></div>' +
             '<div style="height: 20px; padding: 10px;"><button class="modalBtn okbtn" style="float: right;">' + options["okBtnText"] + '</button></div>' +
             '</div>' +
@@ -664,8 +734,15 @@ function main(){
         alertHtml.find(".htmlcontent").append(html);
         $("body").append(alertHtml);
         alertHtml.find(".okbtn").click(function () {
+            if (options.onOkClick) {
+                options.onOkClick();
+            }
             alertHtml.remove();
         })
+        alertHtml.find(".closeAlert").click(function () {
+            alertHtml.remove();
+        })
+
         if (options.hideAfter) {
             setTimeout(function () {
                 alertHtml.find(".okbtn").click();
@@ -685,7 +762,6 @@ function main(){
         }
         return false;
     }
-
 }
 
 export default main;

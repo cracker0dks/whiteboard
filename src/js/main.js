@@ -4,8 +4,7 @@ import whiteboard from "./whiteboard";
 import keybinds from "./keybinds";
 import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
-import pdfjsLib from "pdfjs-dist/build/pdf";
-import pdfjsLibWorker from "pdfjs-dist/build/pdf.worker";
+import pdfjsLib from "pdfjs-dist/webpack";
 
 function main() {
 
@@ -477,49 +476,47 @@ function main() {
                             const base64data = reader.result;
                             uploadImgAndAddToWhiteboard(base64data);
                         }
-                    } else if (isPDFFileName(filename)) {
+                    } else if (isPDFFileName(filename)) { //Handle PDF Files
                         var blob = e.originalEvent.dataTransfer.files[0];
-                        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsLibWorker;
 
                         var reader = new window.FileReader();
                         reader.onloadend = function () {
                             var pdfData = new Uint8Array(this.result);
 
-                            var currentDataUrl = null;
-                            var modalDiv = $('<div>' +
-                                'Page: <select></select>' +
-                                '<br><button>Upload to Whiteboard</button>' +
-                                '<img style="width:100%;" src=""/>' +
-                                '</div>')
+                            var loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                            loadingTask.promise.then(function (pdf) {
+                                console.log('PDF loaded');
 
-                            modalDiv.find("select").change(function () {
-                                showPDFPageAsImage(parseInt($(this).val()));
-                            })
+                                var currentDataUrl = null;
+                                var modalDiv = $('<div>' +
+                                    'Page: <select></select> ' +
+                                    '<button style="margin-bottom: 3px;" class="modalBtn"><i class="fas fa-upload"></i> Upload to Whiteboard</button>' +
+                                    '<img style="width:100%;" src=""/>' +
+                                    '</div>')
 
-                            modalDiv.find("button").click(function () {
-                                if (currentDataUrl) {
-                                    $(".basicalert").remove();
-                                    uploadImgAndAddToWhiteboard(currentDataUrl);
-                                }
-                            })
+                                modalDiv.find("select").change(function () {
+                                    showPDFPageAsImage(parseInt($(this).val()));
+                                })
 
-                            showBasicAlert(modalDiv, {
-                                header: "Pdf to Image",
-                                okBtnText: "cancel",
-                                headercolor: "#0082c9"
-                            })
-
-                            showPDFPageAsImage(1);
-                            function showPDFPageAsImage(pageNumber) {
-                                var loadingTask = pdfjsLib.getDocument({ data: pdfData });
-                                loadingTask.promise.then(function (pdf) {
-                                    console.log('PDF loaded');
-
-                                    if (!currentDataUrl) { //First load
-                                        for (var i = 1; i < pdf.numPages + 1; i++) {
-                                            modalDiv.find("select").append('<option value="' + i + '">' + i + '</option>')
-                                        }
+                                modalDiv.find("button").click(function () {
+                                    if (currentDataUrl) {
+                                        $(".basicalert").remove();
+                                        uploadImgAndAddToWhiteboard(currentDataUrl);
                                     }
+                                })
+
+                                for (var i = 1; i < pdf.numPages + 1; i++) {
+                                    modalDiv.find("select").append('<option value="' + i + '">' + i + '</option>')
+                                }
+
+                                showBasicAlert(modalDiv, {
+                                    header: "Pdf to Image",
+                                    okBtnText: "cancel",
+                                    headercolor: "#0082c9"
+                                })
+
+                                showPDFPageAsImage(1);
+                                function showPDFPageAsImage(pageNumber) {
 
                                     // Fetch the page
                                     pdf.getPage(pageNumber).then(function (page) {
@@ -549,14 +546,15 @@ function main() {
 
                                         });
                                     });
+                                }
 
-                                }, function (reason) {
-                                    // PDF loading error
+                            }, function (reason) {
+                                // PDF loading error
 
-                                    showBasicAlert("Error loading pdf as image! Check that this is a vaild pdf file!");
-                                    console.error(reason);
-                                });
-                            }
+                                showBasicAlert("Error loading pdf as image! Check that this is a vaild pdf file!");
+                                console.error(reason);
+                            });
+
                         }
                         reader.readAsArrayBuffer(blob);
                     } else {

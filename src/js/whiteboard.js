@@ -1,4 +1,7 @@
 import { dom } from "@fortawesome/fontawesome-svg-core";
+import {computeDist, getCurrentTimeMs} from "./utils";
+import Point from "./classes/Point";
+import {POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA, POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA} from "./const";
 
 const whiteboard = {
     canvas: null,
@@ -42,8 +45,10 @@ const whiteboard = {
     },
     readOnly: true,
     lastPointerSentTime: 0,
-    lastPointerX: 0,
-    lastPointerY: 0,
+    /**
+     * @type Point
+     */
+    lastPointerPosition: new Point(0, 0),
     loadWhiteboard: function (whiteboardContainer, newSettings) {
         var svgns = "http://www.w3.org/2000/svg";
         var _this = this;
@@ -164,17 +169,16 @@ const whiteboard = {
             }
             if (_this.readOnly) return;
 
-            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+            const currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+            const currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+            const newPointerPosition = new Point(currX, currY);
 
-            var pointerSentTime = (new Date()).getTime();
-            if (pointerSentTime - _this.lastPointerSentTime > 100) {
-                var dist = Math.pow(_this.lastPointerX-currX,2)+Math.pow(_this.lastPointerY-currY,2);
-                if (dist>100) {
+            const pointerSentTime = getCurrentTimeMs();
+            if (pointerSentTime - _this.lastPointerSentTime > POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA) {
+                if (_this.lastPointerPosition.distTo(newPointerPosition) > POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA) {
                     _this.lastPointerSentTime = pointerSentTime;
-                    _this.lastPointerX = currX;
-                    _this.lastPointerY = currY;
-                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                    _this.lastPointerPosition = newPointerPosition;
+                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [newPointerPosition.x, newPointerPosition.y], "username": _this.settings.username });
                 }
             }
         })
@@ -337,8 +341,7 @@ const whiteboard = {
         }
         var currX = e.currX || (e.offsetX || e.pageX - $(e.target).offset().left);
         var currY = e.currY || (e.offsetY || e.pageY - $(e.target).offset().top);
-        _this.currX = currX;
-        _this.currY = currY;
+
         window.requestAnimationFrame(function () {
             if ((!currX || !currY) && e.touches && e.touches[0]) {
                 var touche = e.touches[0];
@@ -405,14 +408,14 @@ const whiteboard = {
             _this.prevX = currX;
             _this.prevY = currY;
         });
-        var pointerSentTime = (new Date()).getTime();
-        if (pointerSentTime - _this.lastPointerSentTime > 100) {
-            var dist = Math.pow(_this.lastPointerX-currX,2)+Math.pow(_this.lastPointerY-currY,2);
-            if (dist>100) {
+
+        const pointerSentTime = getCurrentTimeMs();
+        if (pointerSentTime - _this.lastPointerSentTime > POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA) {
+            const newPointerPosition = new Point(currX, currY);
+            if (_this.lastPointerPosition.distTo(newPointerPosition) > POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA) {
                 _this.lastPointerSentTime = pointerSentTime;
-                _this.lastPointerX = currX;
-                _this.lastPointerY = currY;
-                _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                _this.lastPointerPosition = newPointerPosition;
+                _this.sendFunction({ "t": "cursor", "event": "move", "d": [newPointerPosition.x, newPointerPosition.y], "username": _this.settings.username });
             }
         }
     },
@@ -669,14 +672,16 @@ const whiteboard = {
             if ($(e.target).hasClass("removeIcon")) {
                 currX += textBox.width() - 4;
             }
-            var pointerSentTime = (new Date()).getTime();
-            if (pointerSentTime - _this.lastPointerSentTime > 100) {
-                var dist = Math.pow(_this.lastPointerX-currX,2)+Math.pow(_this.lastPointerY-currY,2);
-                if (dist>100) {
+
+            const pointerSentTime = getCurrentTimeMs();
+            const newPointerPosition = new Point(currX, currY);
+            // At least 100 ms between messages to reduce server load
+            if (pointerSentTime - _this.lastPointerSentTime > POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA) {
+                // Minimal distance between messages to reduce server load
+                if (_this.lastPointerPosition.distTo(newPointerPosition) > POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA) {
                     _this.lastPointerSentTime = pointerSentTime;
-                    _this.lastPointerX = currX;
-                    _this.lastPointerY = currY;
-                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                    _this.lastPointerPosition = newPointerPosition;
+                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [newPointerPosition.x, newPointerPosition.y], "username": _this.settings.username });
                 }
             }
         })

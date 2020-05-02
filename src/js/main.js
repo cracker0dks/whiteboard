@@ -6,6 +6,7 @@ import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
 import pdfjsLib from "pdfjs-dist/webpack";
 import shortcutFunctions from "./shortcutFunctions";
+import ReadOnlyService from "./services/ReadOnlyService";
 
 function main() {
 
@@ -70,7 +71,7 @@ function main() {
 
     $(document).ready(function () {
         // start in readOnly mode
-        whiteboard.setReadOnly(true);
+        ReadOnlyService.activateReadOnlyMode();
 
         if (getQueryVariable("webdav") == "true") {
             $("#uploadWebDavBtn").show();
@@ -81,7 +82,7 @@ function main() {
             whiteboardId: whiteboardId,
             username: btoa(myUsername),
             sendFunction: function (content) {
-                if (whiteboard.readOnly) return;
+                if (ReadOnlyService.readOnlyActive) return;
                 if (content.t === 'cursor') {
                     if (whiteboard.drawFlag) return;
                 }
@@ -179,11 +180,11 @@ function main() {
         });
 
         // view only
-        $("#whiteboardLockBtn").click(function () {
-            whiteboard.setReadOnly(false);
+        $("#whiteboardLockBtn").click(() => {
+            ReadOnlyService.deactivateReadOnlyMode();
         });
-        $("#whiteboardUnlockBtn").click(function () {
-            whiteboard.setReadOnly(true);
+        $("#whiteboardUnlockBtn").click(() => {
+            ReadOnlyService.activateReadOnlyMode();
         });
         $("#whiteboardUnlockBtn").hide();
         $("#whiteboardLockBtn").show();
@@ -203,7 +204,7 @@ function main() {
 
         // upload image button
         $("#addImgToCanvasBtn").click(function () {
-            if (whiteboard.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             showBasicAlert("Please drag the image into the browser.");
         });
 
@@ -368,14 +369,14 @@ function main() {
 
         // On thickness slider change
         $("#whiteboardThicknessSlider").on("input", function () {
-            if (whiteboard.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             whiteboard.setStrokeThickness($(this).val());
         });
 
         // handle drag&drop
         var dragCounter = 0;
         $('#whiteboardContainer').on("dragenter", function (e) {
-            if (whiteboard.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             e.preventDefault();
             e.stopPropagation();
             dragCounter++;
@@ -383,7 +384,7 @@ function main() {
         });
 
         $('#whiteboardContainer').on("dragleave", function (e) {
-            if (whiteboard.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
 
             e.preventDefault();
             e.stopPropagation();
@@ -394,7 +395,7 @@ function main() {
         });
 
         $('#whiteboardContainer').on('drop', function (e) { //Handle drop
-            if (whiteboard.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
 
             if (e.originalEvent.dataTransfer) {
                 if (e.originalEvent.dataTransfer.files.length) { //File from harddisc

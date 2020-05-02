@@ -2,6 +2,7 @@ import { dom } from "@fortawesome/fontawesome-svg-core";
 import {computeDist, getCurrentTimeMs} from "./utils";
 import Point from "./classes/Point";
 import {POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA, POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA} from "./const";
+import ReadOnlyService from "./services/ReadOnlyService";
 
 const whiteboard = {
     canvas: null,
@@ -43,7 +44,6 @@ const whiteboard = {
         sendFunction: null,
         backgroundGridUrl: './images/KtEBa2.png'
     },
-    readOnly: true,
     lastPointerSentTime: 0,
     /**
      * @type Point
@@ -109,7 +109,7 @@ const whiteboard = {
             if (_this.imgDragActive || _this.drawFlag) {
                 return;
             }
-            if (_this.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
 
             _this.drawFlag = true;
             _this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left) + 1;
@@ -167,7 +167,7 @@ const whiteboard = {
             if (_this.imgDragActive || !$(e.target).hasClass("textcontainer")) {
                 return;
             }
-            if (_this.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
 
             const currX = (e.offsetX || e.pageX - $(e.target).offset().left);
             const currY = (e.offsetY || e.pageY - $(e.target).offset().top);
@@ -185,7 +185,7 @@ const whiteboard = {
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
             e.preventDefault();
-            if (_this.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             _this.triggerMouseMove(e);
         });
 
@@ -197,7 +197,7 @@ const whiteboard = {
             if (_this.imgDragActive) {
                 return;
             }
-            if (_this.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             _this.drawFlag = false;
             _this.drawId++;
             _this.ctx.globalCompositeOperation = _this.oldGCO;
@@ -294,12 +294,12 @@ const whiteboard = {
         }
 
         _this.mouseOverlay.on("mouseout", function (e) {
-            if (_this.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             _this.triggerMouseOut();
         });
 
         _this.mouseOverlay.on("mouseover", function (e) {
-            if (_this.readOnly) return;
+            if (ReadOnlyService.readOnlyActive) return;
             _this.triggerMouseOver();
         });
 
@@ -580,7 +580,7 @@ const whiteboard = {
     },
     clearWhiteboard: function () {
         var _this = this;
-        if (_this.readOnly) return;
+        if (ReadOnlyService.readOnlyActive) return;
         _this.canvas.height = _this.canvas.height;
         _this.imgContainer.empty();
         _this.textContainer.empty();
@@ -793,12 +793,12 @@ const whiteboard = {
         });
     },
     undoWhiteboardClick: function () {
-        if (this.readOnly) return;
+        if (ReadOnlyService.readOnlyActive) return;
         this.sendFunction({ "t": "undo" });
         this.undoWhiteboard();
     },
     redoWhiteboardClick: function () {
-        if (this.readOnly) return;
+        if (ReadOnlyService.readOnlyActive) return;
         this.sendFunction({ "t": "redo" });
         this.redoWhiteboard();
     },
@@ -829,29 +829,6 @@ const whiteboard = {
         if (width < $(window).width() || height < $(window).height()) {
             this.backgroundGrid.append('<div style="position:absolute; left:0px; top:0px; border-right:3px dotted black; border-bottom:3px dotted black; width:' + width + 'px; height:' + height + 'px;"></div>');
             this.backgroundGrid.append('<div style="position:absolute; left:' + (width + 5) + 'px; top:0px;">smallest screen participating</div>');
-        }
-    },
-    setReadOnly: function(what) {
-        var _this = this;
-        _this.readOnly = what;
-
-        if (what === true){
-            _this.previousToolHtmlElem = $(".whiteboard-tool.active");
-            // switch to mouse tool to prevent the use of the 
-            // other tools
-            $(".whiteboard-tool[tool=mouse]").click();
-            $(".whiteboard-tool").prop("disabled", true);
-            $(".whiteboard-edit-group > button").prop("disabled", true);
-            $(".whiteboard-edit-group").addClass("group-disabled");
-            $("#whiteboardUnlockBtn").hide();
-            $("#whiteboardLockBtn").show();
-        } else {
-            $(".whiteboard-tool").prop("disabled", false);
-            $(".whiteboard-edit-group > button").prop("disabled", false);
-            $(".whiteboard-edit-group").removeClass("group-disabled");
-            $("#whiteboardUnlockBtn").show();
-            $("#whiteboardLockBtn").hide();
-            if (_this.previousToolHtmlElem) _this.previousToolHtmlElem.click();
         }
     },
     handleEventsAndData: function (content, isNewData, doneCallback) {

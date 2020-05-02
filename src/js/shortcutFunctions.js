@@ -1,4 +1,5 @@
 import whiteboard from "./whiteboard";
+import ReadOnlyService from "./services/ReadOnlyService";
 
 /**
  * @param {function} callback
@@ -6,7 +7,7 @@ import whiteboard from "./whiteboard";
  */
 function defineShortcut(callback, readOnlySensitive = true) {
     return () => {
-        if (readOnlySensitive && whiteboard.readOnly) return;
+        if (readOnlySensitive && ReadOnlyService.readOnlyActive) return;
         callback();
     }
 }

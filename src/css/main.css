@@ -33,6 +33,24 @@ button::-moz-focus-inner {
     border: 0;
 }
 
+.whiteboard-edit-group.group-disabled {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 166, 0, 0.366) ,
+        rgba(255, 166, 0, 0.366) 10px,
+        rgba(255, 166, 0, 0.666) 10px,
+        rgba(255, 166, 0, 0.666) 20px
+    );
+    
+}
+
+/*
+ * Deactivate all pointer events on all the children
+ * of a group when it's disabled.
+ */
+.whiteboard-edit-group.group-disabled > * {
+    pointer-events: none;
+}
 
 /* Clear floats (clearfix hack) */
 
@@ -60,8 +78,8 @@ button {
     position: relative;
 }
 
-.whiteboardTool.active {
-    background: #bfbfbf;
+.whiteboard-tool.active:not(:disabled) {
+    background: #dfdfdf;
 }
 
 #whiteboardThicknessSlider {

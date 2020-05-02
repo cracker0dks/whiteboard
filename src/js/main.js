@@ -69,7 +69,7 @@ function main() {
 
     $(document).ready(function () {
         // start in readOnly mode
-        whiteboard.setViewOnly(true);
+        whiteboard.setReadOnly(true);
 
         if (getQueryVariable("webdav") == "true") {
             $("#uploadWebDavBtn").show();
@@ -80,7 +80,7 @@ function main() {
             whiteboardId: whiteboardId,
             username: btoa(myUsername),
             sendFunction: function (content) {
-                if (whiteboard.viewOnly) return;
+                if (whiteboard.readOnly) return;
                 if (content.t === 'cursor') {
                     if (whiteboard.drawFlag) return;
                 }
@@ -144,18 +144,18 @@ function main() {
             clearWhiteboard: function () { whiteboard.clearWhiteboard(); },
             undoStep: function () { whiteboard.undoWhiteboardClick(); },
             redoStep: function () { whiteboard.redoWhiteboardClick(); },
-            setTool_mouse: function () { $(".whiteboardTool[tool=mouse]").click(); },
-            setTool_recSelect: function () { $(".whiteboardTool[tool=recSelect]").click(); },
+            setTool_mouse: function () { $(".whiteboard-tool[tool=mouse]").click(); },
+            setTool_recSelect: function () { $(".whiteboard-tool[tool=recSelect]").click(); },
             setTool_pen: function () {
-                $(".whiteboardTool[tool=pen]").click();
+                $(".whiteboard-tool[tool=pen]").click();
                 whiteboard.redrawMouseCursor();
             },
-            setTool_line: function () { $(".whiteboardTool[tool=line]").click(); },
-            setTool_rect: function () { $(".whiteboardTool[tool=rect]").click(); },
-            setTool_circle: function () { $(".whiteboardTool[tool=circle]").click(); },
-            setTool_text: function () { $(".whiteboardTool[tool=text]").click(); },
+            setTool_line: function () { $(".whiteboard-tool[tool=line]").click(); },
+            setTool_rect: function () { $(".whiteboard-tool[tool=rect]").click(); },
+            setTool_circle: function () { $(".whiteboard-tool[tool=circle]").click(); },
+            setTool_text: function () { $(".whiteboard-tool[tool=text]").click(); },
             setTool_eraser: function () {
-                $(".whiteboardTool[tool=eraser]").click();
+                $(".whiteboard-tool[tool=eraser]").click();
                 whiteboard.redrawMouseCursor();
             },
             thickness_bigger: function () {
@@ -200,21 +200,21 @@ function main() {
             },
 
             toggleLineRecCircle: function () {
-                var activeTool = $(".whiteboardTool.active").attr("tool");
+                var activeTool = $(".whiteboard-tool.active").attr("tool");
                 if (activeTool == "line") {
-                    $(".whiteboardTool[tool=rect]").click();
+                    $(".whiteboard-tool[tool=rect]").click();
                 } else if (activeTool == "rect") {
-                    $(".whiteboardTool[tool=circle]").click();
+                    $(".whiteboard-tool[tool=circle]").click();
                 } else {
-                    $(".whiteboardTool[tool=line]").click();
+                    $(".whiteboard-tool[tool=line]").click();
                 }
             },
             togglePenEraser: function () {
-                var activeTool = $(".whiteboardTool.active").attr("tool");
+                var activeTool = $(".whiteboard-tool.active").attr("tool");
                 if (activeTool == "pen") {
-                    $(".whiteboardTool[tool=eraser]").click();
+                    $(".whiteboard-tool[tool=eraser]").click();
                 } else {
-                    $(".whiteboardTool[tool=pen]").click();
+                    $(".whiteboard-tool[tool=pen]").click();
                 }
             },
             toggleMainColors: function () {
@@ -300,17 +300,17 @@ function main() {
 
         // view only
         $("#whiteboardLockBtn").click(function () {
-            whiteboard.setViewOnly(false);
+            whiteboard.setReadOnly(false);
         });
         $("#whiteboardUnlockBtn").click(function () {
-            whiteboard.setViewOnly(true);
+            whiteboard.setReadOnly(true);
         });
         $("#whiteboardUnlockBtn").hide();
         $("#whiteboardLockBtn").show();
 
         // switch tool
-        $(".whiteboardTool").click(function () {
-            $(".whiteboardTool").removeClass("active");
+        $(".whiteboard-tool").click(function () {
+            $(".whiteboard-tool").removeClass("active");
             $(this).addClass("active");
             var activeTool = $(this).attr("tool");
             whiteboard.setTool(activeTool);
@@ -323,7 +323,7 @@ function main() {
 
         // upload image button
         $("#addImgToCanvasBtn").click(function () {
-            if (whiteboard.viewOnly) return;
+            if (whiteboard.readOnly) return;
             showBasicAlert("Please drag the image into the browser.");
         });
 
@@ -488,14 +488,14 @@ function main() {
 
         // On thickness slider change
         $("#whiteboardThicknessSlider").on("input", function () {
-            if (whiteboard.viewOnly) return;
+            if (whiteboard.readOnly) return;
             whiteboard.setStrokeThickness($(this).val());
         });
 
         // handle drag&drop
         var dragCounter = 0;
         $('#whiteboardContainer').on("dragenter", function (e) {
-            if (whiteboard.viewOnly) return;
+            if (whiteboard.readOnly) return;
             e.preventDefault();
             e.stopPropagation();
             dragCounter++;
@@ -503,7 +503,7 @@ function main() {
         });
 
         $('#whiteboardContainer').on("dragleave", function (e) {
-            if (whiteboard.viewOnly) return;
+            if (whiteboard.readOnly) return;
 
             e.preventDefault();
             e.stopPropagation();
@@ -514,7 +514,7 @@ function main() {
         });
 
         $('#whiteboardContainer').on('drop', function (e) { //Handle drop
-            if (whiteboard.viewOnly) return;
+            if (whiteboard.readOnly) return;
 
             if (e.originalEvent.dataTransfer) {
                 if (e.originalEvent.dataTransfer.files.length) { //File from harddisc

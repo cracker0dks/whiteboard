@@ -4,6 +4,7 @@ const whiteboard = {
     canvas: null,
     ctx: null,
     drawcolor: "black",
+    previousToolHtmlElem: null, // useful for handling read-only mode
     tool: "mouse",
     thickness: 4,
     prevX: null, //prev Mouse position
@@ -39,7 +40,7 @@ const whiteboard = {
         sendFunction: null,
         backgroundGridUrl: './images/KtEBa2.png'
     },
-    viewOnly: true,
+    readOnly: true,
     lastPointerSentTime: 0,
     lastPointerX: 0,
     lastPointerY: 0,
@@ -103,7 +104,7 @@ const whiteboard = {
             if (_this.imgDragActive || _this.drawFlag) {
                 return;
             }
-            if (_this.viewOnly) return;
+            if (_this.readOnly) return;
 
             _this.drawFlag = true;
             _this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left) + 1;
@@ -161,7 +162,7 @@ const whiteboard = {
             if (_this.imgDragActive || !$(e.target).hasClass("textcontainer")) {
                 return;
             }
-            if (_this.viewOnly) return;
+            if (_this.readOnly) return;
 
             var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
             var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
@@ -180,7 +181,7 @@ const whiteboard = {
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
             e.preventDefault();
-            if (_this.viewOnly) return;
+            if (_this.readOnly) return;
             _this.triggerMouseMove(e);
         });
 
@@ -192,7 +193,7 @@ const whiteboard = {
             if (_this.imgDragActive) {
                 return;
             }
-            if (_this.viewOnly) return;
+            if (_this.readOnly) return;
             _this.drawFlag = false;
             _this.drawId++;
             _this.ctx.globalCompositeOperation = _this.oldGCO;
@@ -289,12 +290,12 @@ const whiteboard = {
         }
 
         _this.mouseOverlay.on("mouseout", function (e) {
-            if (_this.viewOnly) return;
+            if (_this.readOnly) return;
             _this.triggerMouseOut();
         });
 
         _this.mouseOverlay.on("mouseover", function (e) {
-            if (_this.viewOnly) return;
+            if (_this.readOnly) return;
             _this.triggerMouseOver();
         });
 
@@ -576,7 +577,7 @@ const whiteboard = {
     },
     clearWhiteboard: function () {
         var _this = this;
-        if (_this.viewOnly) return;
+        if (_this.readOnly) return;
         _this.canvas.height = _this.canvas.height;
         _this.imgContainer.empty();
         _this.textContainer.empty();
@@ -787,12 +788,12 @@ const whiteboard = {
         });
     },
     undoWhiteboardClick: function () {
-        if (this.viewOnly) return;
+        if (this.readOnly) return;
         this.sendFunction({ "t": "undo" });
         this.undoWhiteboard();
     },
     redoWhiteboardClick: function () {
-        if (this.viewOnly) return;
+        if (this.readOnly) return;
         this.sendFunction({ "t": "redo" });
         this.redoWhiteboard();
     },
@@ -825,22 +826,27 @@ const whiteboard = {
             this.backgroundGrid.append('<div style="position:absolute; left:' + (width + 5) + 'px; top:0px;">smallest screen participating</div>');
         }
     },
-    setViewOnly: function(what) {
+    setReadOnly: function(what) {
         var _this = this;
-        _this.viewOnly = what;
+        _this.readOnly = what;
 
         if (what === true){
-            $(".whiteboardTool[tool=mouse]").click(); // reset tool to prevent use of text
-            $(".whiteboardTool").prop("disabled", true);
-            $(".whiteboardEditBtn").prop("disabled", true);
+            _this.previousToolHtmlElem = $(".whiteboard-tool.active");
+            // switch to mouse tool to prevent the use of the 
+            // other tools
+            $(".whiteboard-tool[tool=mouse]").click();
+            $(".whiteboard-tool").prop("disabled", true);
+            $(".whiteboard-edit-group > button").prop("disabled", true);
+            $(".whiteboard-edit-group").addClass("group-disabled");
             $("#whiteboardUnlockBtn").hide();
             $("#whiteboardLockBtn").show();
-
         } else {
-            $(".whiteboardTool").prop("disabled", false);
-            $(".whiteboardEditBtn").prop("disabled", false);
+            $(".whiteboard-tool").prop("disabled", false);
+            $(".whiteboard-edit-group > button").prop("disabled", false);
+            $(".whiteboard-edit-group").removeClass("group-disabled");
             $("#whiteboardUnlockBtn").show();
             $("#whiteboardLockBtn").hide();
+            if (_this.previousToolHtmlElem) _this.previousToolHtmlElem.click();
         }
     },
     handleEventsAndData: function (content, isNewData, doneCallback) {

@@ -43,8 +43,10 @@ function main() {
     signaling_socket.on('connect', function () {
         console.log("Websocket connected!");
 
+        let messageReceivedCount = 0;
         signaling_socket.on('drawToWhiteboard', function (content) {
             whiteboard.handleEventsAndData(content, true);
+            $('#messageReceivedCount')[0].innerText = String(messageReceivedCount++);
         });
 
         signaling_socket.on('refreshUserBadges', function () {
@@ -69,12 +71,15 @@ function main() {
         if (getQueryVariable("webdav") == "true") {
             $("#uploadWebDavBtn").show();
         }
+
+        let messageSentCount = 0;
         whiteboard.loadWhiteboard("#whiteboardContainer", { //Load the whiteboard
             whiteboardId: whiteboardId,
             username: btoa(myUsername),
             sendFunction: function (content) {
                 content["at"] = accessToken;
                 signaling_socket.emit('drawToWhiteboard', content);
+                $('#messageSentCount')[0].innerText = String(messageSentCount++);
             }
         });
 

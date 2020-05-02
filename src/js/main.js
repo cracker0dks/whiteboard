@@ -538,6 +538,8 @@ function main() {
 
         // on startup select mouse
         shortcutFunctions.setTool_mouse();
+        // fix bug cursor not showing up
+        whiteboard.refreshCursorAppearance();
     });
 
     //Prevent site from changing tab on drag&drop

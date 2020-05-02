@@ -77,6 +77,9 @@ function main() {
             whiteboardId: whiteboardId,
             username: btoa(myUsername),
             sendFunction: function (content) {
+                if (content.t === 'cursor') {
+                    if (whiteboard.drawFlag) return;
+                }
                 content["at"] = accessToken;
                 signaling_socket.emit('drawToWhiteboard', content);
                 $('#messageSentCount')[0].innerText = String(messageSentCount++);
@@ -631,6 +634,9 @@ function main() {
                 whiteboard.setDrawColor(color.rgbaString);
             }
         });
+
+        // on startup select mouse
+        shortcutFunctions.setTool_mouse();
     });
 
     //Prevent site from changing tab on drag&drop

@@ -4,7 +4,7 @@ const whiteboard = {
     canvas: null,
     ctx: null,
     drawcolor: "black",
-    tool: "pen",
+    tool: "mouse",
     thickness: 4,
     prevX: null, //prev Mouse position
     prevY: null,

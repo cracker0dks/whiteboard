@@ -1,5 +1,5 @@
-import { dom } from "@fortawesome/fontawesome-svg-core";
-import {computeDist, getCurrentTimeMs} from "./utils";
+import {dom} from "@fortawesome/fontawesome-svg-core";
+import {getCurrentTimeMs} from "./utils";
 import Point from "./classes/Point";
 import {POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA, POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA} from "./const";
 import ReadOnlyService from "./services/ReadOnlyService";
@@ -11,11 +11,14 @@ const whiteboard = {
     previousToolHtmlElem: null, // useful for handling read-only mode
     tool: "mouse",
     thickness: 4,
-    prevX: null, //prev Mouse position
-    prevY: null,
-    currX : null, //current Mouse position
-    currY : null,
-    latestTouchCoods: [],
+    /**
+     * @type Point
+     */
+    prevPos: new Point(0, 0),
+    /**
+     * @type Point
+     */
+    startCoords: new Point(0, 0),
     drawFlag: false,
     oldGCO: null,
     mouseover: false,
@@ -27,7 +30,6 @@ const whiteboard = {
     svgContainer: null, //For draw prev
     mouseOverlay: null,
     ownCursor: null,
-    startCoords: [],
     penSmoothLastCoords: [],
     svgLine: null,
     svgRect: null,
@@ -50,9 +52,9 @@ const whiteboard = {
      */
     lastPointerPosition: new Point(0, 0),
     loadWhiteboard: function (whiteboardContainer, newSettings) {
-        var svgns = "http://www.w3.org/2000/svg";
-        var _this = this;
-        for (var i in newSettings) {
+        const svgns = "http://www.w3.org/2000/svg";
+        const _this = this;
+        for (const i in newSettings) {
             this.settings[i] = newSettings[i];
         }
         this.settings["username"] = this.settings["username"].replace(/[^0-9a-z]/gi, '');
@@ -73,7 +75,7 @@ const whiteboard = {
         // container for texts by users
         _this.textContainer = $('<div class="textcontainer" style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>');
         // mouse overlay for draw callbacks
-        _this.mouseOverlay = $('<div style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
+        _this.mouseOverlay = $('<div id="mouseOverlay" style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>');
 
         $(whiteboardContainer).append(_this.backgroundGrid)
             .append(_this.imgContainer)
@@ -93,12 +95,12 @@ const whiteboard = {
         this.ctx = this.canvas.getContext("2d");
         this.oldGCO = this.ctx.globalCompositeOperation;
 
-        $(window).resize(function () { //Handel resize
-            var dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); //Copy the buffer
+        $(window).resize(function () { // Handel resize
+            const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
             _this.canvas.width = $(window).width();
-            _this.canvas.height = $(window).height(); //Set new canvas height
+            _this.canvas.height = $(window).height(); // Set new canvas height
             _this.drawBuffer = [];
-            _this.loadData(dbCp); //draw old content in
+            _this.loadData(dbCp); // draw old content in
         });
 
         $(_this.mouseOverlay).on("mousedown touchstart", function (e) {
@@ -112,29 +114,23 @@ const whiteboard = {
             if (ReadOnlyService.readOnlyActive) return;
 
             _this.drawFlag = true;
-            _this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left) + 1;
-            _this.prevY = (e.offsetY || e.pageY - $(e.target).offset().top) + 1;
-            if (!_this.prevX || !_this.prevY || (_this.prevX == 1 && _this.prevY == 1)) {
-                var touche = e.touches[0];
-                _this.prevX = touche.clientX - $(_this.mouseOverlay).offset().left + 1;
-                _this.prevY = touche.clientY - $(_this.mouseOverlay).offset().top + 1;
-                _this.latestTouchCoods = [_this.prevX, _this.prevY];
-            }
+
+            const currentPos = Point.fromEvent(e);
 
             if (_this.tool === "pen") {
-                _this.penSmoothLastCoords = [_this.prevX, _this.prevY, _this.prevX, _this.prevY, _this.prevX, _this.prevY]
+                _this.penSmoothLastCoords = [currentPos.x, currentPos.y, currentPos.x, currentPos.y, currentPos.x, currentPos.y]
             } else if (_this.tool === "eraser") {
-                _this.drawEraserLine(_this.prevX, _this.prevY, _this.prevX, _this.prevY, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [_this.prevX, _this.prevY, _this.prevX, _this.prevY], "th": _this.thickness });
+                _this.drawEraserLine(currentPos.x, currentPos.y, currentPos.x, currentPos.y, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [currentPos.x, currentPos.y, currentPos.x, currentPos.y], "th": _this.thickness });
             } else if (_this.tool === "line") {
-                _this.startCoords = [_this.prevX, _this.prevY];
+                _this.startCoords = currentPos;
                 _this.svgLine = document.createElementNS(svgns, 'line');
                 _this.svgLine.setAttribute('stroke', 'gray');
                 _this.svgLine.setAttribute('stroke-dasharray', '5, 5');
-                _this.svgLine.setAttribute('x1', _this.prevX);
-                _this.svgLine.setAttribute('y1', _this.prevY);
-                _this.svgLine.setAttribute('x2', _this.prevX);
-                _this.svgLine.setAttribute('y2', _this.prevY);
+                _this.svgLine.setAttribute('x1', currentPos.x);
+                _this.svgLine.setAttribute('y1', currentPos.y);
+                _this.svgLine.setAttribute('x2', currentPos.x);
+                _this.svgLine.setAttribute('y2', currentPos.y);
                 _this.svgContainer.append(_this.svgLine);
             } else if (_this.tool === "rect" || _this.tool === "recSelect") {
                 _this.svgContainer.find("rect").remove();
@@ -142,24 +138,26 @@ const whiteboard = {
                 _this.svgRect.setAttribute('stroke', 'gray');
                 _this.svgRect.setAttribute('stroke-dasharray', '5, 5');
                 _this.svgRect.setAttribute('style', 'fill-opacity:0.0;');
-                _this.svgRect.setAttribute('x', _this.prevX);
-                _this.svgRect.setAttribute('y', _this.prevY);
+                _this.svgRect.setAttribute('x', currentPos.x);
+                _this.svgRect.setAttribute('y', currentPos.y);
                 _this.svgRect.setAttribute('width', 0);
                 _this.svgRect.setAttribute('height', 0);
                 _this.svgContainer.append(_this.svgRect);
-                _this.startCoords = [_this.prevX, _this.prevY];
+                _this.startCoords = currentPos;
             } else if (_this.tool === "circle") {
                 _this.svgCirle = document.createElementNS(svgns, 'circle');
                 _this.svgCirle.setAttribute('stroke', 'gray');
                 _this.svgCirle.setAttribute('stroke-dasharray', '5, 5');
                 _this.svgCirle.setAttribute('style', 'fill-opacity:0.0;');
-                _this.svgCirle.setAttribute('cx', _this.prevX);
-                _this.svgCirle.setAttribute('cy', _this.prevY);
+                _this.svgCirle.setAttribute('cx', currentPos.x);
+                _this.svgCirle.setAttribute('cy', currentPos.y);
                 _this.svgCirle.setAttribute('r', 0);
                 _this.svgContainer.append(_this.svgCirle);
-                _this.startCoords = [_this.prevX, _this.prevY];
+                _this.startCoords = currentPos;
             }
-        }
+
+            _this.prevPos = currentPos;
+        };
 
         _this.textContainer.on("mousemove touchmove", function (e) {
             e.preventDefault();
@@ -169,16 +167,14 @@ const whiteboard = {
             }
             if (ReadOnlyService.readOnlyActive) return;
 
-            const currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            const currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-            const newPointerPosition = new Point(currX, currY);
+            const currentPos = Point.fromEvent(e);
 
             const pointerSentTime = getCurrentTimeMs();
             if (pointerSentTime - _this.lastPointerSentTime > POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA) {
-                if (_this.lastPointerPosition.distTo(newPointerPosition) > POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA) {
+                if (_this.lastPointerPosition.distTo(currentPos) > POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA) {
                     _this.lastPointerSentTime = pointerSentTime;
-                    _this.lastPointerPosition = newPointerPosition;
-                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [newPointerPosition.x, newPointerPosition.y], "username": _this.settings.username });
+                    _this.lastPointerPosition = currentPos;
+                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [currentPos.x, currentPos.y], "username": _this.settings.username });
                 }
             }
         })
@@ -201,74 +197,68 @@ const whiteboard = {
             _this.drawFlag = false;
             _this.drawId++;
             _this.ctx.globalCompositeOperation = _this.oldGCO;
-            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
 
-            if (!currX || !currY) {
-                currX = _this.latestTouchCoods[0];
-                currY = _this.latestTouchCoods[1];
+            let currentPos = Point.fromEvent(e);
+
+            if (currentPos.isZeroZero) {
                 _this.sendFunction({ "t": "cursor", "event": "out", "username": _this.settings.username });
             }
 
             if (_this.tool === "line") {
                 if (_this.pressedKeys.shift) {
-                    var angs = _this.getRoundedAngles(currX, currY);
-                    currX = angs.x;
-                    currY = angs.y;
+                    currentPos = _this.getRoundedAngles(currentPos);
                 }
-                _this.drawPenLine(currX, currY, _this.startCoords[0], _this.startCoords[1], _this.drawcolor, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.startCoords[0], _this.startCoords[1]], "c": _this.drawcolor, "th": _this.thickness });
+                _this.drawPenLine(currentPos.x, currentPos.y, _this.startCoords.x, _this.startCoords.y, _this.drawcolor, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [currentPos.x, currentPos.y, _this.startCoords.x, _this.startCoords.y], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "pen") {
-                _this.drawId--;
-                _this.pushPointSmoothPen(currX, currY);
-                _this.drawId++;
+		        _this.drawId--;
+                _this.pushPointSmoothPen(currentPos.x, currentPos.y);
+		        _this.drawId++;
             } else if (_this.tool === "rect") {
                 if (_this.pressedKeys.shift) {
-                    if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
-                        currY = _this.startCoords[1] + (currX - _this.startCoords[0]);
+                    if ((currentPos.x - _this.startCoords.x) * (currentPos.y - _this.startCoords.y) > 0) {
+                        currentPos = new Point(currentPos.x, _this.startCoords.y + (currentPos.x - _this.startCoords.x));
                     } else {
-                        currY = _this.startCoords[1] - (currX - _this.startCoords[0]);
+                        currentPos = new Point(currentPos.x, _this.startCoords.y - (currentPos.x - _this.startCoords.x));
                     }
                 }
-                _this.drawRec(_this.startCoords[0], _this.startCoords[1], currX, currY, _this.drawcolor, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [_this.startCoords[0], _this.startCoords[1], currX, currY], "c": _this.drawcolor, "th": _this.thickness });
+                _this.drawRec(_this.startCoords.x, _this.startCoords.y, currentPos.x, currentPos.y, _this.drawcolor, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [_this.startCoords.x, _this.startCoords.y, currentPos.x, currentPos.y], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("rect").remove();
             } else if (_this.tool === "circle") {
-                var a = currX - _this.startCoords[0];
-                var b = currY - _this.startCoords[1];
-                var r = Math.sqrt(a * a + b * b);
-                _this.drawCircle(_this.startCoords[0], _this.startCoords[1], r, _this.drawcolor, _this.thickness);
-                _this.sendFunction({ "t": _this.tool, "d": [_this.startCoords[0], _this.startCoords[1], r], "c": _this.drawcolor, "th": _this.thickness });
+                const r = currentPos.distTo(_this.startCoords);
+                _this.drawCircle(_this.startCoords.x, _this.startCoords.y, r, _this.drawcolor, _this.thickness);
+                _this.sendFunction({ "t": _this.tool, "d": [_this.startCoords.x, _this.startCoords.y, r], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("circle").remove();
             } else if (_this.tool === "recSelect") {
                 _this.imgDragActive = true;
                 if (_this.pressedKeys.shift) {
-                    if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
-                        currY = _this.startCoords[1] + (currX - _this.startCoords[0]);
+                    if ((currentPos.x - _this.startCoords.x) * (currentPos.y - _this.startCoords.y) > 0) {
+                        currentPos = new Point(currentPos.x, _this.startCoords.y + (currentPos.x - _this.startCoords.x));
                     } else {
-                        currY = _this.startCoords[1] - (currX - _this.startCoords[0]);
+                        currentPos = new Point(currentPos.x, _this.startCoords.y - (currentPos.x - _this.startCoords.x));
                     }
                 }
 
-                var width = Math.abs(_this.startCoords[0] - currX);
-                var height = Math.abs(_this.startCoords[1] - currY);
-                var left = _this.startCoords[0] < currX ? _this.startCoords[0] : currX;
-                var top = _this.startCoords[1] < currY ? _this.startCoords[1] : currY;
+                const width = Math.abs(_this.startCoords.x - currentPos.x);
+                const height = Math.abs(_this.startCoords.y - currentPos.y);
+                const left = _this.startCoords.x < currentPos.x ? _this.startCoords.x : currentPos.x;
+                const top = _this.startCoords.y < currentPos.y ? _this.startCoords.y : currentPos.y;
                 _this.mouseOverlay.css({ "cursor": "default" });
-                var imgDiv = $('<div class="dragMe" style="position:absolute; left:' + left + 'px; top:' + top + 'px; width:' + width + 'px; border: 2px dotted gray; overflow: hidden; height:' + height + 'px;" cursor:move;">' +
-                    '<canvas style="cursor:move; position:absolute; top:0px; left:0px;" width="' + width + '" height="' + height + '"/>' +
-                    '<div style="position:absolute; right:5px; top:3px;">' +
-                    '<button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Drop</button> ' +
-                    '<button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>' +
-                    '</div>' +
-                    '</div>');
-                var dragCanvas = $(imgDiv).find("canvas");
-                var dragOutOverlay = $('<div class="dragOutOverlay" style="position:absolute; left:' + left + 'px; top:' + top + 'px; width:' + width + 'px; height:' + height + 'px; background:white;"></div>');
+                const imgDiv = $(```<div class="dragMe" style="position:absolute; left: ${left}px; top: ${top}px; width: ${width}px; border: 2px dotted gray; overflow: hidden; height: ${height}px;" cursor:move;">
+                    <canvas style="cursor:move; position:absolute; top:0px; left:0px;" width="${width}" height="${height}"/>
+                    <div style="position:absolute; right:5px; top:3px;">
+                    <button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Drop</button> 
+                    <button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>
+                    </div>
+                    </div>```);
+                const dragCanvas = $(imgDiv).find("canvas");
+                const dragOutOverlay = $(`<div class="dragOutOverlay" style="position:absolute; left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px; background:white;"></div>`);
                 _this.mouseOverlay.append(dragOutOverlay);
                 _this.mouseOverlay.append(imgDiv);
 
-                var destCanvasContext = dragCanvas[0].getContext('2d');
+                const destCanvasContext = dragCanvas[0].getContext('2d');
                 destCanvasContext.drawImage(_this.canvas, left, top, width, height, 0, 0, width, height);
                 imgDiv.find(".xCanvasBtn").click(function () {
                     _this.imgDragActive = false;
@@ -279,9 +269,9 @@ const whiteboard = {
                 imgDiv.find(".addToCanvasBtn").click(function () {
                     _this.imgDragActive = false;
                     _this.refreshCursorAppearance();
-                    var p = imgDiv.position();
-                    var leftT = Math.round(p.left * 100) / 100;
-                    var topT = Math.round(p.top * 100) / 100;
+                    const p = imgDiv.position();
+                    const leftT = Math.round(p.left * 100) / 100;
+                    const topT = Math.round(p.top * 100) / 100;
                     _this.drawId++;
                     _this.sendFunction({ "t": _this.tool, "d": [left, top, leftT, topT, width, height] });
                     _this.dragCanvasRectContent(left, top, leftT, topT, width, height);
@@ -303,93 +293,96 @@ const whiteboard = {
             _this.triggerMouseOver();
         });
 
-        //On textcontainer click (Add a new textbox)
+        // On text container click (Add a new textbox)
         _this.textContainer.on("click", function (e) {
-            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-            var fontsize = _this.thickness * 0.5;
-            var txId = 'tx' + (+new Date());
-            _this.sendFunction({ "t": "addTextBox", "d": [_this.drawcolor, fontsize, currX, currY, txId] });
-            _this.addTextBox(_this.drawcolor, fontsize, currX, currY, txId, true);
+            const currentPos = Point.fromEvent(e);
+            const fontsize = _this.thickness * 0.5;
+            const txId = 'tx' + (+new Date());
+            _this.sendFunction({ "t": "addTextBox", "d": [_this.drawcolor, fontsize, currentPos.x, currentPos.y, txId] });
+            _this.addTextBox(_this.drawcolor, fontsize, currentPos.x, currentPos.y, txId, true);
         });
     },
-    getRoundedAngles: function (currX, currY) { //For drawing lines at 0,45,90° ....
-        var _this = this;
-        var x = currX - _this.startCoords[0];
-        var y = currY - _this.startCoords[1];
-        var angle = Math.atan2(x, y) * (180 / Math.PI);
-        var angle45 = Math.round(angle / 45) * 45;
-        if (angle45 % 90 == 0) {
-            if (Math.abs(currX - _this.startCoords[0]) > Math.abs(currY - _this.startCoords[1])) {
-                currY = _this.startCoords[1]
+    /**
+     * For drawing lines at 0,45,90° ....
+     * @param {Point} currentPos
+     * @returns {Point}
+     */
+    getRoundedAngles: function (currentPos) {
+        const _this = this;
+        const x = currentPos.x - _this.startCoords.x;
+        const y = currentPos.y - _this.startCoords.y;
+        const angle = Math.atan2(x, y) * (180 / Math.PI);
+        const angle45 = Math.round(angle / 45) * 45;
+
+        let outX = currentPos.x;
+        let outY = currentPos.y;
+        if (angle45 % 90 === 0) {
+            if (Math.abs(currentPos.x - _this.startCoords.x) > Math.abs(currentPos.y - _this.startCoords.y)) {
+                outY = _this.startCoords.y
             } else {
-                currX = _this.startCoords[0]
+                outX = _this.startCoords.x
             }
         } else {
-            if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
-                currX = _this.startCoords[0] + (currY - _this.startCoords[1]);
+            if ((currentPos.y - _this.startCoords.y) * (currentPos.x - _this.startCoords.x) > 0) {
+                outX = _this.startCoords.x + (currentPos.y - _this.startCoords.y);
             } else {
-                currX = _this.startCoords[0] - (currY - _this.startCoords[1]);
+                outY = _this.startCoords.x - (currentPos.y - _this.startCoords.y);
             }
         }
-        return { "x": currX, "y": currY };
+
+        return new Point(outX, outY);
     },
     triggerMouseMove: function (e) {
-        var _this = this;
+        const _this = this;
         if (_this.imgDragActive) {
             return;
         }
-        var currX = e.currX || (e.offsetX || e.pageX - $(e.target).offset().left);
-        var currY = e.currY || (e.offsetY || e.pageY - $(e.target).offset().top);
+
+        let currentPos = Point.fromEvent(e);
 
         window.requestAnimationFrame(function () {
-            if ((!currX || !currY) && e.touches && e.touches[0]) {
-                var touche = e.touches[0];
-                currX = touche.clientX - $(_this.mouseOverlay).offset().left;
-                currY = touche.clientY - $(_this.mouseOverlay).offset().top;
-            }
-            _this.latestTouchCoods = [currX, currY];
+            // update position
+            currentPos = Point.fromEvent(e);
 
             if (_this.drawFlag) {
                 if (_this.tool === "pen") {
-                    _this.pushPointSmoothPen(currX, currY);
-                } else if (_this.tool == "eraser") {
-                    _this.drawEraserLine(currX, currY, _this.prevX, _this.prevY, _this.thickness);
-                    _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.prevX, _this.prevY], "th": _this.thickness });
+                    _this.pushPointSmoothPen(currentPos.x, currentPos.y);
+                } else if (_this.tool === "eraser") {
+                    _this.drawEraserLine(currentPos.x, currentPos.y, _this.prevPos.x, _this.prevPos.y, _this.thickness);
+                    _this.sendFunction({ "t": _this.tool, "d": [currentPos.x, currentPos.y, _this.prevPos.x, _this.prevPos.y], "th": _this.thickness });
                 }
             }
 
             if (_this.tool === "eraser") {
-                var left = currX - _this.thickness;
-                var top = currY - _this.thickness;
+                const left = currentPos.x - _this.thickness;
+                const top = currentPos.y - _this.thickness;
                 if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
             } else if (_this.tool === "pen") {
-                var left = currX - _this.thickness / 2;
-                var top = currY - _this.thickness / 2;
+                const left = currentPos.x - _this.thickness / 2;
+                const top = currentPos.y - _this.thickness / 2;
                 if (_this.ownCursor) _this.ownCursor.css({ "top": top + "px", "left": left + "px" });
             } else if (_this.tool === "line") {
                 if (_this.svgLine) {
+                    let posToUse = currentPos;
                     if (_this.pressedKeys.shift) {
-                        var angs = _this.getRoundedAngles(currX, currY);
-                        currX = angs.x;
-                        currY = angs.y;
+                        posToUse = _this.getRoundedAngles(currentPos);
                     }
-                    _this.svgLine.setAttribute('x2', currX);
-                    _this.svgLine.setAttribute('y2', currY);
+                    _this.svgLine.setAttribute('x2', posToUse.x);
+                    _this.svgLine.setAttribute('y2', posToUse.y);
                 }
             } else if (_this.tool === "rect" || (_this.tool === "recSelect" && _this.drawFlag)) {
                 if (_this.svgRect) {
-                    var width = Math.abs(currX - _this.startCoords[0]);
-                    var height = Math.abs(currY - _this.startCoords[1]);
+                    const width = Math.abs(currentPos.x - _this.startCoords.x);
+                    let height = Math.abs(currentPos.y - _this.startCoords.y);
                     if (_this.pressedKeys.shift) {
                         height = width;
-                        var x = currX < _this.startCoords[0] ? _this.startCoords[0] - width : _this.startCoords[0];
-                        var y = currY < _this.startCoords[1] ? _this.startCoords[1] - width : _this.startCoords[1];
+                        const x = currentPos.x < _this.startCoords.x ? _this.startCoords.x - width : _this.startCoords.x;
+                        const y = currentPos.y < _this.startCoords.y ? _this.startCoords.y - width : _this.startCoords.y;
                         _this.svgRect.setAttribute('x', x);
                         _this.svgRect.setAttribute('y', y);
                     } else {
-                        var x = currX < _this.startCoords[0] ? currX : _this.startCoords[0];
-                        var y = currY < _this.startCoords[1] ? currY : _this.startCoords[1];
+                        const x = currentPos.x < _this.startCoords.x ? currentPos.x : _this.startCoords.x;
+                        const y = currentPos.y < _this.startCoords.y ? currentPos.y : _this.startCoords.y;
                         _this.svgRect.setAttribute('x', x);
                         _this.svgRect.setAttribute('y', y);
                     }
@@ -398,20 +391,18 @@ const whiteboard = {
                     _this.svgRect.setAttribute('height', height);
                 }
             } else if (_this.tool === "circle") {
-                var a = currX - _this.startCoords[0];
-                var b = currY - _this.startCoords[1];
-                var r = Math.sqrt(a * a + b * b);
+                const r = currentPos.distTo(_this.startCoords);
                 if (_this.svgCirle) {
                     _this.svgCirle.setAttribute('r', r);
                 }
             }
-            _this.prevX = currX;
-            _this.prevY = currY;
+
+            _this.prevPos = currentPos;
         });
 
         const pointerSentTime = getCurrentTimeMs();
         if (pointerSentTime - _this.lastPointerSentTime > POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA) {
-            const newPointerPosition = new Point(currX, currY);
+            const newPointerPosition = currentPos;
             if (_this.lastPointerPosition.distTo(newPointerPosition) > POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA) {
                 _this.lastPointerSentTime = pointerSentTime;
                 _this.lastPointerPosition = newPointerPosition;
@@ -453,10 +444,10 @@ const whiteboard = {
         _this.sendFunction({ "t": "cursor", "event": "out" });
     },
     redrawMouseCursor: function () {
-        var _this = this;
+        const _this = this;
         _this.triggerMouseOut();
         _this.triggerMouseOver();
-        _this.triggerMouseMove({ currX: whiteboard.prevX, currY: whiteboard.prevY });
+        _this.triggerMouseMove({ offsetX: _this.prevPos.x, offsetY: _this.prevPos.y });
     },
     delKeyAction: function () {
         var _this = this;

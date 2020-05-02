@@ -1,5 +1,5 @@
 /**
- * Compute the distance between two points
+ * Compute the euclidean distance between two points
  * @param {Point} p1
  * @param {Point} p2
  */

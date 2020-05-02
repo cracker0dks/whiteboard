@@ -39,6 +39,9 @@ const whiteboard = {
         sendFunction: null,
         backgroundGridUrl: './images/KtEBa2.png'
     },
+    lastPointerSentTime: 0,
+    lastPointerX: 0,
+    lastPointerY: 0,
     loadWhiteboard: function (whiteboardContainer, newSettings) {
         var svgns = "http://www.w3.org/2000/svg";
         var _this = this;
@@ -157,9 +160,19 @@ const whiteboard = {
                 return;
             }
 
-            _this.currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            _this.currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-            _this.sendFunction({ "t": "cursor", "event": "move", "d": [_this.currX, _this.currY], "username": _this.settings.username });
+            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+
+            var pointerSentTime = (new Date()).getTime();
+            if (pointerSentTime - _this.lastPointerSentTime > 100) {
+                var dist = Math.pow(_this.lastPointerX-currX,2)+Math.pow(_this.lastPointerY-currY,2);
+                if (dist>100) {
+                    _this.lastPointerSentTime = pointerSentTime;
+                    _this.lastPointerX = currX;
+                    _this.lastPointerY = currY;
+            _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                }
+            }
         })
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
@@ -384,7 +397,16 @@ const whiteboard = {
             _this.prevX = currX;
             _this.prevY = currY;
         });
+        var pointerSentTime = (new Date()).getTime();
+        if (pointerSentTime - _this.lastPointerSentTime > 100) {
+            var dist = Math.pow(_this.lastPointerX-currX,2)+Math.pow(_this.lastPointerY-currY,2);
+            if (dist>100) {
+                _this.lastPointerSentTime = pointerSentTime;
+                _this.lastPointerX = currX;
+                _this.lastPointerY = currY;
         _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+            }
+        }
     },
     triggerMouseOver: function () {
         var _this = this;
@@ -638,7 +660,16 @@ const whiteboard = {
             if ($(e.target).hasClass("removeIcon")) {
                 currX += textBox.width() - 4;
             }
+            var pointerSentTime = (new Date()).getTime();
+            if (pointerSentTime - _this.lastPointerSentTime > 100) {
+                var dist = Math.pow(_this.lastPointerX-currX,2)+Math.pow(_this.lastPointerY-currY,2);
+                if (dist>100) {
+                    _this.lastPointerSentTime = pointerSentTime;
+                    _this.lastPointerX = currX;
+                    _this.lastPointerY = currY;
             _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                }
+            }
         })
         this.textContainer.append(textBox);
         textBox.draggable({

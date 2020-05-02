@@ -5,6 +5,7 @@ import keybinds from "./keybinds";
 import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
 import pdfjsLib from "pdfjs-dist/webpack";
+import shortcutFunctions from "./shortcutFunctions";
 
 function main() {
 
@@ -140,136 +141,15 @@ function main() {
             }
         });
 
-        var shortcutFunctions = {
-            clearWhiteboard: function () { whiteboard.clearWhiteboard(); },
-            undoStep: function () { whiteboard.undoWhiteboardClick(); },
-            redoStep: function () { whiteboard.redoWhiteboardClick(); },
-            setTool_mouse: function () { $(".whiteboard-tool[tool=mouse]").click(); },
-            setTool_recSelect: function () { $(".whiteboard-tool[tool=recSelect]").click(); },
-            setTool_pen: function () {
-                $(".whiteboard-tool[tool=pen]").click();
-                whiteboard.redrawMouseCursor();
-            },
-            setTool_line: function () { $(".whiteboard-tool[tool=line]").click(); },
-            setTool_rect: function () { $(".whiteboard-tool[tool=rect]").click(); },
-            setTool_circle: function () { $(".whiteboard-tool[tool=circle]").click(); },
-            setTool_text: function () { $(".whiteboard-tool[tool=text]").click(); },
-            setTool_eraser: function () {
-                $(".whiteboard-tool[tool=eraser]").click();
-                whiteboard.redrawMouseCursor();
-            },
-            thickness_bigger: function () {
-                var thickness = parseInt($("#whiteboardThicknessSlider").val()) + 1;
-                $("#whiteboardThicknessSlider").val(thickness);
-                whiteboard.setStrokeThickness(thickness);
-                whiteboard.redrawMouseCursor();
-            },
-            thickness_smaller: function () {
-                var thickness = parseInt($("#whiteboardThicknessSlider").val()) - 1;
-                $("#whiteboardThicknessSlider").val(thickness);
-                whiteboard.setStrokeThickness(thickness);
-                whiteboard.redrawMouseCursor();
-            },
-            openColorPicker: function () { $("#whiteboardColorpicker").click(); },
-            saveWhiteboardAsImage: function () { $("#saveAsImageBtn").click(); },
-            saveWhiteboardAsJson: function () { $("#saveAsJSONBtn").click(); },
-            uploadWhiteboardToWebDav: function () { $("#uploadWebDavBtn").click(); },
-            uploadJsonToWhiteboard: function () { $("#uploadJsonBtn").click(); },
-            shareWhiteboard: function () { $("#shareWhiteboardBtn").click(); },
-            hideShowControls: function () { $("#minMaxBtn").click(); },
-
-            setDrawColorBlack: function () {
-                whiteboard.setDrawColor("black");
-                whiteboard.redrawMouseCursor();
-            },
-            setDrawColorRed: function () {
-                whiteboard.setDrawColor("red");
-                whiteboard.redrawMouseCursor();
-            },
-            setDrawColorGreen: function () {
-                whiteboard.setDrawColor("green");
-                whiteboard.redrawMouseCursor();
-            },
-            setDrawColorBlue: function () {
-                whiteboard.setDrawColor("blue");
-                whiteboard.redrawMouseCursor();
-            },
-            setDrawColorYellow: function () {
-                whiteboard.setDrawColor("yellow");
-                whiteboard.redrawMouseCursor();
-            },
-
-            toggleLineRecCircle: function () {
-                var activeTool = $(".whiteboard-tool.active").attr("tool");
-                if (activeTool == "line") {
-                    $(".whiteboard-tool[tool=rect]").click();
-                } else if (activeTool == "rect") {
-                    $(".whiteboard-tool[tool=circle]").click();
-                } else {
-                    $(".whiteboard-tool[tool=line]").click();
-                }
-            },
-            togglePenEraser: function () {
-                var activeTool = $(".whiteboard-tool.active").attr("tool");
-                if (activeTool == "pen") {
-                    $(".whiteboard-tool[tool=eraser]").click();
-                } else {
-                    $(".whiteboard-tool[tool=pen]").click();
-                }
-            },
-            toggleMainColors: function () {
-                var bgColor = $("#whiteboardColorpicker")[0].style.backgroundColor;
-                if (bgColor == "blue") {
-                    shortcutFunctions.setDrawColorGreen();
-                } else if (bgColor == "green") {
-                    shortcutFunctions.setDrawColorYellow();
-                } else if (bgColor == "yellow") {
-                    shortcutFunctions.setDrawColorRed();
-                } else if (bgColor == "red") {
-                    shortcutFunctions.setDrawColorBlack();
-                } else {
-                    shortcutFunctions.setDrawColorBlue();
-                }
-            },
-
-            moveDraggableUp: function () {
-                var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
-                var p = $(elm).position();
-                $(elm).css({ top: p.top - 5, left: p.left })
-            },
-            moveDraggableDown: function () {
-                var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
-                var p = $(elm).position();
-                $(elm).css({ top: p.top + 5, left: p.left })
-            },
-            moveDraggableLeft: function () {
-                var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
-                var p = $(elm).position();
-                $(elm).css({ top: p.top, left: p.left - 5 })
-            },
-            moveDraggableRight: function () {
-                var elm = whiteboard.tool == "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
-                var p = $(elm).position();
-                $(elm).css({ top: p.top, left: p.left + 5 })
-            },
-            dropDraggable: function () {
-                $($(".dragMe")[0]).find('.addToCanvasBtn').click();
-            },
-            addToBackground: function () {
-                $($(".dragMe")[0]).find('.addToBackgroundBtn').click();
-            },
-            cancelAllActions: function () { whiteboard.escKeyAction(); },
-            deleteSelection: function () { whiteboard.delKeyAction(); },
-        }
-
         //Load keybindings from keybinds.js to given functions
-        for (var i in keybinds) {
-            if (shortcutFunctions[keybinds[i]]) {
-                keymage(i, shortcutFunctions[keybinds[i]], { preventDefault: true });
+        Object.entries(keybinds).forEach(([key, functionName]) => {
+            const associatedShortcutFunction = shortcutFunctions[functionName];
+            if (associatedShortcutFunction) {
+                keymage(key, associatedShortcutFunction, { preventDefault: true });
             } else {
-                console.error("function you want to keybind on key:", i, "named:", keybinds[i], "is not available!")
+                console.error("Function you want to keybind on key:", key, "named:", functionName, "is not available!")
             }
-        }
+        })
 
         // whiteboard clear button
         $("#whiteboardTrashBtn").click(function () {

@@ -39,6 +39,7 @@ const whiteboard = {
         sendFunction: null,
         backgroundGridUrl: './images/KtEBa2.png'
     },
+    viewOnly: true,
     lastPointerSentTime: 0,
     lastPointerX: 0,
     lastPointerY: 0,
@@ -102,6 +103,7 @@ const whiteboard = {
             if (_this.imgDragActive || _this.drawFlag) {
                 return;
             }
+            if (_this.viewOnly) return;
 
             _this.drawFlag = true;
             _this.prevX = (e.offsetX || e.pageX - $(e.target).offset().left) + 1;
@@ -159,6 +161,7 @@ const whiteboard = {
             if (_this.imgDragActive || !$(e.target).hasClass("textcontainer")) {
                 return;
             }
+            if (_this.viewOnly) return;
 
             var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
             var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
@@ -170,13 +173,14 @@ const whiteboard = {
                     _this.lastPointerSentTime = pointerSentTime;
                     _this.lastPointerX = currX;
                     _this.lastPointerY = currY;
-            _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
                 }
             }
         })
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
             e.preventDefault();
+            if (_this.viewOnly) return;
             _this.triggerMouseMove(e);
         });
 
@@ -188,6 +192,7 @@ const whiteboard = {
             if (_this.imgDragActive) {
                 return;
             }
+            if (_this.viewOnly) return;
             _this.drawFlag = false;
             _this.drawId++;
             _this.ctx.globalCompositeOperation = _this.oldGCO;
@@ -284,10 +289,12 @@ const whiteboard = {
         }
 
         _this.mouseOverlay.on("mouseout", function (e) {
+            if (_this.viewOnly) return;
             _this.triggerMouseOut();
         });
 
         _this.mouseOverlay.on("mouseover", function (e) {
+            if (_this.viewOnly) return;
             _this.triggerMouseOver();
         });
 
@@ -404,7 +411,7 @@ const whiteboard = {
                 _this.lastPointerSentTime = pointerSentTime;
                 _this.lastPointerX = currX;
                 _this.lastPointerY = currY;
-        _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
             }
         }
     },
@@ -569,6 +576,7 @@ const whiteboard = {
     },
     clearWhiteboard: function () {
         var _this = this;
+        if (_this.viewOnly) return;
         _this.canvas.height = _this.canvas.height;
         _this.imgContainer.empty();
         _this.textContainer.empty();
@@ -667,7 +675,7 @@ const whiteboard = {
                     _this.lastPointerSentTime = pointerSentTime;
                     _this.lastPointerX = currX;
                     _this.lastPointerY = currY;
-            _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+                    _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
                 }
             }
         })
@@ -779,10 +787,12 @@ const whiteboard = {
         });
     },
     undoWhiteboardClick: function () {
+        if (this.viewOnly) return;
         this.sendFunction({ "t": "undo" });
         this.undoWhiteboard();
     },
     redoWhiteboardClick: function () {
+        if (this.viewOnly) return;
         this.sendFunction({ "t": "redo" });
         this.redoWhiteboard();
     },
@@ -813,6 +823,24 @@ const whiteboard = {
         if (width < $(window).width() || height < $(window).height()) {
             this.backgroundGrid.append('<div style="position:absolute; left:0px; top:0px; border-right:3px dotted black; border-bottom:3px dotted black; width:' + width + 'px; height:' + height + 'px;"></div>');
             this.backgroundGrid.append('<div style="position:absolute; left:' + (width + 5) + 'px; top:0px;">smallest screen participating</div>');
+        }
+    },
+    setViewOnly: function(what) {
+        var _this = this;
+        _this.viewOnly = what;
+
+        if (what === true){
+            $(".whiteboardTool[tool=mouse]").click(); // reset tool to prevent use of text
+            $(".whiteboardTool").prop("disabled", true);
+            $(".whiteboardEditBtn").prop("disabled", true);
+            $("#whiteboardUnlockBtn").hide();
+            $("#whiteboardLockBtn").show();
+
+        } else {
+            $(".whiteboardTool").prop("disabled", false);
+            $(".whiteboardEditBtn").prop("disabled", false);
+            $("#whiteboardUnlockBtn").show();
+            $("#whiteboardLockBtn").hide();
         }
     },
     handleEventsAndData: function (content, isNewData, doneCallback) {

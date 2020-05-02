@@ -68,6 +68,9 @@ function main() {
     });
 
     $(document).ready(function () {
+        // start in readOnly mode
+        whiteboard.setViewOnly(true);
+
         if (getQueryVariable("webdav") == "true") {
             $("#uploadWebDavBtn").show();
         }
@@ -77,6 +80,7 @@ function main() {
             whiteboardId: whiteboardId,
             username: btoa(myUsername),
             sendFunction: function (content) {
+                if (whiteboard.viewOnly) return;
                 if (content.t === 'cursor') {
                     if (whiteboard.drawFlag) return;
                 }
@@ -294,6 +298,16 @@ function main() {
             whiteboard.redoWhiteboardClick();
         });
 
+        // view only
+        $("#whiteboardLockBtn").click(function () {
+            whiteboard.setViewOnly(false);
+        });
+        $("#whiteboardUnlockBtn").click(function () {
+            whiteboard.setViewOnly(true);
+        });
+        $("#whiteboardUnlockBtn").hide();
+        $("#whiteboardLockBtn").show();
+
         // switch tool
         $(".whiteboardTool").click(function () {
             $(".whiteboardTool").removeClass("active");
@@ -309,6 +323,7 @@ function main() {
 
         // upload image button
         $("#addImgToCanvasBtn").click(function () {
+            if (whiteboard.viewOnly) return;
             showBasicAlert("Please drag the image into the browser.");
         });
 
@@ -473,12 +488,14 @@ function main() {
 
         // On thickness slider change
         $("#whiteboardThicknessSlider").on("input", function () {
+            if (whiteboard.viewOnly) return;
             whiteboard.setStrokeThickness($(this).val());
         });
 
         // handle drag&drop
         var dragCounter = 0;
         $('#whiteboardContainer').on("dragenter", function (e) {
+            if (whiteboard.viewOnly) return;
             e.preventDefault();
             e.stopPropagation();
             dragCounter++;
@@ -486,6 +503,8 @@ function main() {
         });
 
         $('#whiteboardContainer').on("dragleave", function (e) {
+            if (whiteboard.viewOnly) return;
+
             e.preventDefault();
             e.stopPropagation();
             dragCounter--;
@@ -495,6 +514,8 @@ function main() {
         });
 
         $('#whiteboardContainer').on('drop', function (e) { //Handle drop
+            if (whiteboard.viewOnly) return;
+
             if (e.originalEvent.dataTransfer) {
                 if (e.originalEvent.dataTransfer.files.length) { //File from harddisc
                     e.preventDefault();

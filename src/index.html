@@ -14,22 +14,28 @@
 	<!---Toolbar -!-->
 	<div id="toolbar" style="position: absolute; top: 10px; left: 10px;">
 		<div class="btn-group">
-			<button id="whiteboardTrashBtn" title="Clear the whiteboard" type="button" class="whiteboardBtn">
+			<button id="whiteboardTrashBtn" title="Clear the whiteboard" type="button" class="whiteboardBtn whiteboardEditBtn">
 				<i class="fa fa-trash"></i>
 			</button>
 			<button style="position:absolute; left:0px; top:0px; width: 46px; display:none;"
-				id="whiteboardTrashBtnConfirm" title="Confirm clear..." type="button" class="whiteboardBtn">
+				id="whiteboardTrashBtnConfirm" title="Confirm clear..." type="button" class="whiteboardBtn whiteboardEditBtn">
 				<i class="fa fa-check"></i>
 			</button>
-			<button id="whiteboardUndoBtn" title="Undo your last step" type="button" class="whiteboardBtn">
+			<button id="whiteboardUndoBtn" title="Undo your last step" type="button" class="whiteboardBtn whiteboardEditBtn">
 				<i class="fa fa-undo"></i>
 			</button>
-			<button id="whiteboardRedoBtn" title="Redo your last undo" type="button" class="whiteboardBtn">
+			<button id="whiteboardRedoBtn" title="Redo your last undo" type="button" class="whiteboardBtn whiteboardEditBtn">
 				<i class="fa fa-redo"></i>
 			</button>
 		</div>
 
 		<div class="btn-group">
+			<button id="whiteboardLockBtn" title="View and Write" type="button" class="whiteboardBtn">
+				<i class="fa fa-lock"></i>
+			</button>
+			<button id="whiteboardUnlockBtn" title="View Only" type="button" class="whiteboardBtn">
+				<i class="fa fa-lock-open"></i>
+			</button>
 			<button tool="mouse" title="Take the mouse" type="button" class="whiteboardTool">
 				<i class="fa fa-mouse-pointer"></i>
 			</button>
@@ -96,14 +102,14 @@
 		</div>
 
 		<div class="btn-group">
-			<button id="addImgToCanvasBtn" title="Upload Image to whiteboard" type="button" class="whiteboardBtn">
+			<button id="addImgToCanvasBtn" title="Upload Image to whiteboard" type="button" class="whiteboardBtn whiteboardEditBtn">
 				<i class="fas fa-image"></i>
 				<i style="position: absolute; top: 3px; left: 2px; color: #000000; font-size: 0.5em; "
 					class="fas fa-upload"></i>
 			</button>
 
 			<button style="position: relative;" id="uploadJsonBtn" title="Load saved JSON to whiteboard" type="button"
-				class="whiteboardBtn">
+				class="whiteboardBtn whiteboardEditBtn">
 
 				<i class="far fa-file-alt"></i>
 				<i style="position: absolute; top: 3px; left: 2px; color: #000000; font-size: 0.5em; "

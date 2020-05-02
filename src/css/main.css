@@ -13,7 +13,8 @@ body {
 
 .btn-group button {
     background: transparent;
-    border: 1px solid #636060;
+    border: 2px solid #636060;
+    margin: -1px;
     /* Green border */
     color: black;
     /* White text */
@@ -25,16 +26,13 @@ body {
     /* Float the buttons side by side */
     font-size: 1.2em;
     height: 45px;
+    width: 50px;
 }
 
 button::-moz-focus-inner {
     border: 0;
 }
 
-.btn-group button:not(:last-child) {
-    border-right: none;
-    /* Prevent double borders */
-}
 
 /* Clear floats (clearfix hack) */
 
@@ -57,6 +55,7 @@ button {
 .btn-group {
     background-color: #808080ab;
     margin-left: 5px;
+    margin-bottom: 5px;
     float: left;
     position: relative;
 }

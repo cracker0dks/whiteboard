@@ -100,9 +100,8 @@ function main() {
                     tempLineTool = true;
                     whiteboard.ownCursor.hide();
                     shortcutFunctions.setTool_line();
-                } else {
-                    whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
                 }
+                whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
             } else if (e.which == 17) {
                 strgPressed = true;
             }

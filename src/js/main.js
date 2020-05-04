@@ -96,10 +96,18 @@ function main() {
         //Handle key actions
         $(document).on("keydown", function (e) {
             if (e.which == 16) {
-                if(whiteboard.tool=="pen" && !strgPressed) {
+                if (whiteboard.tool == "pen" && !strgPressed) {
                     tempLineTool = true;
                     whiteboard.ownCursor.hide();
-                    shortcutFunctions.setTool_line();
+                    if (whiteboard.drawFlag) {
+                        whiteboard.mouseup({ offsetX: whiteboard.currX, offsetY: whiteboard.currY })
+                        shortcutFunctions.setTool_line();
+                        whiteboard.prevX = whiteboard.currX;
+                        whiteboard.prevY = whiteboard.currY;
+                        whiteboard.mousedown({ offsetX: whiteboard.currX, offsetY: whiteboard.currY })
+                    } else {
+                        shortcutFunctions.setTool_line();
+                    }    
                 }
                 whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
             } else if (e.which == 17) {
@@ -109,7 +117,7 @@ function main() {
         });
         $(document).on("keyup", function (e) {
             if (e.which == 16) {
-                if(tempLineTool) {
+                if (tempLineTool) {
                     tempLineTool = false;
                     shortcutFunctions.setTool_pen();
                     whiteboard.ownCursor.show();

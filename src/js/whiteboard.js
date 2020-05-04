@@ -6,8 +6,10 @@ const whiteboard = {
     drawcolor: "black",
     tool: "pen",
     thickness: 4,
-    prevX: null,
+    prevX: null, //prev Mouse position
     prevY: null,
+    currX : null, //current Mouse position
+    currY : null,
     latestTouchCoods: [],
     drawFlag: false,
     oldGCO: null,
@@ -71,7 +73,7 @@ const whiteboard = {
             .append(_this.cursorContainer)
             .append(_this.textContainer)
             .append(_this.mouseOverlay);
-        
+
         // render newly added icons
         dom.i2svg()
 
@@ -90,6 +92,10 @@ const whiteboard = {
         });
 
         $(_this.mouseOverlay).on("mousedown touchstart", function (e) {
+            _this.mousedown(e);
+        });
+
+        _this.mousedown = function(e) {
             if (_this.imgDragActive || _this.drawFlag) {
                 return;
             }
@@ -142,7 +148,7 @@ const whiteboard = {
                 _this.svgContainer.append(_this.svgCirle);
                 _this.startCoords = [_this.prevX, _this.prevY];
             }
-        });
+        }
 
         _this.textContainer.on("mousemove touchmove", function (e) {
             e.preventDefault();
@@ -151,9 +157,9 @@ const whiteboard = {
                 return;
             }
 
-            var currX = (e.offsetX || e.pageX - $(e.target).offset().left);
-            var currY = (e.offsetY || e.pageY - $(e.target).offset().top);
-            _this.sendFunction({ "t": "cursor", "event": "move", "d": [currX, currY], "username": _this.settings.username });
+            _this.currX = (e.offsetX || e.pageX - $(e.target).offset().left);
+            _this.currY = (e.offsetY || e.pageY - $(e.target).offset().top);
+            _this.sendFunction({ "t": "cursor", "event": "move", "d": [_this.currX, _this.currY], "username": _this.settings.username });
         })
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
@@ -162,6 +168,10 @@ const whiteboard = {
         });
 
         _this.mouseOverlay.on("mouseup touchend touchcancel", function (e) {
+            _this.mouseup(e);
+        });
+
+        _this.mouseup = function(e) {
             if (_this.imgDragActive) {
                 return;
             }
@@ -187,9 +197,9 @@ const whiteboard = {
                 _this.sendFunction({ "t": _this.tool, "d": [currX, currY, _this.startCoords[0], _this.startCoords[1]], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "pen") {
-		_this.drawId--;
+                _this.drawId--;
                 _this.pushPointSmoothPen(currX, currY);
-		_this.drawId++;
+                _this.drawId++;
             } else if (_this.tool === "rect") {
                 if (_this.pressedKeys.shift) {
                     if ((currY - _this.startCoords[1]) * (currX - _this.startCoords[0]) > 0) {
@@ -258,7 +268,7 @@ const whiteboard = {
                 imgDiv.draggable();
                 _this.svgContainer.find("rect").remove();
             }
-        });
+        }
 
         _this.mouseOverlay.on("mouseout", function (e) {
             _this.triggerMouseOut();
@@ -306,6 +316,8 @@ const whiteboard = {
         }
         var currX = e.currX || (e.offsetX || e.pageX - $(e.target).offset().left);
         var currY = e.currY || (e.offsetY || e.pageY - $(e.target).offset().top);
+        _this.currX = currX;
+        _this.currY = currY;
         window.requestAnimationFrame(function () {
             if ((!currX || !currY) && e.touches && e.touches[0]) {
                 var touche = e.touches[0];
@@ -704,7 +716,7 @@ const whiteboard = {
             }
         }
         if (_this.undoBuffer.length > 1000) {
-            _this.undoBuffer.splice(0, _this.undoBuffer.length-1000);
+            _this.undoBuffer.splice(0, _this.undoBuffer.length - 1000);
         }
         _this.canvas.height = _this.canvas.height;
         _this.imgContainer.empty();

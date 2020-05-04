@@ -554,11 +554,8 @@ const whiteboard = {
     },
     addImgToCanvasByUrl: function (url) {
         var _this = this;
-        var wasTextTool = false;
-        if (_this.tool === "text") {
-            wasTextTool = true;
-            _this.setTool("mouse"); //Set to mouse tool while dropping to prevent errors
-        }
+        var oldTool = _this.tool;
+        _this.setTool("mouse"); //Set to mouse tool while dropping to prevent errors
         _this.imgDragActive = true;
         _this.mouseOverlay.css({ "cursor": "default" });
         var imgDiv = $('<div class="dragMe" style="border: 2px dashed gray; position:absolute; left:200px; top:200px; min-width:160px; min-height:100px; cursor:move;">' +
@@ -574,9 +571,7 @@ const whiteboard = {
             _this.imgDragActive = false;
             _this.refreshCursorAppearance();
             imgDiv.remove();
-            if (wasTextTool) {
-                _this.setTool("text");
-            }
+            _this.setTool(oldTool);
         });
         imgDiv.find(".addToCanvasBtn,.addToBackgroundBtn").click(function () {
             var draw = $(this).attr("draw");
@@ -595,9 +590,7 @@ const whiteboard = {
             _this.sendFunction({ "t": "addImgBG", "draw": draw, "url": url, "d": [width, height, left, top] });
             _this.drawId++;
             imgDiv.remove();
-            if (wasTextTool) {
-                _this.setTool("text");
-            }
+            _this.setTool(oldTool);
         });
         _this.mouseOverlay.append(imgDiv);
         imgDiv.draggable();

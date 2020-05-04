@@ -91,16 +91,33 @@ function main() {
         Whiteboard actions
         /----------------*/
 
+        var tempLineTool = false;
+        var strgPressed = false;
         //Handle key actions
         $(document).on("keydown", function (e) {
             if (e.which == 16) {
-                whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
+                if(whiteboard.tool=="pen" && !strgPressed) {
+                    tempLineTool = true;
+                    whiteboard.ownCursor.hide();
+                    shortcutFunctions.setTool_line();
+                } else {
+                    whiteboard.pressedKeys["shift"] = true; //Used for straight lines...
+                }
+            } else if (e.which == 17) {
+                strgPressed = true;
             }
             //console.log(e.which);
         });
         $(document).on("keyup", function (e) {
             if (e.which == 16) {
+                if(tempLineTool) {
+                    tempLineTool = false;
+                    shortcutFunctions.setTool_pen();
+                    whiteboard.ownCursor.show();
+                }
                 whiteboard.pressedKeys["shift"] = false;
+            } else if (e.which == 17) {
+                strgPressed = false;
             }
         });
 

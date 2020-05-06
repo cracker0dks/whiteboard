@@ -4,6 +4,10 @@ import Point from "./classes/Point";
 import {POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA, POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA} from "./const";
 import ReadOnlyService from "./services/ReadOnlyService";
 
+const RAD_TO_DEG = 180.0 / Math.PI;
+const DEG_TO_RAD = Math.PI / 180.0;
+const _45_DEG_IN_RAD = 45 * DEG_TO_RAD;
+
 const whiteboard = {
     canvas: null,
     ctx: null,
@@ -308,27 +312,19 @@ const whiteboard = {
      * @returns {Point}
      */
     getRoundedAngles: function (currentPos) {
-        const _this = this;
-        const x = currentPos.x - _this.startCoords.x;
-        const y = currentPos.y - _this.startCoords.y;
-        const angle = Math.atan2(x, y) * (180 / Math.PI);
-        const angle45 = Math.round(angle / 45) * 45;
+        const {startCoords} = this;
 
-        let outX = currentPos.x;
-        let outY = currentPos.y;
-        if (angle45 % 90 === 0) {
-            if (Math.abs(currentPos.x - _this.startCoords.x) > Math.abs(currentPos.y - _this.startCoords.y)) {
-                outY = _this.startCoords.y
-            } else {
-                outX = _this.startCoords.x
-            }
-        } else {
-            if ((currentPos.y - _this.startCoords.y) * (currentPos.x - _this.startCoords.x) > 0) {
-                outX = _this.startCoords.x + (currentPos.y - _this.startCoords.y);
-            } else {
-                outY = _this.startCoords.x - (currentPos.y - _this.startCoords.y);
-            }
-        }
+        // these transformations operate in the standard coordinate system
+        // y goes from bottom to up, x goes left to right
+        const dx = currentPos.x - startCoords.x; // browser x is reversed
+        const dy = startCoords.y - currentPos.y;
+
+        const angle = Math.atan2(dy, dx);
+        const angle45 = Math.round(angle / _45_DEG_IN_RAD) * _45_DEG_IN_RAD;
+
+        const dist = currentPos.distTo(startCoords);
+        let outX = startCoords.x + dist * Math.cos(angle45);
+        let outY = startCoords.y - dist * Math.sin(angle45);
 
         return new Point(outX, outY);
     },

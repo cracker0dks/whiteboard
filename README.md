@@ -81,6 +81,7 @@ Drop object | Ctrl + Enter | Command + Enter
 Add Image to backgroud | Shift + Enter | Shift + Enter
 Cancel all actions | Escape | Escape
 Delete selected object | Delete | Delete
+Use Line tool when pen is active (Not changeable) | Shift (Hold) | Shift (Hold)
 
 ## URL Parameters
 Call your site with GET parameters to change the WhiteboardID or the Username

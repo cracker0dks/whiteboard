@@ -114,11 +114,9 @@ function main() {
                     tempLineTool = true;
                     whiteboard.ownCursor.hide();
                     if (whiteboard.drawFlag) {
-                        whiteboard.mouseup({ offsetX: whiteboard.currX, offsetY: whiteboard.currY })
+                        whiteboard.mouseup({ offsetX: whiteboard.prevPos.x, offsetY: whiteboard.prevPos.y })
                         shortcutFunctions.setTool_line();
-                        whiteboard.prevX = whiteboard.currX;
-                        whiteboard.prevY = whiteboard.currY;
-                        whiteboard.mousedown({ offsetX: whiteboard.currX, offsetY: whiteboard.currY })
+                        whiteboard.mousedown({ offsetX: whiteboard.prevPos.x, offsetY: whiteboard.prevPos.y })
                     } else {
                         shortcutFunctions.setTool_line();
                     }    

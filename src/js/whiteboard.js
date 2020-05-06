@@ -212,9 +212,9 @@ const whiteboard = {
                 _this.sendFunction({ "t": _this.tool, "d": [currentPos.x, currentPos.y, _this.startCoords.x, _this.startCoords.y], "c": _this.drawcolor, "th": _this.thickness });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "pen") {
-		        _this.drawId--;
+                _this.drawId--;
                 _this.pushPointSmoothPen(currentPos.x, currentPos.y);
-		        _this.drawId++;
+                _this.drawId++;
             } else if (_this.tool === "rect") {
                 if (_this.pressedKeys.shift) {
                     if ((currentPos.x - _this.startCoords.x) * (currentPos.y - _this.startCoords.y) > 0) {

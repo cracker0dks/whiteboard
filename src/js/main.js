@@ -70,7 +70,7 @@ function main() {
     });
 
     $(document).ready(function () {
-        // start in readOnly mode
+        // by default set in readOnly mode
         ReadOnlyService.activateReadOnlyMode();
 
         if (getQueryVariable("webdav") == "true") {
@@ -539,6 +539,12 @@ function main() {
         shortcutFunctions.setTool_mouse();
         // fix bug cursor not showing up
         whiteboard.refreshCursorAppearance();
+
+        if (process.env.NODE_ENV === "production") {
+            ReadOnlyService.activateReadOnlyMode();
+        } else {
+            ReadOnlyService.deactivateReadOnlyMode();
+        }
     });
 
     //Prevent site from changing tab on drag&drop

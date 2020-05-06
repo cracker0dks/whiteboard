@@ -231,7 +231,7 @@ function startBackendServer(port) {
     
         socket.on('updateScreenResolution', function (content) {
             content = escapeAllContentStrings(content);
-            if (accessToken === "" || accessToken == content["at"]) {
+            if (smallestScreenResolutions[whiteboardId] && (accessToken === "" || accessToken == content["at"])) {
                 smallestScreenResolutions[whiteboardId][socket.id] = content["windowWidthHeight"] || { w: 10000, h: 10000 };
                 sendSmallestScreenResolution();
             }

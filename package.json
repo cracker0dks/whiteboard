@@ -8,7 +8,10 @@
     "build": "webpack --config config/webpack.build.js",
     "start:dev": "node scripts/server.js --mode=development",
     "start:prod": "npm run build && node scripts/server.js --mode=production",
-    "test": "echo \"No tests needed!\" && exit 1"
+    "test": "echo \"No tests needed!\" && exit 1",
+    "pretty-quick": "pretty-quick",
+    "format": "prettier --write .",
+    "style": "prettier --check ."
   },
   "repository": {
     "type": "git",
@@ -19,6 +22,11 @@
     "Sketchboard",
     "lightweight"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
   "dependencies": {
     "dompurify": "^2.0.7",
     "express": "4.*",

@@ -607,6 +607,27 @@ const whiteboard = {
         _this.mouseOverlay.append(imgDiv);
         imgDiv.draggable();
         imgDiv.resizable();
+        var params = {
+            // Callback fired on rotation start.
+            start: function (event, ui) {
+            },
+            // Callback fired during rotation.
+            rotate: function (event, ui) {
+            },
+            // Callback fired on rotation end.
+            stop: function (event, ui) {
+            },
+            // Set the rotation center
+            rotationCenterOffset: {
+                top: 20,
+                left: 20
+            },
+            transforms: {
+                translate: '(50%, 50%)',
+                scale: '(2)'
+            }
+        };
+        imgDiv.rotatable();
 
         // render newly added icons
         dom.i2svg();

@@ -83,9 +83,10 @@ function main() {
             username: btoa(myUsername),
             sendFunction: function (content) {
                 if (ReadOnlyService.readOnlyActive) return;
-                if (content.t === 'cursor') {
-                    if (whiteboard.drawFlag) return;
-                }
+                //ADD IN LATER THROUGH CONFIG 
+                // if (content.t === 'cursor') { 
+                //     if (whiteboard.drawFlag) return;
+                // }
                 content["at"] = accessToken;
                 signaling_socket.emit('drawToWhiteboard', content);
                 $('#messageSentCount')[0].innerText = String(messageSentCount++);

@@ -1,4 +1,4 @@
-import {computeDist} from "../utils";
+import { computeDist } from "../utils";
 
 class Point {
     /**
@@ -42,7 +42,8 @@ class Point {
         let x = (e.offsetX || e.pageX - $(e.target).offset().left) + epsilon;
         let y = (e.offsetY || e.pageY - $(e.target).offset().top) + epsilon;
 
-        if (Number.isNaN(x) || Number.isNaN(y) || (x === epsilon && y === epsilon)) { // if it's a touch actually
+        if (Number.isNaN(x) || Number.isNaN(y) || (x === epsilon && y === epsilon)) {
+            // if it's a touch actually
             if (e.touches && e.touches.length && e.touches.length > 0) {
                 const touch = e.touches[0];
                 x = touch.clientX - $("#mouseOverlay").offset().left;
@@ -65,7 +66,7 @@ class Point {
 
     /**
      * Compute euclidean distance between points
-     * 
+     *
      * @param {Point} otherPoint
      * @returns {number}
      */

@@ -4,9 +4,7 @@
  * @param {Point} p2
  */
 export function computeDist(p1, p2) {
-    return Math.sqrt(
-        Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)
-    );
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 }
 
 /**
@@ -14,5 +12,5 @@ export function computeDist(p1, p2) {
  * @returns {number}
  */
 export function getCurrentTimeMs() {
-    return (new Date()).getTime();
+    return new Date().getTime();
 }

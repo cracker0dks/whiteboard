@@ -9,7 +9,7 @@ function defineShortcut(callback, readOnlySensitive = true) {
     return () => {
         if (readOnlySensitive && ReadOnlyService.readOnlyActive) return;
         callback();
-    }
+    };
 }
 
 const shortcutFunctions = {
@@ -103,33 +103,45 @@ const shortcutFunctions = {
         }
     }),
     moveDraggableUp: defineShortcut(() => {
-        const elm = whiteboard.tool === "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+        const elm =
+            whiteboard.tool === "text"
+                ? $("#" + whiteboard.latestActiveTextBoxId)
+                : $(".dragMe")[0];
         const p = $(elm).position();
-        if (p) $(elm).css({top: p.top - 5, left: p.left})
+        if (p) $(elm).css({ top: p.top - 5, left: p.left });
     }),
     moveDraggableDown: defineShortcut(() => {
-        const elm = whiteboard.tool === "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+        const elm =
+            whiteboard.tool === "text"
+                ? $("#" + whiteboard.latestActiveTextBoxId)
+                : $(".dragMe")[0];
         const p = $(elm).position();
-        if (p) $(elm).css({top: p.top + 5, left: p.left})
+        if (p) $(elm).css({ top: p.top + 5, left: p.left });
     }),
     moveDraggableLeft: defineShortcut(() => {
-        const elm = whiteboard.tool === "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+        const elm =
+            whiteboard.tool === "text"
+                ? $("#" + whiteboard.latestActiveTextBoxId)
+                : $(".dragMe")[0];
         const p = $(elm).position();
-        if (p) $(elm).css({top: p.top, left: p.left - 5})
+        if (p) $(elm).css({ top: p.top, left: p.left - 5 });
     }),
     moveDraggableRight: defineShortcut(() => {
-        const elm = whiteboard.tool === "text" ? $("#" + whiteboard.latestActiveTextBoxId) : $(".dragMe")[0];
+        const elm =
+            whiteboard.tool === "text"
+                ? $("#" + whiteboard.latestActiveTextBoxId)
+                : $(".dragMe")[0];
         const p = $(elm).position();
-        if (p) $(elm).css({top: p.top, left: p.left + 5})
+        if (p) $(elm).css({ top: p.top, left: p.left + 5 });
     }),
     dropDraggable: defineShortcut(() => {
-        $($(".dragMe")[0]).find('.addToCanvasBtn').click();
+        $($(".dragMe")[0]).find(".addToCanvasBtn").click();
     }),
     addToBackground: defineShortcut(() => {
-        $($(".dragMe")[0]).find('.addToBackgroundBtn').click();
+        $($(".dragMe")[0]).find(".addToBackgroundBtn").click();
     }),
     cancelAllActions: defineShortcut(() => whiteboard.escKeyAction()),
     deleteSelection: defineShortcut(() => whiteboard.delKeyAction()),
-}
+};
 
 export default shortcutFunctions;

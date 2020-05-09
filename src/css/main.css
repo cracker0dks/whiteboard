@@ -36,12 +36,11 @@ button::-moz-focus-inner {
 .whiteboard-edit-group.group-disabled {
     background: repeating-linear-gradient(
         45deg,
-        rgba(255, 166, 0, 0.366) ,
+        rgba(255, 166, 0, 0.366),
         rgba(255, 166, 0, 0.366) 10px,
         rgba(255, 166, 0, 0.666) 10px,
         rgba(255, 166, 0, 0.666) 20px
     );
-    
 }
 
 /*
@@ -90,19 +89,21 @@ button {
     background: transparent;
     outline: none;
     opacity: 1;
-    -webkit-transition: opacity .15s ease-in-out;
-    transition: opacity .15s ease-in-out;
+    -webkit-transition: opacity 0.15s ease-in-out;
+    transition: opacity 0.15s ease-in-out;
 }
 
 .textBox.active {
     border: 1px dashed gray;
 }
 
-.textBox>.removeIcon, .textBox>.moveIcon {
+.textBox > .removeIcon,
+.textBox > .moveIcon {
     display: none;
 }
 
-.textBox.active>.removeIcon, .textBox.active>.moveIcon {
+.textBox.active > .removeIcon,
+.textBox.active > .moveIcon {
     display: block;
 }
 

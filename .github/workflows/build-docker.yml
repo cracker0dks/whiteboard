@@ -1,0 +1,18 @@
+# This workflow will do clean build of the docker image
+
+name: Docker Image CI (also tests build)
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag rofl256/whiteboard:$(date +%s)

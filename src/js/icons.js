@@ -17,7 +17,7 @@ import {
     faSortDown,
     faExpandArrowsAlt,
     faLock,
-    faLockOpen
+    faLockOpen,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     faSquare,
@@ -53,4 +53,4 @@ library.add(
     faLockOpen
 );
 
-dom.i2svg()
+dom.i2svg();

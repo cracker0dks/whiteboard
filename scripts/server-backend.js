@@ -202,14 +202,14 @@ function startBackendServer(port) {
             if (smallestScreenResolutions && smallestScreenResolutions[whiteboardId] && socket && socket.id) {
                 delete smallestScreenResolutions[whiteboardId][socket.id];
             }
-            socket.compress(false).volatile.broadcast.emit('refreshUserBadges', null); //Removes old user Badges
+            socket.compress(false).broadcast.emit('refreshUserBadges', null); //Removes old user Badges
             sendSmallestScreenResolution();
         });
     
         socket.on('drawToWhiteboard', function (content) {
             content = escapeAllContentStrings(content);
             if (accessToken === "" || accessToken == content["at"]) {
-                socket.compress(false).volatile.broadcast.to(whiteboardId).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
+                socket.compress(false).broadcast.to(whiteboardId).emit('drawToWhiteboard', content); //Send to all users in the room (not own socket)
                 s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
             } else {
                 socket.emit('wrongAccessToken', true);

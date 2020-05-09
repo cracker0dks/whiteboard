@@ -24,9 +24,9 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 
 ## Projects using this Whiteboard
 
-* [meetzi](https://meetzi.de/) - WebRtc Conference tool
-* [Accelerator](https://github.com/cracker0dks/Accelerator) - WebRtc Conference tool
-* Your Project here...
+- [meetzi](https://meetzi.de/) - WebRtc Conference tool
+- [Accelerator](https://github.com/cracker0dks/Accelerator) - WebRtc Conference tool
+- Your Project here...
 
 ## Install the App
 

@@ -194,6 +194,7 @@ function startBackendServer(port) {
     io.on("connection", function (socket) {
         var whiteboardId = null;
         socket.on("disconnect", function () {
+            if (infoByWhiteboard.has(whiteboardId)) {
             const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
 
             if (socket && socket.id) {
@@ -201,10 +202,12 @@ function startBackendServer(port) {
             }
 
             whiteboardServerSideInfo.decrementNbConnectedUsers();
+
             if (whiteboardServerSideInfo.hasConnectedUser()) {
                 socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
             } else {
                 infoByWhiteboard.delete(whiteboardId);
+            }
             }
         });
 

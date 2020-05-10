@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Whiteboard config",
+  "type": "object",
+  "properties": {
+    "backend": {
+      "type": "object",
+      "required": ["accessToken", "performance", "webdav"],
+      "additionalProperties": false,
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "webdav": {
+          "type": "boolean"
+        },
+        "performance": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["whiteboardInfoBroadcastFreq"],
+          "properties": {
+            "whiteboardInfoBroadcastFreq": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "frontend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["setReadOnlyOnWhiteboardLoad", "showSmallestScreenIndicator"],
+      "properties": {
+        "setReadOnlyOnWhiteboardLoad": {
+          "type": "boolean"
+        },
+        "showSmallestScreenIndicator": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "required": ["backend", "frontend"],
+  "additionalProperties": false
+}

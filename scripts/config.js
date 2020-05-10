@@ -1,45 +1,84 @@
-const { getArgs } = require("./utils");
+const util = require("util");
 
-const config = {
-    accessToken: "",
-    disableSmallestScreen: false,
-    webdav: false,
+const {
+    getArgs,
+    getDefaultConfig,
+    getConfig,
+    deepMergeConfigs,
+    isConfigValid,
+} = require("./utils");
 
-    whiteboardInfoBroadcastFreq: 1, // once per second
-};
+const defaultConfig = getDefaultConfig();
+
+const cliArgs = getArgs();
+let userConfig = {};
+
+if (cliArgs["config"]) {
+    userConfig = getConfig(cliArgs["config"]);
+}
+
+const config = deepMergeConfigs(defaultConfig, userConfig);
 
 /**
  * Update the config based on the CLI args
  * @param {object} startArgs
  */
 function updateConfigFromStartArgs(startArgs) {
-    if (startArgs["accesstoken"]) {
-        config.accessToken = startArgs["accesstoken"];
+    function deprecateCliArg(key, callback) {
+        const val = startArgs[key];
+        if (val) {
+            console.warn(
+                "\x1b[33m\x1b[1m",
+                `Setting config values (${key}) from the CLI is deprecated. ` +
+                    "This ability will be removed in the next major version. " +
+                    "You should use the config file. "
+            );
+            callback(val);
+        }
     }
-    if (startArgs["disablesmallestscreen"]) {
-        config.disableSmallestScreen = true;
-    }
-    if (startArgs["webdav"]) {
-        config.webdav = true;
-    }
+
+    deprecateCliArg("accesstoken", (val) => (config.backend.accessToken = val));
+    deprecateCliArg(
+        "disablesmallestscreen",
+        () => (config.backend.showSmallestScreenIndicator = false)
+    );
+    deprecateCliArg("webdav", () => (config.backend.webdav = true));
 }
 
 /**
  * Update the config based on the env variables
  */
 function updateConfigFromEnv() {
-    if (process.env.accesstoken) {
-        config.accessToken = process.env.accesstoken;
+    function deprecateEnv(key, callback) {
+        const val = process.env[key];
+        if (val) {
+            console.warn(
+                "\x1b[33m\x1b[1m",
+                `Setting config values (${key}) from the environment is deprecated. ` +
+                    "This ability will be removed in the next major version. " +
+                    "You should use the config file. "
+            );
+            callback(val);
+        }
     }
-    if (process.env.disablesmallestscreen) {
-        config.disablesmallestscreen = true;
-    }
-    if (process.env.webdav) {
-        config.webdav = true;
-    }
+
+    deprecateEnv("accesstoken", (val) => (config.backend.accessToken = val));
+    deprecateEnv(
+        "disablesmallestscreen",
+        () => (config.backend.showSmallestScreenIndicator = false)
+    );
+    deprecateEnv("webdav", () => (config.backend.webdav = true));
 }
 
+// compatibility layer
+// FIXME: remove this in next major
 updateConfigFromEnv();
-updateConfigFromStartArgs(getArgs());
+// FIXME: remove this in next major
+updateConfigFromStartArgs(cliArgs);
+
+if (!isConfigValid(config, true)) {
+    throw new Error("Config is not valid. Check logs for details");
+}
+console.info(util.inspect(config, { showHidden: false, depth: null, colors: true }));
 
 module.exports = config;

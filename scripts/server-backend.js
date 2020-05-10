@@ -4,8 +4,6 @@ const config = require("./config");
 const WhiteboardServerSideInfo = require("./WhiteboardServerSideInfo");
 
 function startBackendServer(port) {
-    console.info("Starting backend server with config", config);
-
     var fs = require("fs-extra");
     var express = require("express");
     var formidable = require("formidable"); //form upload processing
@@ -27,7 +25,7 @@ function startBackendServer(port) {
     var io = require("socket.io")(server, { path: "/ws-api" });
     console.log("Webserver & socketserver running on port:" + port);
 
-    const { accessToken, webdav } = config;
+    const { accessToken, webdav } = config.backend;
 
     app.get("/api/loadwhiteboard", function (req, res) {
         var wid = req["query"]["wid"];
@@ -191,7 +189,7 @@ function startBackendServer(port) {
                 info.infoWasSent();
             }
         });
-    }, (1 / config.whiteboardInfoBroadcastFreq) * 1000);
+    }, (1 / config.backend.performance.whiteboardInfoBroadcastFreq) * 1000);
 
     io.on("connection", function (socket) {
         var whiteboardId = null;

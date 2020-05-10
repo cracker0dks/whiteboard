@@ -85,7 +85,7 @@ class WhiteboardServerSideInfo {
             nbConnectedUsers: this._nbConnectedUsers,
         };
 
-        if (!config.disableSmallestScreen) {
+        if (config.frontend.showSmallestScreenIndicator) {
             out.smallestScreenResolution = this.getSmallestScreenResolution();
         }
 

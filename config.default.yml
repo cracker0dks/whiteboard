@@ -1,0 +1,17 @@
+backend:
+  # TODO
+  accessToken: ""
+  # TODO
+  webdav: false
+  performance:
+    # Whiteboard information broadcasting frequency (in /s)
+    # => diminishing this will result in more latency
+    whiteboardInfoBroadcastFreq: 1
+
+frontend:
+  # When an editable whiteboard is loading in a client,
+  # should it be started in read-only mode.
+  setReadOnlyOnWhiteboardLoad: false
+  # Show smallest screen indicator
+  showSmallestScreenIndicator: true
+  # performance:

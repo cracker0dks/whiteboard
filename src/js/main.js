@@ -7,6 +7,7 @@ import { dom } from "@fortawesome/fontawesome-svg-core";
 import pdfjsLib from "pdfjs-dist/webpack";
 import shortcutFunctions from "./shortcutFunctions";
 import ReadOnlyService from "./services/ReadOnlyService";
+import InfoService from "./services/InfoService";
 
 function main() {
     var whiteboardId = getQueryVariable("whiteboardid");
@@ -48,10 +49,9 @@ function main() {
     signaling_socket.on("connect", function () {
         console.log("Websocket connected!");
 
-        let messageReceivedCount = 0;
         signaling_socket.on("drawToWhiteboard", function (content) {
             whiteboard.handleEventsAndData(content, true);
-            $("#messageReceivedCount")[0].innerText = String(messageReceivedCount++);
+            InfoService.incrementNbMessagesReceived();
         });
 
         signaling_socket.on("refreshUserBadges", function () {
@@ -84,7 +84,6 @@ function main() {
             $("#uploadWebDavBtn").show();
         }
 
-        let messageSentCount = 0;
         whiteboard.loadWhiteboard("#whiteboardContainer", {
             //Load the whiteboard
             whiteboardId: whiteboardId,
@@ -97,7 +96,7 @@ function main() {
                 // }
                 content["at"] = accessToken;
                 signaling_socket.emit("drawToWhiteboard", content);
-                $("#messageSentCount")[0].innerText = String(messageSentCount++);
+                InfoService.incrementNbMessagesSent();
             },
         });
 
@@ -382,6 +381,10 @@ function main() {
             showBasicAlert("Copied Whiteboard-URL to clipboard.", { hideAfter: 2 });
         });
 
+        $("#displayWhiteboardInfoBtn").click(() => {
+            InfoService.toggleDisplayInfo();
+        });
+
         var btnsMini = false;
         $("#minMaxBtn").click(function () {
             if (!btnsMini) {
@@ -597,8 +600,10 @@ function main() {
 
         if (process.env.NODE_ENV === "production") {
             ReadOnlyService.activateReadOnlyMode();
+            InfoService.hideInfo();
         } else {
             ReadOnlyService.deactivateReadOnlyMode();
+            InfoService.displayInfo();
         }
     });
 

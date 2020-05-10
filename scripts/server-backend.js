@@ -195,19 +195,19 @@ function startBackendServer(port) {
         var whiteboardId = null;
         socket.on("disconnect", function () {
             if (infoByWhiteboard.has(whiteboardId)) {
-            const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
+                const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
 
-            if (socket && socket.id) {
-                whiteboardServerSideInfo.deleteScreenResolutionOfClient(socket.id);
-            }
+                if (socket && socket.id) {
+                    whiteboardServerSideInfo.deleteScreenResolutionOfClient(socket.id);
+                }
 
-            whiteboardServerSideInfo.decrementNbConnectedUsers();
+                whiteboardServerSideInfo.decrementNbConnectedUsers();
 
-            if (whiteboardServerSideInfo.hasConnectedUser()) {
-                socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
-            } else {
-                infoByWhiteboard.delete(whiteboardId);
-            }
+                if (whiteboardServerSideInfo.hasConnectedUser()) {
+                    socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
+                } else {
+                    infoByWhiteboard.delete(whiteboardId);
+                }
             }
         });
 
@@ -224,6 +224,8 @@ function startBackendServer(port) {
         socket.on("joinWhiteboard", function (content) {
             content = escapeAllContentStrings(content);
             if (accessToken === "" || accessToken == content["at"]) {
+                socket.emit("whiteboardConfig", { common: config.frontend });
+
                 whiteboardId = content["wid"];
                 socket.join(whiteboardId); //Joins room name=wid
                 if (!infoByWhiteboard.has(whiteboardId)) {

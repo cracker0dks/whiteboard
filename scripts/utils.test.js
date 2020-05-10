@@ -31,11 +31,11 @@ test("Complex object config override", () => {
 
 test("Override default config", () => {
     const defaultConfig = getDefaultConfig();
-    const overrideConfig1 = { frontend: { setReadOnlyOnWhiteboardLoad: true } };
+    const overrideConfig1 = { frontend: { readOnlyOnWhiteboardLoad: true } };
 
-    expect(
-        deepMergeConfigs(defaultConfig, overrideConfig1).frontend.setReadOnlyOnWhiteboardLoad
-    ).toBe(true);
+    expect(deepMergeConfigs(defaultConfig, overrideConfig1).frontend.readOnlyOnWhiteboardLoad).toBe(
+        true
+    );
 });
 
 test("Dumb config is not valid", () => {

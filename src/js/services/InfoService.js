@@ -1,6 +1,4 @@
-import { REFRESH_INFO_FREQUENCY } from "../const";
-
-const REFRESH_INTERVAL = 1000 / REFRESH_INFO_FREQUENCY;
+import ConfigService from "./ConfigService";
 
 /**
  * Class the handle the information about the whiteboard
@@ -90,7 +88,7 @@ class InfoService {
             // refresh only on a specific interval to reduce
             // refreshing cost
             this.refreshDisplayedInfo();
-        }, REFRESH_INTERVAL);
+        }, ConfigService.refreshInfoInterval);
     }
 
     hideInfo() {

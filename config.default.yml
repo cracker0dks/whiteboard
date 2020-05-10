@@ -11,7 +11,11 @@ backend:
 frontend:
   # When an editable whiteboard is loading in a client,
   # should it be started in read-only mode.
-  setReadOnlyOnWhiteboardLoad: false
+  readOnlyOnWhiteboardLoad: false
   # Show smallest screen indicator
   showSmallestScreenIndicator: true
-  # performance:
+  performance:
+    pointerEventsThreshold:
+      minDistDelta: 1
+      minTimeDelta: 33
+    refreshInfoFreq: 5

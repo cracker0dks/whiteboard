@@ -8,46 +8,47 @@ import pdfjsLib from "pdfjs-dist/webpack";
 import shortcutFunctions from "./shortcutFunctions";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
+import { getQueryVariable, getSubDir } from "./utils";
+import ConfigService from "./services/ConfigService";
+
+let whiteboardId = getQueryVariable("whiteboardid");
+const randomid = getQueryVariable("randomid");
+if (randomid && !whiteboardId) {
+    //set random whiteboard on empty whiteboardid
+    whiteboardId = Array(2)
+        .fill(null)
+        .map(() => Math.random().toString(36).substr(2))
+        .join("");
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("whiteboardid", whiteboardId);
+    window.location.search = urlParams;
+}
+
+whiteboardId = whiteboardId || "myNewWhiteboard";
+whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9 ]/g, "");
+const myUsername = getQueryVariable("username") || "unknown" + (Math.random() + "").substring(2, 6);
+const accessToken = getQueryVariable("accesstoken") || "";
+
+// Custom Html Title
+const title = getQueryVariable("title");
+if (!title === false) {
+    document.title = decodeURIComponent(title);
+}
+
+const subdir = getSubDir();
+let signaling_socket;
 
 function main() {
-    var whiteboardId = getQueryVariable("whiteboardid");
-    var randomid = getQueryVariable("randomid");
-    if (randomid && !whiteboardId) {
-        //set random whiteboard on empty whiteboardid
-        whiteboardId = Array(2)
-            .fill(null)
-            .map(() => Math.random().toString(36).substr(2))
-            .join("");
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set("whiteboardid", whiteboardId);
-        window.location.search = urlParams;
-    }
-
-    whiteboardId = whiteboardId || "myNewWhiteboard";
-    whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9 ]/g, "");
-    var myUsername = getQueryVariable("username");
-    var accessToken = getQueryVariable("accesstoken");
-    myUsername = myUsername || "unknown" + (Math.random() + "").substring(2, 6);
-    accessToken = accessToken || "";
-    var accessDenied = false;
-
-    // Custom Html Title
-    var title = getQueryVariable("title");
-    if (!title === false) {
-        document.title = decodeURIComponent(title);
-    }
-
-    var url = document.URL.substr(0, document.URL.lastIndexOf("/"));
-    var signaling_socket = null;
-    var urlSplit = url.split("/");
-    var subdir = "";
-    for (var i = 3; i < urlSplit.length; i++) {
-        subdir = subdir + "/" + urlSplit[i];
-    }
     signaling_socket = io("", { path: subdir + "/ws-api" }); // Connect even if we are in a subdir behind a reverse proxy
 
     signaling_socket.on("connect", function () {
         console.log("Websocket connected!");
+
+        signaling_socket.on("whiteboardConfig", (serverResponse) => {
+            ConfigService.initFromServer(serverResponse);
+            // Inti whiteboard only when we have the config from the server
+            initWhiteboard();
+        });
 
         signaling_socket.on("whiteboardInfoUpdate", (info) => {
             InfoService.updateInfoFromServer(info);
@@ -63,6 +64,7 @@ function main() {
             whiteboard.refreshUserBadges();
         });
 
+        let accessDenied = false;
         signaling_socket.on("wrongAccessToken", function () {
             if (!accessDenied) {
                 accessDenied = true;
@@ -76,7 +78,9 @@ function main() {
             windowWidthHeight: { w: $(window).width(), h: $(window).height() },
         });
     });
+}
 
+function initWhiteboard() {
     $(document).ready(function () {
         // by default set in readOnly mode
         ReadOnlyService.activateReadOnlyMode();
@@ -599,7 +603,7 @@ function main() {
         // fix bug cursor not showing up
         whiteboard.refreshCursorAppearance();
 
-        if (process.env.NODE_ENV === "production") {
+        if (process.env.NODE_ENV === "production" && ConfigService.readOnlyOnWhiteboardLoad) {
             ReadOnlyService.activateReadOnlyMode();
             InfoService.hideInfo();
         } else {
@@ -794,19 +798,6 @@ function main() {
                 alertHtml.find(".okbtn").click();
             }, 1000 * options.hideAfter);
         }
-    }
-
-    // get 'GET' parameter by variable name
-    function getQueryVariable(variable) {
-        var query = window.location.search.substring(1);
-        var vars = query.split("&");
-        for (var i = 0; i < vars.length; i++) {
-            var pair = vars[i].split("=");
-            if (pair[0] == variable) {
-                return pair[1];
-            }
-        }
-        return false;
     }
 }
 

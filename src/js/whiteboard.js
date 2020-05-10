@@ -1,12 +1,9 @@
 import { dom } from "@fortawesome/fontawesome-svg-core";
 import { getCurrentTimeMs } from "./utils";
 import Point from "./classes/Point";
-import {
-    POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA,
-    POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA,
-} from "./const";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
+import ConfigService from "./services/ConfigService";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -215,11 +212,11 @@ const whiteboard = {
             const pointerSentTime = getCurrentTimeMs();
             if (
                 pointerSentTime - _this.lastPointerSentTime >
-                POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA
+                ConfigService.pointerEventsThresholdMinTimeDelta
             ) {
                 if (
                     _this.lastPointerPosition.distTo(currentPos) >
-                    POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA
+                    ConfigService.pointerEventsThresholdMinDistDelta
                 ) {
                     _this.lastPointerSentTime = pointerSentTime;
                     _this.lastPointerPosition = currentPos;
@@ -545,11 +542,14 @@ const whiteboard = {
         });
 
         const pointerSentTime = getCurrentTimeMs();
-        if (pointerSentTime - _this.lastPointerSentTime > POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA) {
+        if (
+            pointerSentTime - _this.lastPointerSentTime >
+            ConfigService.pointerEventsThresholdMinTimeDelta
+        ) {
             const newPointerPosition = currentPos;
             if (
                 _this.lastPointerPosition.distTo(newPointerPosition) >
-                POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA
+                ConfigService.pointerEventsThresholdMinDistDelta
             ) {
                 _this.lastPointerSentTime = pointerSentTime;
                 _this.lastPointerPosition = newPointerPosition;
@@ -882,12 +882,12 @@ const whiteboard = {
             // At least 100 ms between messages to reduce server load
             if (
                 pointerSentTime - _this.lastPointerSentTime >
-                POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA
+                ConfigService.pointerEventsThresholdMinTimeDelta
             ) {
                 // Minimal distance between messages to reduce server load
                 if (
                     _this.lastPointerPosition.distTo(newPointerPosition) >
-                    POINTER_EVENT_THRESHOLD_MIN_DIST_DELTA
+                    ConfigService.pointerEventsThresholdMinDistDelta
                 ) {
                     _this.lastPointerSentTime = pointerSentTime;
                     _this.lastPointerPosition = newPointerPosition;

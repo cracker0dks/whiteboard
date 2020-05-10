@@ -30,13 +30,39 @@
     "frontend": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["setReadOnlyOnWhiteboardLoad", "showSmallestScreenIndicator"],
+      "required": ["readOnlyOnWhiteboardLoad", "showSmallestScreenIndicator", "performance"],
       "properties": {
-        "setReadOnlyOnWhiteboardLoad": {
+        "readOnlyOnWhiteboardLoad": {
           "type": "boolean"
         },
         "showSmallestScreenIndicator": {
           "type": "boolean"
+        },
+        "performance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pointerEventsThreshold", "refreshInfoFreq"],
+          "properties": {
+            "pointerEventsThreshold": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["minDistDelta", "minTimeDelta"],
+              "properties": {
+                "minDistDelta": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "minTimeDelta": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "refreshInfoFreq": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
         }
       }
     }

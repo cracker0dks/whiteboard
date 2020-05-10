@@ -49,6 +49,10 @@ function main() {
     signaling_socket.on("connect", function () {
         console.log("Websocket connected!");
 
+        signaling_socket.on("whiteboardInfoUpdate", (info) => {
+            InfoService.updateInfoFromServer(info);
+        });
+
         signaling_socket.on("drawToWhiteboard", function (content) {
             whiteboard.handleEventsAndData(content, true);
             InfoService.incrementNbMessagesReceived();

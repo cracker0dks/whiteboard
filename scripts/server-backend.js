@@ -1,5 +1,8 @@
-const { getArgs } = require("./utils");
 const path = require("path");
+
+const { getArgs } = require("./utils");
+const config = require("./config");
+const WhiteboardServerSideInfo = require("./WhiteboardServerSideInfo");
 
 function startBackendServer(port) {
     var accessToken = ""; //Can be set here or as start parameter (node server.js --accesstoken=MYTOKEN)
@@ -205,9 +208,26 @@ function startBackendServer(port) {
     }
 
     var smallestScreenResolutions = {};
+
+    /**
+     * @type {Map<string, WhiteboardServerSideInfo>}
+     */
+    const infoByWhiteboard = new Map();
+
+    setInterval(() => {
+        infoByWhiteboard.forEach((info, whiteboardId) => {
+            if (info.shouldSendInfo()) {
+                io.sockets
+                    .in(whiteboardId)
+                    .compress(false)
+                    .emit("whiteboardInfoUpdate", info.asObject());
+                info.infoWasSent();
+            }
+        });
+    }, (1 / config.whiteboardInfoBroadcastFreq) * 1000);
+
     io.on("connection", function (socket) {
         var whiteboardId = null;
-
         socket.on("disconnect", function () {
             if (
                 smallestScreenResolutions &&
@@ -217,8 +237,15 @@ function startBackendServer(port) {
             ) {
                 delete smallestScreenResolutions[whiteboardId][socket.id];
             }
-            socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
-            sendSmallestScreenResolution();
+
+            const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
+            whiteboardServerSideInfo.decrementNbConnectedUsers();
+            if (whiteboardServerSideInfo.hasConnectedUser()) {
+                socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
+                sendSmallestScreenResolution();
+            } else {
+                infoByWhiteboard.delete(whiteboardId);
+            }
         });
 
         socket.on("drawToWhiteboard", function (content) {
@@ -236,6 +263,13 @@ function startBackendServer(port) {
             if (accessToken === "" || accessToken == content["at"]) {
                 whiteboardId = content["wid"];
                 socket.join(whiteboardId); //Joins room name=wid
+                if (!infoByWhiteboard.has(whiteboardId)) {
+                    infoByWhiteboard.set(whiteboardId, new WhiteboardServerSideInfo());
+                }
+
+                const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
+                whiteboardServerSideInfo.incrementNbConnectedUsers();
+
                 smallestScreenResolutions[whiteboardId] = smallestScreenResolutions[whiteboardId]
                     ? smallestScreenResolutions[whiteboardId]
                     : {};

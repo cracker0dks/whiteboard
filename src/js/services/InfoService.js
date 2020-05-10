@@ -13,6 +13,14 @@ class InfoService {
     _infoAreDisplayed = false;
 
     /**
+     * Holds the number of user connected to the server
+     *
+     * @type {number}
+     * @private
+     */
+    _nbConnectedUsers = 0;
+
+    /**
      * @type {number}
      * @private
      */
@@ -31,6 +39,13 @@ class InfoService {
      */
     _refreshInfoIntervalId = undefined;
 
+    /**
+     * @param {number} nbConnectedUsers
+     */
+    updateInfoFromServer({ nbConnectedUsers }) {
+        this._nbConnectedUsers = nbConnectedUsers;
+    }
+
     incrementNbMessagesReceived() {
         this._nbMessagesReceived++;
     }
@@ -42,6 +57,7 @@ class InfoService {
     refreshDisplayedInfo() {
         $("#messageReceivedCount")[0].innerText = String(this._nbMessagesReceived);
         $("#messageSentCount")[0].innerText = String(this._nbMessagesSent);
+        $("#connectedUsersCount")[0].innerText = String(this._nbConnectedUsers);
     }
 
     displayInfo() {

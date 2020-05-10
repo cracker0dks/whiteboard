@@ -6,6 +6,7 @@ import {
     POINTER_EVENT_THRESHOLD_MIN_TIME_DELTA,
 } from "./const";
 import ReadOnlyService from "./services/ReadOnlyService";
+import InfoService from "./services/InfoService";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -363,7 +364,7 @@ const whiteboard = {
                     ```<div class="dragMe" style="position:absolute; left: ${left}px; top: ${top}px; width: ${width}px; border: 2px dotted gray; overflow: hidden; height: ${height}px;" cursor:move;">
                     <canvas style="cursor:move; position:absolute; top:0px; left:0px;" width="${width}" height="${height}"/>
                     <div style="position:absolute; right:5px; top:3px;">
-                    <button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Drop</button> 
+                    <button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Drop</button>
                     <button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>
                     </div>
                     </div>```
@@ -1061,21 +1062,25 @@ const whiteboard = {
             _this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
         }
     },
-    updateSmallestScreenResolution(width, height) {
-        this.backgroundGrid.empty();
-        if (width < $(window).width() || height < $(window).height()) {
-            this.backgroundGrid.append(
-                '<div style="position:absolute; left:0px; top:0px; border-right:3px dotted black; border-bottom:3px dotted black; width:' +
-                    width +
-                    "px; height:" +
-                    height +
-                    'px;"></div>'
-            );
-            this.backgroundGrid.append(
-                '<div style="position:absolute; left:' +
-                    (width + 5) +
-                    'px; top:0px;">smallest screen participating</div>'
-            );
+    updateSmallestScreenResolution() {
+        const { smallestScreenResolution } = InfoService;
+        if (smallestScreenResolution) {
+            const { w: width, h: height } = smallestScreenResolution;
+            this.backgroundGrid.empty();
+            if (width < $(window).width() || height < $(window).height()) {
+                this.backgroundGrid.append(
+                    '<div style="position:absolute; left:0px; top:0px; border-right:3px dotted black; border-bottom:3px dotted black; width:' +
+                        width +
+                        "px; height:" +
+                        height +
+                        'px;"></div>'
+                );
+                this.backgroundGrid.append(
+                    '<div style="position:absolute; left:' +
+                        (width + 5) +
+                        'px; top:0px;">smallest screen participating</div>'
+                );
+            }
         }
     },
     handleEventsAndData: function (content, isNewData, doneCallback) {

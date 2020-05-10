@@ -21,6 +21,13 @@ class InfoService {
     _nbConnectedUsers = 0;
 
     /**
+     *
+     * @type {{w: number, h: number}}
+     * @private
+     */
+    _smallestScreenResolution = undefined;
+
+    /**
      * @type {number}
      * @private
      */
@@ -41,9 +48,20 @@ class InfoService {
 
     /**
      * @param {number} nbConnectedUsers
+     * @param {{w: number, h: number}} smallestScreenResolution
      */
-    updateInfoFromServer({ nbConnectedUsers }) {
+    updateInfoFromServer({ nbConnectedUsers, smallestScreenResolution = undefined }) {
         this._nbConnectedUsers = nbConnectedUsers;
+        if (smallestScreenResolution) {
+            this._smallestScreenResolution = smallestScreenResolution;
+        }
+    }
+
+    /**
+     * @returns {(undefined|{w: number, h: number})}
+     */
+    get smallestScreenResolution() {
+        return this._smallestScreenResolution;
     }
 
     incrementNbMessagesReceived() {
@@ -58,6 +76,8 @@ class InfoService {
         $("#messageReceivedCount")[0].innerText = String(this._nbMessagesReceived);
         $("#messageSentCount")[0].innerText = String(this._nbMessagesSent);
         $("#connectedUsersCount")[0].innerText = String(this._nbConnectedUsers);
+        const { _smallestScreenResolution: ssr } = this;
+        $("#smallestScreenResolution")[0].innerText = ssr ? `(${ssr.w}, ${ssr.h})` : "Unknown";
     }
 
     displayInfo() {

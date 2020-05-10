@@ -1,13 +1,10 @@
 const path = require("path");
 
-const { getArgs } = require("./utils");
 const config = require("./config");
 const WhiteboardServerSideInfo = require("./WhiteboardServerSideInfo");
 
 function startBackendServer(port) {
-    var accessToken = ""; //Can be set here or as start parameter (node server.js --accesstoken=MYTOKEN)
-    var disableSmallestScreen = false; //Can be set to true if you dont want to show (node server.js --disablesmallestscreen=true)
-    var webdav = false; //Can be set to true if you want to allow webdav save (node server.js --webdav=true)
+    console.info("Starting backend server with config", config);
 
     var fs = require("fs-extra");
     var express = require("express");
@@ -29,36 +26,8 @@ function startBackendServer(port) {
     server.listen(port);
     var io = require("socket.io")(server, { path: "/ws-api" });
     console.log("Webserver & socketserver running on port:" + port);
-    if (process.env.accesstoken) {
-        accessToken = process.env.accesstoken;
-    }
-    if (process.env.disablesmallestscreen) {
-        disablesmallestscreen = true;
-    }
-    if (process.env.webdav) {
-        webdav = true;
-    }
 
-    var startArgs = getArgs();
-    if (startArgs["accesstoken"]) {
-        accessToken = startArgs["accesstoken"];
-    }
-    if (startArgs["disablesmallestscreen"]) {
-        disableSmallestScreen = true;
-    }
-    if (startArgs["webdav"]) {
-        webdav = true;
-    }
-
-    if (accessToken !== "") {
-        console.log("AccessToken set to: " + accessToken);
-    }
-    if (disableSmallestScreen) {
-        console.log("Disabled showing smallest screen resolution!");
-    }
-    if (webdav) {
-        console.log("Webdav save is enabled!");
-    }
+    const { accessToken, webdav } = config;
 
     app.get("/api/loadwhiteboard", function (req, res) {
         var wid = req["query"]["wid"];
@@ -207,8 +176,6 @@ function startBackendServer(port) {
         }
     }
 
-    var smallestScreenResolutions = {};
-
     /**
      * @type {Map<string, WhiteboardServerSideInfo>}
      */
@@ -229,20 +196,15 @@ function startBackendServer(port) {
     io.on("connection", function (socket) {
         var whiteboardId = null;
         socket.on("disconnect", function () {
-            if (
-                smallestScreenResolutions &&
-                smallestScreenResolutions[whiteboardId] &&
-                socket &&
-                socket.id
-            ) {
-                delete smallestScreenResolutions[whiteboardId][socket.id];
+            const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
+
+            if (socket && socket.id) {
+                whiteboardServerSideInfo.deleteScreenResolutionOfClient(socket.id);
             }
 
-            const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
             whiteboardServerSideInfo.decrementNbConnectedUsers();
             if (whiteboardServerSideInfo.hasConnectedUser()) {
                 socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
-                sendSmallestScreenResolution();
             } else {
                 infoByWhiteboard.delete(whiteboardId);
             }
@@ -269,14 +231,10 @@ function startBackendServer(port) {
 
                 const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
                 whiteboardServerSideInfo.incrementNbConnectedUsers();
-
-                smallestScreenResolutions[whiteboardId] = smallestScreenResolutions[whiteboardId]
-                    ? smallestScreenResolutions[whiteboardId]
-                    : {};
-                smallestScreenResolutions[whiteboardId][socket.id] = content[
-                    "windowWidthHeight"
-                ] || { w: 10000, h: 10000 };
-                sendSmallestScreenResolution();
+                whiteboardServerSideInfo.setScreenResolutionForClient(
+                    socket.id,
+                    content["windowWidthHeight"] || WhiteboardServerSideInfo.defaultScreenResolution
+                );
             } else {
                 socket.emit("wrongAccessToken", true);
             }
@@ -284,38 +242,14 @@ function startBackendServer(port) {
 
         socket.on("updateScreenResolution", function (content) {
             content = escapeAllContentStrings(content);
-            if (
-                smallestScreenResolutions[whiteboardId] &&
-                (accessToken === "" || accessToken == content["at"])
-            ) {
-                smallestScreenResolutions[whiteboardId][socket.id] = content[
-                    "windowWidthHeight"
-                ] || { w: 10000, h: 10000 };
-                sendSmallestScreenResolution();
+            if (accessToken === "" || accessToken == content["at"]) {
+                const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
+                whiteboardServerSideInfo.setScreenResolutionForClient(
+                    socket.id,
+                    content["windowWidthHeight"] || WhiteboardServerSideInfo.defaultScreenResolution
+                );
             }
         });
-
-        function sendSmallestScreenResolution() {
-            if (disableSmallestScreen) {
-                return;
-            }
-            var smallestWidth = 10000;
-            var smallestHeight = 10000;
-            for (var i in smallestScreenResolutions[whiteboardId]) {
-                smallestWidth =
-                    smallestWidth > smallestScreenResolutions[whiteboardId][i]["w"]
-                        ? smallestScreenResolutions[whiteboardId][i]["w"]
-                        : smallestWidth;
-                smallestHeight =
-                    smallestHeight > smallestScreenResolutions[whiteboardId][i]["h"]
-                        ? smallestScreenResolutions[whiteboardId][i]["h"]
-                        : smallestHeight;
-            }
-            io.to(whiteboardId).emit("updateSmallestScreenResolution", {
-                w: smallestWidth,
-                h: smallestHeight,
-            });
-        }
     });
 
     //Prevent cross site scripting (xss)

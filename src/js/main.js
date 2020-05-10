@@ -51,6 +51,7 @@ function main() {
 
         signaling_socket.on("whiteboardInfoUpdate", (info) => {
             InfoService.updateInfoFromServer(info);
+            whiteboard.updateSmallestScreenResolution();
         });
 
         signaling_socket.on("drawToWhiteboard", function (content) {
@@ -67,10 +68,6 @@ function main() {
                 accessDenied = true;
                 showBasicAlert("Access denied! Wrong accessToken!");
             }
-        });
-
-        signaling_socket.on("updateSmallestScreenResolution", function (widthHeight) {
-            whiteboard.updateSmallestScreenResolution(widthHeight["w"], widthHeight["h"]);
         });
 
         signaling_socket.emit("joinWhiteboard", {

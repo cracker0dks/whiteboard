@@ -1,7 +1,7 @@
 import { getThrottling } from "./ConfigService.utils";
 
 test("Simple throttling config", () => {
-    const throttling = [{ fromNbUser: 0, minDistDelta: 1, maxFreq: 1 }];
+    const throttling = [{ fromUserCount: 0, minDistDelta: 1, maxFreq: 1 }];
 
     const target0 = { minDistDelta: 1, minTimeDelta: 1000 };
     expect(getThrottling(throttling, 0)).toEqual(target0);
@@ -13,9 +13,9 @@ test("Simple throttling config", () => {
 test("Complex throttling config", () => {
     // mix ordering
     const throttling = [
-        { fromNbUser: 100, minDistDelta: 100, maxFreq: 1 },
-        { fromNbUser: 0, minDistDelta: 1, maxFreq: 1 },
-        { fromNbUser: 50, minDistDelta: 50, maxFreq: 1 },
+        { fromUserCount: 100, minDistDelta: 100, maxFreq: 1 },
+        { fromUserCount: 0, minDistDelta: 1, maxFreq: 1 },
+        { fromUserCount: 50, minDistDelta: 50, maxFreq: 1 },
     ];
 
     const target0 = { minDistDelta: 1, minTimeDelta: 1000 };

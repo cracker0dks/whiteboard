@@ -38,7 +38,7 @@ function updateConfigFromStartArgs(startArgs) {
         "disablesmallestscreen",
         () => (config.backend.showSmallestScreenIndicator = false)
     );
-    deprecateCliArg("webdav", () => (config.backend.webdav = true));
+    deprecateCliArg("webdav", () => (config.backend.enableWebdav = true));
 }
 
 /**
@@ -63,7 +63,7 @@ function updateConfigFromEnv() {
         "disablesmallestscreen",
         () => (config.backend.showSmallestScreenIndicator = false)
     );
-    deprecateEnv("webdav", () => (config.backend.webdav = true));
+    deprecateEnv("webdav", () => (config.backend.enableWebdav = true));
 }
 
 // compatibility layer

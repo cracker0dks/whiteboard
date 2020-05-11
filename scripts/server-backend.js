@@ -25,7 +25,7 @@ function startBackendServer(port) {
     var io = require("socket.io")(server, { path: "/ws-api" });
     console.log("Webserver & socketserver running on port:" + port);
 
-    const { accessToken, webdav } = config.backend;
+    const { accessToken, enableWebdav } = config.backend;
 
     app.get("/api/loadwhiteboard", function (req, res) {
         var wid = req["query"]["wid"];
@@ -117,7 +117,7 @@ function startBackendServer(port) {
                     } else {
                         if (webdavaccess) {
                             //Save image to webdav
-                            if (webdav) {
+                            if (enableWebdav) {
                                 saveImageToWebdav(
                                     "./public/uploads/" + filename,
                                     filename,

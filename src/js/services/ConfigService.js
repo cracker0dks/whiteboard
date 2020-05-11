@@ -66,15 +66,15 @@ class ConfigService {
     /**
      * Refresh config that depends on the number of user connected to whiteboard
      *
-     * @param {number} nbUser
+     * @param {number} userCount
      */
-    refreshNbUserDependant(nbUser) {
+    refreshUserCountDependant(userCount) {
         const { configFromServer } = this;
         const { common } = configFromServer;
         const { performance } = common;
         const { pointerEventsThrottling } = performance;
 
-        this.#pointerEventsThrottling = getThrottling(pointerEventsThrottling, nbUser);
+        this.#pointerEventsThrottling = getThrottling(pointerEventsThrottling, userCount);
     }
 }
 

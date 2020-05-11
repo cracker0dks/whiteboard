@@ -62,7 +62,7 @@ class InfoService {
     updateInfoFromServer({ nbConnectedUsers, smallestScreenResolution = undefined }) {
         if (this.#nbConnectedUsers !== nbConnectedUsers) {
             // Refresh config service parameters on nb connected user change
-            ConfigService.refreshNbUserDependant(nbConnectedUsers);
+            ConfigService.refreshUserCountDependant(nbConnectedUsers);
         }
         this.#nbConnectedUsers = nbConnectedUsers;
         if (smallestScreenResolution) {

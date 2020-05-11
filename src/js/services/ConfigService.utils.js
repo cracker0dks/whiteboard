@@ -1,19 +1,19 @@
 /**
- * Helper to extract the correct correct throttling values based on the config and the number of user
+ * Helper to extract the correct throttling values based on the config and the number of user
  *
- * @param {Array.<{fromNbUser: number, minDistDelta: number, maxFreq: number}>} pointerEventsThrottling
- * @param {number} nbUser
+ * @param {Array.<{fromUserCount: number, minDistDelta: number, maxFreq: number}>} pointerEventsThrottling
+ * @param {number} userCount
  * @return {{minDistDelta: number, minTimeDelta: number}}
  */
-export function getThrottling(pointerEventsThrottling, nbUser) {
+export function getThrottling(pointerEventsThrottling, userCount) {
     let tmpOut = pointerEventsThrottling[0];
-    let lastDistToNbUser = nbUser - tmpOut.fromNbUser;
-    if (lastDistToNbUser < 0) lastDistToNbUser = Number.MAX_VALUE;
+    let lastDistToUserCount = userCount - tmpOut.fromUserCount;
+    if (lastDistToUserCount < 0) lastDistToUserCount = Number.MAX_VALUE;
     for (const el of pointerEventsThrottling) {
-        const distToNbUser = nbUser - el.fromNbUser;
-        if (el.fromNbUser <= nbUser && distToNbUser <= lastDistToNbUser) {
+        const distToUserCount = userCount - el.fromUserCount;
+        if (el.fromUserCount <= userCount && distToUserCount <= lastDistToUserCount) {
             tmpOut = el;
-            lastDistToNbUser = distToNbUser;
+            lastDistToUserCount = distToUserCount;
         }
     }
 

@@ -5,13 +5,13 @@
   "properties": {
     "backend": {
       "type": "object",
-      "required": ["accessToken", "performance", "webdav"],
+      "required": ["accessToken", "performance", "enableWebdav"],
       "additionalProperties": false,
       "properties": {
         "accessToken": {
           "type": "string"
         },
-        "webdav": {
+        "enableWebdav": {
           "type": "boolean"
         },
         "performance": {
@@ -59,9 +59,9 @@
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["fromNbUser", "minDistDelta", "maxFreq"],
+                "required": ["fromUserCount", "minDistDelta", "maxFreq"],
                 "properties": {
-                  "fromNbUser": {
+                  "fromUserCount": {
                     "type": "number",
                     "minimum": 0
                   },

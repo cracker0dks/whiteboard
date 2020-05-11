@@ -1,5 +1,8 @@
 import { getThrottling } from "./ConfigService.utils";
 
+/**
+ * Class to hold the configuration sent by the backend
+ */
 class ConfigService {
     /**
      * @type {object}

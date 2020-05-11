@@ -2,6 +2,9 @@ import Point from "../classes/Point";
 import { getCurrentTimeMs } from "../utils";
 import ConfigService from "./ConfigService";
 
+/**
+ * Class to handle all the throttling logic
+ */
 class ThrottlingService {
     /**
      * @type {number}

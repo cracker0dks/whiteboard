@@ -4,7 +4,7 @@ backend:
   # TODO
   webdav: false
   performance:
-    # Whiteboard information broadcasting frequency (in /s)
+    # Whiteboard information broadcasting frequency (in Hz i.e. /s)
     # => diminishing this will result in more latency
     whiteboardInfoBroadcastFreq: 1
 
@@ -15,7 +15,8 @@ frontend:
   # Show smallest screen indicator
   showSmallestScreenIndicator: true
   performance:
-    pointerEventsThreshold:
-      minDistDelta: 1
-      minTimeDelta: 33
+    pointerEventsThrottling:
+      - fromNbUser: 0
+        minDistDelta: 1
+        maxFreq: 30
     refreshInfoFreq: 5

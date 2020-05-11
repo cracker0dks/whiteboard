@@ -14,9 +14,9 @@ class InfoService {
      * Holds the number of user connected to the server
      *
      * @type {number}
-     * @private
+     * @readonly
      */
-    _nbConnectedUsers = 0;
+    nbConnectedUsers = -1;
 
     /**
      *
@@ -49,7 +49,11 @@ class InfoService {
      * @param {{w: number, h: number}} smallestScreenResolution
      */
     updateInfoFromServer({ nbConnectedUsers, smallestScreenResolution = undefined }) {
-        this._nbConnectedUsers = nbConnectedUsers;
+        if (this.nbConnectedUsers !== nbConnectedUsers) {
+            // Refresh config service parameters on nb connected user change
+            ConfigService.refreshNbUserDependant(nbConnectedUsers);
+        }
+        this.nbConnectedUsers = nbConnectedUsers;
         if (smallestScreenResolution) {
             this._smallestScreenResolution = smallestScreenResolution;
         }
@@ -73,7 +77,7 @@ class InfoService {
     refreshDisplayedInfo() {
         $("#messageReceivedCount")[0].innerText = String(this._nbMessagesReceived);
         $("#messageSentCount")[0].innerText = String(this._nbMessagesSent);
-        $("#connectedUsersCount")[0].innerText = String(this._nbConnectedUsers);
+        $("#connectedUsersCount")[0].innerText = String(this.nbConnectedUsers);
         const { _smallestScreenResolution: ssr } = this;
         $("#smallestScreenResolution")[0].innerText = ssr ? `(${ssr.w}, ${ssr.h})` : "Unknown";
     }

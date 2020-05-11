@@ -41,20 +41,28 @@
         "performance": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["pointerEventsThreshold", "refreshInfoFreq"],
+          "required": ["pointerEventsThrottling", "refreshInfoFreq"],
           "properties": {
-            "pointerEventsThreshold": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["minDistDelta", "minTimeDelta"],
-              "properties": {
-                "minDistDelta": {
-                  "type": "number",
-                  "minimum": 0
-                },
-                "minTimeDelta": {
-                  "type": "number",
-                  "minimum": 0
+            "pointerEventsThrottling": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["fromNbUser", "minDistDelta", "maxFreq"],
+                "properties": {
+                  "fromNbUser": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "minDistDelta": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "maxFreq": {
+                    "type": "number",
+                    "minimum": 0
+                  }
                 }
               }
             },

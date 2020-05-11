@@ -25,10 +25,10 @@ class ThrottlingService {
     throttle(newPosition, onSuccess) {
         const newTime = getCurrentTimeMs();
         const { _lastPointPosition, _lastSuccessTime } = this;
-        if (newTime - _lastSuccessTime > ConfigService.pointerEventsThresholdMinTimeDelta) {
+        if (newTime - _lastSuccessTime > ConfigService.pointerEventsThrottling.minTimeDelta) {
             if (
                 _lastPointPosition.distTo(newPosition) >
-                ConfigService.pointerEventsThresholdMinDistDelta
+                ConfigService.pointerEventsThrottling.minDistDelta
             ) {
                 onSuccess();
                 this._lastPointPosition = newPosition;

@@ -44,11 +44,28 @@ function getConfig(path) {
  */
 function isConfigValid(config, warn = true) {
     const validate = ajv.compile(configSchema);
-    const isValid = validate(config);
+    const isValidAgainstSchema = validate(config);
 
-    if (!isValid && warn) console.warn(validate.errors);
+    if (!isValidAgainstSchema && warn) console.warn(validate.errors);
 
-    return isValid;
+    let structureIsValid = false;
+    try {
+        structureIsValid = config.frontend.performance.pointerEventsThrottling.some(
+            (item) => item.fromNbUser === 0
+        );
+    } catch (e) {
+        if (!e instanceof TypeError) {
+            throw e;
+        }
+    }
+
+    if (!structureIsValid && warn)
+        console.warn(
+            "At least one item under frontend.performance.pointerEventsThrottling" +
+                "must have fromNbUser set to 0"
+        );
+
+    return isValidAgainstSchema && structureIsValid;
 }
 
 /**

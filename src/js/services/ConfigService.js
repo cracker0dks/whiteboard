@@ -1,4 +1,12 @@
+import { getThrottling } from "./ConfigService.utils";
+
 class ConfigService {
+    /**
+     * @type {object}
+     * @private
+     */
+    _configFromServer = {};
+
     /**
      * @readonly
      * @type {boolean}
@@ -13,15 +21,9 @@ class ConfigService {
 
     /**
      * @readonly
-     * @type {number}
+     * @type {{minDistDelta: number, minTimeDelta: number}}
      */
-    pointerEventsThresholdMinDistDelta = 0;
-
-    /**
-     * @readonly
-     * @type {number}
-     */
-    pointerEventsThresholdMinTimeDelta = 0;
+    pointerEventsThrottling = { minDistDelta: 0, minTimeDelta: 0 };
 
     /**
      * @readonly
@@ -32,19 +34,31 @@ class ConfigService {
     /**
      * Init the service from the config sent by the server
      *
-     * @param {object} serverResponse
+     * @param {object} configFromServer
      */
-    initFromServer(serverResponse) {
-        const { common } = serverResponse;
+    initFromServer(configFromServer) {
+        this._configFromServer = configFromServer;
+
+        const { common } = configFromServer;
         const { readOnlyOnWhiteboardLoad, showSmallestScreenIndicator, performance } = common;
 
         this.readOnlyOnWhiteboardLoad = readOnlyOnWhiteboardLoad;
         this.showSmallestScreenIndicator = showSmallestScreenIndicator;
-        this.pointerEventsThresholdMinDistDelta = performance.pointerEventsThreshold.minDistDelta;
-        this.pointerEventsThresholdMinTimeDelta = performance.pointerEventsThreshold.minTimeDelta;
         this.refreshInfoInterval = 1000 / performance.refreshInfoFreq;
 
-        console.log("Whiteboard config from server:", serverResponse, "parsed:", this);
+        console.log("Whiteboard config from server:", configFromServer, "parsed:", this);
+    }
+
+    /**
+     * TODO
+     */
+    refreshNbUserDependant(nbUser) {
+        const { _configFromServer } = this;
+        const { common } = _configFromServer;
+        const { performance } = common;
+        const { pointerEventsThrottling } = performance;
+
+        this.pointerEventsThrottling = getThrottling(pointerEventsThrottling, nbUser);
     }
 }
 

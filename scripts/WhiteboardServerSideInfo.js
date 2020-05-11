@@ -1,4 +1,4 @@
-const config = require("./config");
+const config = require("./config/config");
 
 class WhiteboardServerSideInfo {
     static defaultScreenResolution = { w: 1000, h: 1000 };

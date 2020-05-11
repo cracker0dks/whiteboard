@@ -1,12 +1,8 @@
 const util = require("util");
 
-const {
-    getArgs,
-    getDefaultConfig,
-    getConfig,
-    deepMergeConfigs,
-    isConfigValid,
-} = require("./utils");
+const { getDefaultConfig, getConfig, deepMergeConfigs, isConfigValid } = require("./utils");
+
+const { getArgs } = require("./../utils");
 
 const defaultConfig = getDefaultConfig();
 

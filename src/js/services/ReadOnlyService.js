@@ -4,23 +4,27 @@
 class ReadOnlyService {
     /**
      * @type {boolean}
-     * @private
      */
-    _readOnlyActive = true;
+    #readOnlyActive = true;
+    get readOnlyActive() {
+        return this.#readOnlyActive;
+    }
 
     /**
      * @type {object}
-     * @private
      */
-    _previousToolHtmlElem = null;
+    #previousToolHtmlElem = null;
+    get previousToolHtmlElem() {
+        return this.#previousToolHtmlElem;
+    }
 
     /**
      * Activate read-only mode
      */
     activateReadOnlyMode() {
-        this._readOnlyActive = true;
+        this.#readOnlyActive = true;
 
-        this._previousToolHtmlElem = $(".whiteboard-tool.active");
+        this.#previousToolHtmlElem = $(".whiteboard-tool.active");
 
         // switch to mouse tool to prevent the use of the
         // other tools
@@ -36,7 +40,7 @@ class ReadOnlyService {
      * Deactivate read-only mode
      */
     deactivateReadOnlyMode() {
-        this._readOnlyActive = false;
+        this.#readOnlyActive = false;
 
         $(".whiteboard-tool").prop("disabled", false);
         $(".whiteboard-edit-group > button").prop("disabled", false);
@@ -45,15 +49,8 @@ class ReadOnlyService {
         $("#whiteboardLockBtn").hide();
 
         // restore previously selected tool
-        if (this._previousToolHtmlElem) this._previousToolHtmlElem.click();
-    }
-
-    /**
-     * Get the read-only status
-     * @returns {boolean}
-     */
-    get readOnlyActive() {
-        return this._readOnlyActive;
+        const { previousToolHtmlElem } = this;
+        if (previousToolHtmlElem) previousToolHtmlElem.click();
     }
 }
 

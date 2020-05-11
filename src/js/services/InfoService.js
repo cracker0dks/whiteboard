@@ -6,107 +6,127 @@ import ConfigService from "./ConfigService";
 class InfoService {
     /**
      * @type {boolean}
-     * @private
      */
-    _infoAreDisplayed = false;
+    #infoAreDisplayed = false;
+    get infoAreDisplayed() {
+        return this.#infoAreDisplayed;
+    }
 
     /**
      * Holds the number of user connected to the server
      *
      * @type {number}
-     * @readonly
      */
-    nbConnectedUsers = -1;
+    #nbConnectedUsers = -1;
+    get nbConnectedUsers() {
+        return this.#nbConnectedUsers;
+    }
 
     /**
-     *
      * @type {{w: number, h: number}}
-     * @private
      */
-    _smallestScreenResolution = undefined;
+    #smallestScreenResolution = undefined;
+    get smallestScreenResolution() {
+        return this.#smallestScreenResolution;
+    }
 
     /**
      * @type {number}
-     * @private
      */
-    _nbMessagesSent = 0;
+    #nbMessagesSent = 0;
+    get nbMessagesSent() {
+        return this.#nbMessagesSent;
+    }
 
     /**
      * @type {number}
-     * @private
      */
-    _nbMessagesReceived = 0;
+    #nbMessagesReceived = 0;
+    get nbMessagesReceived() {
+        return this.#nbMessagesReceived;
+    }
 
     /**
      * Holds the interval Id
      * @type {number}
-     * @private
      */
-    _refreshInfoIntervalId = undefined;
+    #refreshInfoIntervalId = undefined;
+    get refreshInfoIntervalId() {
+        return this.#refreshInfoIntervalId;
+    }
 
     /**
      * @param {number} nbConnectedUsers
      * @param {{w: number, h: number}} smallestScreenResolution
      */
     updateInfoFromServer({ nbConnectedUsers, smallestScreenResolution = undefined }) {
-        if (this.nbConnectedUsers !== nbConnectedUsers) {
+        if (this.#nbConnectedUsers !== nbConnectedUsers) {
             // Refresh config service parameters on nb connected user change
             ConfigService.refreshNbUserDependant(nbConnectedUsers);
         }
-        this.nbConnectedUsers = nbConnectedUsers;
+        this.#nbConnectedUsers = nbConnectedUsers;
         if (smallestScreenResolution) {
-            this._smallestScreenResolution = smallestScreenResolution;
+            this.#smallestScreenResolution = smallestScreenResolution;
         }
     }
 
-    /**
-     * @returns {(undefined|{w: number, h: number})}
-     */
-    get smallestScreenResolution() {
-        return this._smallestScreenResolution;
-    }
-
     incrementNbMessagesReceived() {
-        this._nbMessagesReceived++;
+        this.#nbMessagesReceived++;
     }
 
     incrementNbMessagesSent() {
-        this._nbMessagesSent++;
+        this.#nbMessagesSent++;
     }
 
     refreshDisplayedInfo() {
-        $("#messageReceivedCount")[0].innerText = String(this._nbMessagesReceived);
-        $("#messageSentCount")[0].innerText = String(this._nbMessagesSent);
-        $("#connectedUsersCount")[0].innerText = String(this.nbConnectedUsers);
-        const { _smallestScreenResolution: ssr } = this;
+        const {
+            nbMessagesReceived,
+            nbMessagesSent,
+            nbConnectedUsers,
+            smallestScreenResolution: ssr,
+        } = this;
+        $("#messageReceivedCount")[0].innerText = String(nbMessagesReceived);
+        $("#messageSentCount")[0].innerText = String(nbMessagesSent);
+        $("#connectedUsersCount")[0].innerText = String(nbConnectedUsers);
         $("#smallestScreenResolution")[0].innerText = ssr ? `(${ssr.w}, ${ssr.h})` : "Unknown";
     }
 
+    /**
+     * Show the info div
+     */
     displayInfo() {
         $("#whiteboardInfoContainer").toggleClass("displayNone", false);
         $("#displayWhiteboardInfoBtn").toggleClass("active", true);
-        this._infoAreDisplayed = true;
+        this.#infoAreDisplayed = true;
 
         this.refreshDisplayedInfo();
-        this._refreshInfoIntervalId = setInterval(() => {
+        this.#refreshInfoIntervalId = setInterval(() => {
             // refresh only on a specific interval to reduce
             // refreshing cost
             this.refreshDisplayedInfo();
         }, ConfigService.refreshInfoInterval);
     }
 
+    /**
+     * Hide the info div
+     */
     hideInfo() {
         $("#whiteboardInfoContainer").toggleClass("displayNone", true);
         $("#displayWhiteboardInfoBtn").toggleClass("active", false);
-        this._infoAreDisplayed = false;
-        if (this._refreshInfoIntervalId) {
-            clearInterval(this._refreshInfoIntervalId);
-            this._refreshInfoIntervalId = undefined;
+        this.#infoAreDisplayed = false;
+        const { refreshInfoIntervalId } = this;
+        if (refreshInfoIntervalId) {
+            clearInterval(refreshInfoIntervalId);
+            this.#refreshInfoIntervalId = undefined;
         }
     }
 
+    /**
+     * Switch between hiding and showing the info div
+     */
     toggleDisplayInfo() {
-        if (this._infoAreDisplayed) {
+        const { infoAreDisplayed } = this;
+        if (infoAreDisplayed) {
             this.hideInfo();
         } else {
             this.displayInfo();

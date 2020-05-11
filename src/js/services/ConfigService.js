@@ -3,33 +3,43 @@ import { getThrottling } from "./ConfigService.utils";
 class ConfigService {
     /**
      * @type {object}
-     * @private
      */
-    _configFromServer = {};
+    #configFromServer = {};
+    get configFromServer() {
+        return this.#configFromServer;
+    }
 
     /**
-     * @readonly
      * @type {boolean}
      */
-    readOnlyOnWhiteboardLoad = false;
+    #readOnlyOnWhiteboardLoad = false;
+    get readOnlyOnWhiteboardLoad() {
+        return this.#readOnlyOnWhiteboardLoad;
+    }
 
     /**
-     * @readonly
      * @type {boolean}
      */
-    showSmallestScreenIndicator = true;
+    #showSmallestScreenIndicator = true;
+    get showSmallestScreenIndicator() {
+        return this.#showSmallestScreenIndicator;
+    }
 
     /**
-     * @readonly
      * @type {{minDistDelta: number, minTimeDelta: number}}
      */
-    pointerEventsThrottling = { minDistDelta: 0, minTimeDelta: 0 };
+    #pointerEventsThrottling = { minDistDelta: 0, minTimeDelta: 0 };
+    get pointerEventsThrottling() {
+        return this.#pointerEventsThrottling;
+    }
 
     /**
-     * @readonly
      * @type {number}
      */
-    refreshInfoInterval = 1000;
+    #refreshInfoInterval = 1000;
+    get refreshInfoInterval() {
+        return this.#refreshInfoInterval;
+    }
 
     /**
      * Init the service from the config sent by the server
@@ -37,28 +47,30 @@ class ConfigService {
      * @param {object} configFromServer
      */
     initFromServer(configFromServer) {
-        this._configFromServer = configFromServer;
+        this.#configFromServer = configFromServer;
 
         const { common } = configFromServer;
         const { readOnlyOnWhiteboardLoad, showSmallestScreenIndicator, performance } = common;
 
-        this.readOnlyOnWhiteboardLoad = readOnlyOnWhiteboardLoad;
-        this.showSmallestScreenIndicator = showSmallestScreenIndicator;
-        this.refreshInfoInterval = 1000 / performance.refreshInfoFreq;
+        this.#readOnlyOnWhiteboardLoad = readOnlyOnWhiteboardLoad;
+        this.#showSmallestScreenIndicator = showSmallestScreenIndicator;
+        this.#refreshInfoInterval = 1000 / performance.refreshInfoFreq;
 
         console.log("Whiteboard config from server:", configFromServer, "parsed:", this);
     }
 
     /**
-     * TODO
+     * Refresh config that depends on the number of user connected to whiteboard
+     *
+     * @param {number} nbUser
      */
     refreshNbUserDependant(nbUser) {
-        const { _configFromServer } = this;
-        const { common } = _configFromServer;
+        const { configFromServer } = this;
+        const { common } = configFromServer;
         const { performance } = common;
         const { pointerEventsThrottling } = performance;
 
-        this.pointerEventsThrottling = getThrottling(pointerEventsThrottling, nbUser);
+        this.#pointerEventsThrottling = getThrottling(pointerEventsThrottling, nbUser);
     }
 }
 

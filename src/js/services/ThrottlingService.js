@@ -5,15 +5,19 @@ import ConfigService from "./ConfigService";
 class ThrottlingService {
     /**
      * @type {number}
-     * @private
      */
-    _lastSuccessTime = 0;
+    #lastSuccessTime = 0;
+    get lastSuccessTime() {
+        return this.#lastSuccessTime;
+    }
 
     /**
      * @type {Point}
-     * @private
      */
-    _lastPointPosition = new Point(0, 0);
+    #lastPointPosition = new Point(0, 0);
+    get lastPointPosition() {
+        return this.#lastPointPosition;
+    }
 
     /**
      * Helper to throttle events based on the configuration.
@@ -24,15 +28,15 @@ class ThrottlingService {
      */
     throttle(newPosition, onSuccess) {
         const newTime = getCurrentTimeMs();
-        const { _lastPointPosition, _lastSuccessTime } = this;
-        if (newTime - _lastSuccessTime > ConfigService.pointerEventsThrottling.minTimeDelta) {
+        const { lastPointPosition, lastSuccessTime } = this;
+        if (newTime - lastSuccessTime > ConfigService.pointerEventsThrottling.minTimeDelta) {
             if (
-                _lastPointPosition.distTo(newPosition) >
+                lastPointPosition.distTo(newPosition) >
                 ConfigService.pointerEventsThrottling.minDistDelta
             ) {
                 onSuccess();
-                this._lastPointPosition = newPosition;
-                this._lastSuccessTime = newTime;
+                this.#lastPointPosition = newPosition;
+                this.#lastSuccessTime = newTime;
             }
         }
     }

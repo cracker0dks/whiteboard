@@ -2,33 +2,40 @@ import { computeDist } from "../utils";
 
 class Point {
     /**
+     * @type {number}
+     */
+    #x;
+    get x() {
+        return this.#x;
+    }
+
+    /**
+     * @type {number}
+     */
+    #y;
+    get y() {
+        return this.#y;
+    }
+
+    /**
+     * @type {Point}
+     */
+    static #lastKnownPos = new Point(0, 0);
+    static get lastKnownPos() {
+        return Point.#lastKnownPos;
+    }
+
+    /**
      * @param {number} x
      * @param {number} y
      */
     constructor(x, y) {
-        /**
-         * @type {number}
-         * @private
-         */
-        this._x = x;
-
-        /**
-         * @type {number}
-         * @private
-         */
-        this._y = y;
-    }
-
-    get x() {
-        return this._x;
-    }
-
-    get y() {
-        return this._y;
+        this.#x = x;
+        this.#y = y;
     }
 
     get isZeroZero() {
-        return this._x === 0 && this._y === 0;
+        return this.#x === 0 && this.#y === 0;
     }
 
     /**
@@ -50,19 +57,13 @@ class Point {
                 y = touch.clientY - $("#mouseOverlay").offset().top;
             } else {
                 // if it's a touchend event
-                return Point._lastKnownPos;
+                return Point.#lastKnownPos;
             }
         }
 
-        Point._lastKnownPos = new Point(x - epsilon, y - epsilon);
-        return Point._lastKnownPos;
+        Point.#lastKnownPos = new Point(x - epsilon, y - epsilon);
+        return Point.#lastKnownPos;
     }
-
-    /**
-     * @type {Point}
-     * @private
-     */
-    static _lastKnownPos = new Point(0, 0);
 
     /**
      * Compute euclidean distance between points

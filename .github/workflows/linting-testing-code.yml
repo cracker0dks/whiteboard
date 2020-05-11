@@ -1,6 +1,6 @@
 # This workflow will do a clean install of node dependencies and check the code style
 
-name: Linting code CI
+name: Linting and testing code CI
 
 on:
   push:
@@ -19,3 +19,4 @@ jobs:
           node-version: 12.x
       - run: npm ci
       - run: npm run style
+      - run: npm run test

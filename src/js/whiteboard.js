@@ -3,6 +3,7 @@ import Point from "./classes/Point";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
 import ThrottlingService from "./services/ThrottlingService";
+import ConfigService from "./services/ConfigService";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -1031,7 +1032,8 @@ const whiteboard = {
     },
     updateSmallestScreenResolution() {
         const { smallestScreenResolution } = InfoService;
-        if (smallestScreenResolution) {
+        const { showSmallestScreenIndicator } = ConfigService;
+        if (showSmallestScreenIndicator && smallestScreenResolution) {
             const { w: width, h: height } = smallestScreenResolution;
             this.backgroundGrid.empty();
             if (width < $(window).width() || height < $(window).height()) {

@@ -8,6 +8,10 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easi
 
 [HERE](https://cloud13.de/testwhiteboard/) (Reset every night)
 
+## Updating
+
+Information related to updating this app can be found [here](./doc/updating_guide.md).
+
 ## Some Features
 
 - Shows remote user cursors while drawing
@@ -34,7 +38,7 @@ You can run this app with and without docker
 
 ### Without Docker
 
-1. install the latest NodeJs
+1. install the latest NodeJs (version >= 12)
 2. Clone the app
 3. Run `npm ci` inside the folder
 4. Run `npm run start:prod`
@@ -108,13 +112,26 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 - title => Change the name of the Browser Tab
 - randomid => if set to true, a random whiteboardId will be generated if not given aswell
 
-## Security - AccessToken (Optional)
+## Configuration
 
-To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start.
+Many settings of this project can be set using a simple `yaml` file, to change some behaviors or tweak performances.
 
-<b>Server (Without docker):</b> `node scripts/server.js --accesstoken="mySecToken"`
+### Config. file
 
-<b>Server (With docker):</b> `docker run -d -p 8080:8080 rofl256/whiteboard --accesstoken="mySecToken"`
+To run the project with custom settings:
+
+1. Create a `config.run.yml` file based on the content of [`config.default.yml`](./config.default.yml),
+2. Change the settings,
+3. Run the project with your custom configuration (it will be merged into the default one):
+
+- locally: `node scripts/server.js --config=./config.run.yml`
+- docker: `docker run -d -p 8080:8080 -v $(pwd)/config.run.yml:/config.run.yml:ro rofl256/whiteboard --config=/config.run.yml`
+
+### Highlights
+
+#### Security - AccessToken (Optional)
+
+To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start (see [here](./config.default.yml)).
 
 Then set the same token on the client side as well:
 
@@ -122,15 +139,11 @@ Then set the same token on the client side as well:
 
 Done!
 
-## WebDAV (Optional)
+#### WebDAV (Optional)
 
 This function allows your users to save the whiteboard directly to a webdav server (Nextcloud) as image without downloading it.
 
-To enable it:
-
-<b>Server (Without docker):</b> `node scripts/server.js --webdav=true`
-
-<b>Server (With docker):</b> `docker run -d -p 8080:8080 rofl256/whiteboard --webdav=true`
+To enable set `enableWebdav` to `true` in the [configuration](./config.default.yml).
 
 Then set the same parameter on the client side as well:
 
@@ -142,16 +155,14 @@ Note: For the most owncloud/nextcloud setups you have to set the WebDav-Server U
 
 Done!
 
+### And many more (performance, etc.)
+
+Many more settings can be tweaked. All of them are described in the [default config file](./config.default.yml).
+
 ## Things you may want to know
 
 - Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
 - You should be able to customize the layout without ever touching the whiteboard.js (take a look at index.html & main.js)
-
-## All server start parameters (also docker)
-
-- accesstoken => take a look at "Security - AccessToken" for a full explanation
-- disablesmallestscreen => set this to "true" if you don't want show the "smallest screen" indicator (A dotted gray line) to the users
-- webdav => Enable the function to save to a webdav-server (Must also be enabled on the client; Take a look at the webdav section)
 
 ## ToDo
 

@@ -9,9 +9,12 @@ backend:
     whiteboardInfoBroadcastFreq: 1
 
 frontend:
-  # When an editable whiteboard is loading in a client,
-  # should it be started in read-only mode.
-  readOnlyOnWhiteboardLoad: false
+  # When a whiteboard is loading in a client
+  onWhiteboardLoad:
+    # should an (editable) whiteboard be started in read-only mode by default
+    setReadOnly: false
+    # should the whiteboard info be displayed by default
+    displayInfo: false
   # Show smallest screen indicator
   showSmallestScreenIndicator: true
   performance:

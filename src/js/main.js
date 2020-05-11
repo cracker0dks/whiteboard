@@ -603,10 +603,14 @@ function initWhiteboard() {
         // fix bug cursor not showing up
         whiteboard.refreshCursorAppearance();
 
-        if (process.env.NODE_ENV === "production" && ConfigService.readOnlyOnWhiteboardLoad) {
-            ReadOnlyService.activateReadOnlyMode();
-            InfoService.hideInfo();
+        if (process.env.NODE_ENV === "production") {
+            if (ConfigService.readOnlyOnWhiteboardLoad) ReadOnlyService.activateReadOnlyMode();
+            else ReadOnlyService.deactivateReadOnlyMode();
+
+            if (ConfigService.displayInfoOnWhiteboardLoad) InfoService.displayInfo();
+            else InfoService.hideInfo();
         } else {
+            // in dev
             ReadOnlyService.deactivateReadOnlyMode();
             InfoService.displayInfo();
         }

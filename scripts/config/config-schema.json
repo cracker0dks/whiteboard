@@ -30,10 +30,20 @@
     "frontend": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["readOnlyOnWhiteboardLoad", "showSmallestScreenIndicator", "performance"],
+      "required": ["onWhiteboardLoad", "showSmallestScreenIndicator", "performance"],
       "properties": {
-        "readOnlyOnWhiteboardLoad": {
-          "type": "boolean"
+        "onWhiteboardLoad": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["displayInfo", "setReadOnly"],
+          "properties": {
+            "setReadOnly": {
+              "type": "boolean"
+            },
+            "displayInfo": {
+              "type": "boolean"
+            }
+          }
         },
         "showSmallestScreenIndicator": {
           "type": "boolean"

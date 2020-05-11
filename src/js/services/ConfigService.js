@@ -10,11 +10,15 @@ class ConfigService {
     }
 
     /**
-     * @type {boolean}
+     * @type {{displayInfo: boolean, setReadOnly: boolean}}
+     * @readonly
      */
-    #readOnlyOnWhiteboardLoad = false;
+    #onWhiteboardLoad = { setReadOnly: false, displayInfo: false };
     get readOnlyOnWhiteboardLoad() {
-        return this.#readOnlyOnWhiteboardLoad;
+        return this.#onWhiteboardLoad.setReadOnly;
+    }
+    get displayInfoOnWhiteboardLoad() {
+        return this.#onWhiteboardLoad.displayInfo;
     }
 
     /**
@@ -50,9 +54,9 @@ class ConfigService {
         this.#configFromServer = configFromServer;
 
         const { common } = configFromServer;
-        const { readOnlyOnWhiteboardLoad, showSmallestScreenIndicator, performance } = common;
+        const { onWhiteboardLoad, showSmallestScreenIndicator, performance } = common;
 
-        this.#readOnlyOnWhiteboardLoad = readOnlyOnWhiteboardLoad;
+        this.#onWhiteboardLoad = onWhiteboardLoad;
         this.#showSmallestScreenIndicator = showSmallestScreenIndicator;
         this.#refreshInfoInterval = 1000 / performance.refreshInfoFreq;
 

@@ -1,9 +1,8 @@
 import { dom } from "@fortawesome/fontawesome-svg-core";
-import { getCurrentTimeMs } from "./utils";
 import Point from "./classes/Point";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
-import ConfigService from "./services/ConfigService";
+import ThrottlingService from "./services/ThrottlingService";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -209,25 +208,15 @@ const whiteboard = {
 
             const currentPos = Point.fromEvent(e);
 
-            const pointerSentTime = getCurrentTimeMs();
-            if (
-                pointerSentTime - _this.lastPointerSentTime >
-                ConfigService.pointerEventsThresholdMinTimeDelta
-            ) {
-                if (
-                    _this.lastPointerPosition.distTo(currentPos) >
-                    ConfigService.pointerEventsThresholdMinDistDelta
-                ) {
-                    _this.lastPointerSentTime = pointerSentTime;
-                    _this.lastPointerPosition = currentPos;
-                    _this.sendFunction({
-                        t: "cursor",
-                        event: "move",
-                        d: [currentPos.x, currentPos.y],
-                        username: _this.settings.username,
-                    });
-                }
-            }
+            ThrottlingService.throttle(currentPos, () => {
+                _this.lastPointerPosition = currentPos;
+                _this.sendFunction({
+                    t: "cursor",
+                    event: "move",
+                    d: [currentPos.x, currentPos.y],
+                    username: _this.settings.username,
+                });
+            });
         });
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
@@ -541,26 +530,15 @@ const whiteboard = {
             _this.prevPos = currentPos;
         });
 
-        const pointerSentTime = getCurrentTimeMs();
-        if (
-            pointerSentTime - _this.lastPointerSentTime >
-            ConfigService.pointerEventsThresholdMinTimeDelta
-        ) {
-            const newPointerPosition = currentPos;
-            if (
-                _this.lastPointerPosition.distTo(newPointerPosition) >
-                ConfigService.pointerEventsThresholdMinDistDelta
-            ) {
-                _this.lastPointerSentTime = pointerSentTime;
-                _this.lastPointerPosition = newPointerPosition;
-                _this.sendFunction({
-                    t: "cursor",
-                    event: "move",
-                    d: [newPointerPosition.x, newPointerPosition.y],
-                    username: _this.settings.username,
-                });
-            }
-        }
+        ThrottlingService.throttle(currentPos, () => {
+            _this.lastPointerPosition = currentPos;
+            _this.sendFunction({
+                t: "cursor",
+                event: "move",
+                d: [currentPos.x, currentPos.y],
+                username: _this.settings.username,
+            });
+        });
     },
     triggerMouseOver: function () {
         var _this = this;
@@ -877,28 +855,17 @@ const whiteboard = {
                 currX += textBox.width() - 4;
             }
 
-            const pointerSentTime = getCurrentTimeMs();
             const newPointerPosition = new Point(currX, currY);
-            // At least 100 ms between messages to reduce server load
-            if (
-                pointerSentTime - _this.lastPointerSentTime >
-                ConfigService.pointerEventsThresholdMinTimeDelta
-            ) {
-                // Minimal distance between messages to reduce server load
-                if (
-                    _this.lastPointerPosition.distTo(newPointerPosition) >
-                    ConfigService.pointerEventsThresholdMinDistDelta
-                ) {
-                    _this.lastPointerSentTime = pointerSentTime;
-                    _this.lastPointerPosition = newPointerPosition;
-                    _this.sendFunction({
-                        t: "cursor",
-                        event: "move",
-                        d: [newPointerPosition.x, newPointerPosition.y],
-                        username: _this.settings.username,
-                    });
-                }
-            }
+
+            ThrottlingService.throttle(newPointerPosition, () => {
+                _this.lastPointerPosition = newPointerPosition;
+                _this.sendFunction({
+                    t: "cursor",
+                    event: "move",
+                    d: [newPointerPosition.x, newPointerPosition.y],
+                    username: _this.settings.username,
+                });
+            });
         });
         this.textContainer.append(textBox);
         textBox.draggable({

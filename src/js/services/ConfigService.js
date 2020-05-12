@@ -13,6 +13,23 @@ class ConfigService {
     }
 
     /**
+     * Associated read-only id for this whiteboad
+     * @type {string}
+     */
+    #correspondingReadOnlyWid = "";
+    get correspondingReadOnlyWid() {
+        return this.#correspondingReadOnlyWid;
+    }
+
+    /**
+     * @type {boolean}
+     */
+    #isReadOnly = true;
+    get isReadOnly() {
+        return this.#isReadOnly;
+    }
+
+    /**
      * @type {{displayInfo: boolean, setReadOnly: boolean}}
      * @readonly
      */
@@ -96,6 +113,12 @@ class ConfigService {
         this.#drawBackgroundGrid = drawBackgroundGrid;
         this.#backgroundGridImage = backgroundGridImage;
         this.#refreshInfoInterval = 1000 / performance.refreshInfoFreq;
+
+        const { whiteboardSpecific } = configFromServer;
+        const { correspondingReadOnlyWid, isReadOnly } = whiteboardSpecific;
+
+        this.#correspondingReadOnlyWid = correspondingReadOnlyWid;
+        this.#isReadOnly = isReadOnly;
 
         console.log("Whiteboard config from server:", configFromServer, "parsed:", this);
     }

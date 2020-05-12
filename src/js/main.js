@@ -706,7 +706,7 @@ function initWhiteboard() {
     );
 
     function uploadImgAndAddToWhiteboard(base64data) {
-        var date = +new Date();
+        const date = +new Date();
         $.ajax({
             type: "POST",
             url: document.URL.substr(0, document.URL.lastIndexOf("/")) + "/api/upload",
@@ -717,9 +717,11 @@ function initWhiteboard() {
                 at: accessToken,
             },
             success: function (msg) {
-                var filename = whiteboardId + "_" + date + ".png";
+                const { correspondingReadOnlyWid } = ConfigService;
+                const filename = `${correspondingReadOnlyWid}_${date}.png`;
+                const rootUrl = document.URL.substr(0, document.URL.lastIndexOf("/"));
                 whiteboard.addImgToCanvasByUrl(
-                    document.URL.substr(0, document.URL.lastIndexOf("/")) + "/uploads/" + filename
+                    `${rootUrl}/uploads/${correspondingReadOnlyWid}/${filename}`
                 ); //Add image to canvas
                 console.log("Image uploaded!");
             },

@@ -89,32 +89,37 @@ function startBackendServer(port) {
 
     function progressUploadFormData(formData, callback) {
         console.log("Progress new Form Data");
-        var fields = escapeAllContentStrings(formData.fields);
-        var files = formData.files;
-        var whiteboardId = fields["whiteboardId"];
+        const fields = escapeAllContentStrings(formData.fields);
+        const wid = fields["whiteboardId"];
+        if (ReadOnlyBackendService.isReadOnly(wid)) return;
 
-        var name = fields["name"] || "";
-        var date = fields["date"] || +new Date();
-        var filename = whiteboardId + "_" + date + ".png";
-        var webdavaccess = fields["webdavaccess"] || false;
+        const readOnlyWid = ReadOnlyBackendService.getReadOnlyId(wid);
+
+        const name = fields["name"] || "";
+        const date = fields["date"] || +new Date();
+        const filename = `${readOnlyWid}_${date}.png`;
+        let webdavaccess = fields["webdavaccess"] || false;
         try {
             webdavaccess = JSON.parse(webdavaccess);
         } catch (e) {
             webdavaccess = false;
         }
-        fs.ensureDir("./public/uploads", function (err) {
+
+        const savingDir = path.join("./public/uploads", readOnlyWid);
+        fs.ensureDir(savingDir, function (err) {
             if (err) {
                 console.log("Could not create upload folder!", err);
                 return;
             }
-            var imagedata = fields["imagedata"];
+            let imagedata = fields["imagedata"];
             if (imagedata && imagedata != "") {
                 //Save from base64 data
                 imagedata = imagedata
                     .replace(/^data:image\/png;base64,/, "")
                     .replace(/^data:image\/jpeg;base64,/, "");
                 console.log(filename, "uploaded");
-                fs.writeFile("./public/uploads/" + filename, imagedata, "base64", function (err) {
+                const savingPath = path.join(savingDir, filename);
+                fs.writeFile(savingPath, imagedata, "base64", function (err) {
                     if (err) {
                         console.log("error", err);
                         callback(err);
@@ -122,19 +127,16 @@ function startBackendServer(port) {
                         if (webdavaccess) {
                             //Save image to webdav
                             if (enableWebdav) {
-                                saveImageToWebdav(
-                                    "./public/uploads/" + filename,
-                                    filename,
-                                    webdavaccess,
-                                    function (err) {
-                                        if (err) {
-                                            console.log("error", err);
-                                            callback(err);
-                                        } else {
-                                            callback();
-                                        }
+                                saveImageToWebdav(savingPath, filename, webdavaccess, function (
+                                    err
+                                ) {
+                                    if (err) {
+                                        console.log("error", err);
+                                        callback(err);
+                                    } else {
+                                        callback();
                                     }
-                                );
+                                });
                             } else {
                                 callback("Webdav is not enabled on the server!");
                             }
@@ -152,10 +154,10 @@ function startBackendServer(port) {
 
     function saveImageToWebdav(imagepath, filename, webdavaccess, callback) {
         if (webdavaccess) {
-            var webdavserver = webdavaccess["webdavserver"] || "";
-            var webdavpath = webdavaccess["webdavpath"] || "/";
-            var webdavusername = webdavaccess["webdavusername"] || "";
-            var webdavpassword = webdavaccess["webdavpassword"] || "";
+            const webdavserver = webdavaccess["webdavserver"] || "";
+            const webdavpath = webdavaccess["webdavpath"] || "/";
+            const webdavusername = webdavaccess["webdavusername"] || "";
+            const webdavpassword = webdavaccess["webdavpassword"] || "";
 
             const client = createClient(webdavserver, {
                 username: webdavusername,
@@ -164,7 +166,7 @@ function startBackendServer(port) {
             client
                 .getDirectoryContents(webdavpath)
                 .then((items) => {
-                    var cloudpath = webdavpath + "" + filename;
+                    const cloudpath = webdavpath + "" + filename;
                     console.log("webdav saving to:", cloudpath);
                     fs.createReadStream(imagepath).pipe(client.createWriteStream(cloudpath));
                     callback();
@@ -244,7 +246,9 @@ function startBackendServer(port) {
                 socket.emit("whiteboardConfig", {
                     common: config.frontend,
                     whiteboardSpecific: {
-                        correspondingReadOnlyId: ReadOnlyBackendService.getReadOnlyId(whiteboardId),
+                        correspondingReadOnlyWid: ReadOnlyBackendService.getReadOnlyId(
+                            whiteboardId
+                        ),
                         isReadOnly: ReadOnlyBackendService.isReadOnly(whiteboardId),
                     },
                 });

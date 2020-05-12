@@ -4,6 +4,7 @@ import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
 import ThrottlingService from "./services/ThrottlingService";
 import ConfigService from "./services/ConfigService";
+import { fillTextMultiLine } from "./utils";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -1197,7 +1198,8 @@ const whiteboard = {
             //Draw the text on top
             var textContainer = $(this);
             var textEl = $(this).find(".textContent");
-            var text = textEl.text();
+            var text = textEl.html();
+            text = text.split("<div>").join("").split("</div>").join("\n");
             var fontSize = textEl.css("font-size");
             var fontColor = textEl.css("color");
             var p = textContainer.position();
@@ -1206,7 +1208,7 @@ const whiteboard = {
             top += 25; //Fix top position
             ctx.font = fontSize + " Monospace";
             ctx.fillStyle = fontColor;
-            ctx.fillText(text, left, top);
+            fillTextMultiLine(ctx, text, left, top);
         });
 
         var url = copyCanvas.toDataURL();

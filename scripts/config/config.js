@@ -75,6 +75,9 @@ updateConfigFromStartArgs(cliArgs);
 if (!isConfigValid(config, true)) {
     throw new Error("Config is not valid. Check logs for details");
 }
-console.info(util.inspect(config, { showHidden: false, depth: null, colors: true }));
+
+if (!process.env.JEST_WORKER_ID) {
+    console.info(util.inspect(config, { showHidden: false, depth: null, colors: true }));
+}
 
 module.exports = config;

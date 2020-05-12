@@ -2,6 +2,7 @@ const path = require("path");
 
 const config = require("./config/config");
 const WhiteboardServerSideInfo = require("./WhiteboardServerSideInfo");
+const ReadOnlyBackendService = require("./services/ReadOnlyBackendService");
 
 function startBackendServer(port) {
     var fs = require("fs-extra");
@@ -28,10 +29,13 @@ function startBackendServer(port) {
     const { accessToken, enableWebdav } = config.backend;
 
     app.get("/api/loadwhiteboard", function (req, res) {
-        var wid = req["query"]["wid"];
-        var at = req["query"]["at"]; //accesstoken
+        const wid = req["query"]["wid"];
+        const at = req["query"]["at"]; //accesstoken
         if (accessToken === "" || accessToken == at) {
-            var ret = s_whiteboard.loadStoredData(wid);
+            const widForData = ReadOnlyBackendService.isReadOnly(wid)
+                ? ReadOnlyBackendService.getIdFromReadOnlyId(wid)
+                : wid;
+            const ret = s_whiteboard.loadStoredData(widForData);
             res.send(ret);
             res.end();
         } else {
@@ -192,7 +196,7 @@ function startBackendServer(port) {
     }, (1 / config.backend.performance.whiteboardInfoBroadcastFreq) * 1000);
 
     io.on("connection", function (socket) {
-        var whiteboardId = null;
+        let whiteboardId = null;
         socket.on("disconnect", function () {
             if (infoByWhiteboard.has(whiteboardId)) {
                 const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
@@ -212,9 +216,20 @@ function startBackendServer(port) {
         });
 
         socket.on("drawToWhiteboard", function (content) {
+            if (!whiteboardId || ReadOnlyBackendService.isReadOnly(whiteboardId)) return;
+
             content = escapeAllContentStrings(content);
             if (accessToken === "" || accessToken == content["at"]) {
-                socket.compress(false).broadcast.to(whiteboardId).emit("drawToWhiteboard", content); //Send to all users in the room (not own socket)
+                const broadcastTo = (wid) =>
+                    socket.compress(false).broadcast.to(wid).emit("drawToWhiteboard", content);
+                // broadcast to current whiteboard
+                broadcastTo(whiteboardId);
+                const readOnlyId = ReadOnlyBackendService.getReadOnlyId(whiteboardId);
+                const readOnlyWhiteboardInfo = infoByWhiteboard.get(readOnlyId);
+                if (readOnlyWhiteboardInfo && readOnlyWhiteboardInfo.hasConnectedUser()) {
+                    // broadcast the same content to the associated read-only whiteboard
+                    broadcastTo(readOnlyId);
+                }
                 s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
             } else {
                 socket.emit("wrongAccessToken", true);
@@ -224,9 +239,16 @@ function startBackendServer(port) {
         socket.on("joinWhiteboard", function (content) {
             content = escapeAllContentStrings(content);
             if (accessToken === "" || accessToken == content["at"]) {
-                socket.emit("whiteboardConfig", { common: config.frontend });
-
                 whiteboardId = content["wid"];
+
+                socket.emit("whiteboardConfig", {
+                    common: config.frontend,
+                    whiteboardSpecific: {
+                        correspondingReadOnlyId: ReadOnlyBackendService.getReadOnlyId(whiteboardId),
+                        isReadOnly: ReadOnlyBackendService.isReadOnly(whiteboardId),
+                    },
+                });
+
                 socket.join(whiteboardId); //Joins room name=wid
                 if (!infoByWhiteboard.has(whiteboardId)) {
                     infoByWhiteboard.set(whiteboardId, new WhiteboardServerSideInfo());

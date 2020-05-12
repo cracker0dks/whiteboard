@@ -24,7 +24,7 @@ if (randomid && !whiteboardId) {
 }
 
 whiteboardId = whiteboardId || "myNewWhiteboard";
-whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9 ]/g, "");
+whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9\-]/g, "");
 const myUsername = getQueryVariable("username") || "unknown" + (Math.random() + "").substring(2, 6);
 const accessToken = getQueryVariable("accesstoken") || "";
 

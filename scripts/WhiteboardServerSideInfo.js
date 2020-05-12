@@ -6,40 +6,47 @@ const config = require("./config/config");
 class WhiteboardServerSideInfo {
     static defaultScreenResolution = { w: 1000, h: 1000 };
 
-    constructor() {
-        /**
-         * @type {number}
-         * @private
-         */
-        this._nbConnectedUsers = 0;
+    /**
+     * @type {number}
+     * @private
+     */
+    #nbConnectedUsers = 0;
+    get nbConnectedUsers() {
+        return this.#nbConnectedUsers;
+    }
 
-        /**
-         * @type {Map<int, {w: number, h: number}>}
-         * @private
-         */
-        this._screenResolutionByClients = new Map();
+    /**
+     * @type {Map<int, {w: number, h: number}>}
+     * @private
+     */
+    #screenResolutionByClients = new Map();
+    get screenResolutionByClients() {
+        return this.#screenResolutionByClients;
+    }
 
-        /**
-         * Variable to tell if these info have been sent or not
-         *
-         * @private
-         * @type {boolean}
-         */
-        this._hasNonSentUpdates = false;
+    /**
+     * Variable to tell if these info have been sent or not
+     *
+     * @private
+     * @type {boolean}
+     */
+    #hasNonSentUpdates = false;
+    get hasNonSentUpdates() {
+        return this.#hasNonSentUpdates;
     }
 
     incrementNbConnectedUsers() {
-        this._nbConnectedUsers++;
-        this._hasNonSentUpdates = true;
+        this.#nbConnectedUsers++;
+        this.#hasNonSentUpdates = true;
     }
 
     decrementNbConnectedUsers() {
-        this._nbConnectedUsers--;
-        this._hasNonSentUpdates = true;
+        this.#nbConnectedUsers--;
+        this.#hasNonSentUpdates = true;
     }
 
     hasConnectedUser() {
-        return this._nbConnectedUsers > 0;
+        return this.#nbConnectedUsers > 0;
     }
 
     /**
@@ -50,8 +57,8 @@ class WhiteboardServerSideInfo {
      * @param {number} h client's hight
      */
     setScreenResolutionForClient(clientId, { w, h }) {
-        this._screenResolutionByClients.set(clientId, { w, h });
-        this._hasNonSentUpdates = true;
+        this.#screenResolutionByClients.set(clientId, { w, h });
+        this.#hasNonSentUpdates = true;
     }
 
     /**
@@ -59,8 +66,8 @@ class WhiteboardServerSideInfo {
      * @param clientId
      */
     deleteScreenResolutionOfClient(clientId) {
-        this._screenResolutionByClients.delete(clientId);
-        this._hasNonSentUpdates = true;
+        this.#screenResolutionByClients.delete(clientId);
+        this.#hasNonSentUpdates = true;
     }
 
     /**
@@ -68,7 +75,7 @@ class WhiteboardServerSideInfo {
      * @return {{w: number, h: number}}
      */
     getSmallestScreenResolution() {
-        const { _screenResolutionByClients: resolutions } = this;
+        const { screenResolutionByClients: resolutions } = this;
         return {
             w: Math.min(...Array.from(resolutions.values()).map((res) => res.w)),
             h: Math.min(...Array.from(resolutions.values()).map((res) => res.h)),
@@ -76,16 +83,16 @@ class WhiteboardServerSideInfo {
     }
 
     infoWasSent() {
-        this._hasNonSentUpdates = false;
+        this.#hasNonSentUpdates = false;
     }
 
     shouldSendInfo() {
-        return this._hasNonSentUpdates;
+        return this.#hasNonSentUpdates;
     }
 
     asObject() {
         const out = {
-            nbConnectedUsers: this._nbConnectedUsers,
+            nbConnectedUsers: this.#nbConnectedUsers,
         };
 
         if (config.frontend.showSmallestScreenIndicator) {

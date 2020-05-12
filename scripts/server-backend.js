@@ -1,8 +1,8 @@
 const path = require("path");
 
 const config = require("./config/config");
-const WhiteboardServerSideInfo = require("./WhiteboardServerSideInfo");
 const ReadOnlyBackendService = require("./services/ReadOnlyBackendService");
+const WhiteboardInfoBackendService = require("./services/WhiteboardInfoBackendService");
 
 function startBackendServer(port) {
     var fs = require("fs-extra");
@@ -24,6 +24,8 @@ function startBackendServer(port) {
     var server = require("http").Server(app);
     server.listen(port);
     var io = require("socket.io")(server, { path: "/ws-api" });
+    WhiteboardInfoBackendService.start(io);
+
     console.log("Webserver & socketserver running on port:" + port);
 
     const { accessToken, enableWebdav } = config.backend;
@@ -180,41 +182,11 @@ function startBackendServer(port) {
         }
     }
 
-    /**
-     * @type {Map<string, WhiteboardServerSideInfo>}
-     */
-    const infoByWhiteboard = new Map();
-
-    setInterval(() => {
-        infoByWhiteboard.forEach((info, whiteboardId) => {
-            if (info.shouldSendInfo()) {
-                io.sockets
-                    .in(whiteboardId)
-                    .compress(false)
-                    .emit("whiteboardInfoUpdate", info.asObject());
-                info.infoWasSent();
-            }
-        });
-    }, (1 / config.backend.performance.whiteboardInfoBroadcastFreq) * 1000);
-
     io.on("connection", function (socket) {
         let whiteboardId = null;
         socket.on("disconnect", function () {
-            if (infoByWhiteboard.has(whiteboardId)) {
-                const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
-
-                if (socket && socket.id) {
-                    whiteboardServerSideInfo.deleteScreenResolutionOfClient(socket.id);
-                }
-
-                whiteboardServerSideInfo.decrementNbConnectedUsers();
-
-                if (whiteboardServerSideInfo.hasConnectedUser()) {
-                    socket.compress(false).broadcast.emit("refreshUserBadges", null); //Removes old user Badges
-                } else {
-                    infoByWhiteboard.delete(whiteboardId);
-                }
-            }
+            WhiteboardInfoBackendService.disconnect(socket.id, whiteboardId);
+            socket.compress(false).broadcast.to(whiteboardId).emit("refreshUserBadges", null); //Removes old user Badges
         });
 
         socket.on("drawToWhiteboard", function (content) {
@@ -226,12 +198,9 @@ function startBackendServer(port) {
                     socket.compress(false).broadcast.to(wid).emit("drawToWhiteboard", content);
                 // broadcast to current whiteboard
                 broadcastTo(whiteboardId);
+                // broadcast the same content to the associated read-only whiteboard
                 const readOnlyId = ReadOnlyBackendService.getReadOnlyId(whiteboardId);
-                const readOnlyWhiteboardInfo = infoByWhiteboard.get(readOnlyId);
-                if (readOnlyWhiteboardInfo && readOnlyWhiteboardInfo.hasConnectedUser()) {
-                    // broadcast the same content to the associated read-only whiteboard
-                    broadcastTo(readOnlyId);
-                }
+                broadcastTo(readOnlyId);
                 s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
             } else {
                 socket.emit("wrongAccessToken", true);
@@ -254,16 +223,8 @@ function startBackendServer(port) {
                 });
 
                 socket.join(whiteboardId); //Joins room name=wid
-                if (!infoByWhiteboard.has(whiteboardId)) {
-                    infoByWhiteboard.set(whiteboardId, new WhiteboardServerSideInfo());
-                }
-
-                const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
-                whiteboardServerSideInfo.incrementNbConnectedUsers();
-                whiteboardServerSideInfo.setScreenResolutionForClient(
-                    socket.id,
-                    content["windowWidthHeight"] || WhiteboardServerSideInfo.defaultScreenResolution
-                );
+                const screenResolution = content["windowWidthHeight"];
+                WhiteboardInfoBackendService.join(socket.id, whiteboardId, screenResolution);
             } else {
                 socket.emit("wrongAccessToken", true);
             }
@@ -272,10 +233,11 @@ function startBackendServer(port) {
         socket.on("updateScreenResolution", function (content) {
             content = escapeAllContentStrings(content);
             if (accessToken === "" || accessToken == content["at"]) {
-                const whiteboardServerSideInfo = infoByWhiteboard.get(whiteboardId);
-                whiteboardServerSideInfo.setScreenResolutionForClient(
+                const screenResolution = content["windowWidthHeight"];
+                WhiteboardInfoBackendService.setScreenResolution(
                     socket.id,
-                    content["windowWidthHeight"] || WhiteboardServerSideInfo.defaultScreenResolution
+                    whiteboardId,
+                    screenResolution
                 );
             }
         });

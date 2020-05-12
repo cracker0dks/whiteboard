@@ -1,4 +1,5 @@
 const config = require("../config/config");
+const ReadOnlyBackendService = require("./ReadOnlyBackendService");
 
 /**
  * Class to hold information related to a whiteboard
@@ -103,11 +104,36 @@ class WhiteboardInfo {
     }
 }
 
+/**
+ * Wrapper class around map to treat both the editable whiteboard and its read-only version the same
+ */
+class InfoByWhiteBoardMap extends Map {
+    get(wid) {
+        const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
+        return super.get(readOnlyId);
+    }
+
+    set(wid, val) {
+        const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
+        return super.set(readOnlyId, val);
+    }
+
+    has(wid) {
+        const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
+        return super.has(readOnlyId);
+    }
+
+    delete(wid) {
+        const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
+        return super.delete(readOnlyId);
+    }
+}
+
 class WhiteboardInfoBackendService {
     /**
      * @type {Map<string, WhiteboardInfo>}
      */
-    #infoByWhiteboard = new Map();
+    #infoByWhiteboard = new InfoByWhiteBoardMap();
 
     /**
      * Start the auto sending of information to all the whiteboards
@@ -117,12 +143,21 @@ class WhiteboardInfoBackendService {
     start(io) {
         // auto clean infoByWhiteboard
         setInterval(() => {
-            this.#infoByWhiteboard.forEach((info, whiteboardId) => {
+            this.#infoByWhiteboard.forEach((info, readOnlyWhiteboardId) => {
                 if (info.shouldSendInfo()) {
+                    // broadcast to editable whiteboard
+                    const wid = ReadOnlyBackendService.getIdFromReadOnlyId(readOnlyWhiteboardId);
                     io.sockets
-                        .in(whiteboardId)
+                        .in(wid)
                         .compress(false)
                         .emit("whiteboardInfoUpdate", info.asObject());
+
+                    // also send to readonly whiteboard
+                    io.sockets
+                        .in(readOnlyWhiteboardId)
+                        .compress(false)
+                        .emit("whiteboardInfoUpdate", info.asObject());
+
                     info.infoWasSent();
                 }
             });
@@ -171,7 +206,7 @@ class WhiteboardInfoBackendService {
      * @param {string} clientId
      * @param {string} whiteboardId
      */
-    disconnect(clientId, whiteboardId) {
+    leave(clientId, whiteboardId) {
         const infoByWhiteboard = this.#infoByWhiteboard;
 
         if (infoByWhiteboard.has(whiteboardId)) {
@@ -188,6 +223,20 @@ class WhiteboardInfoBackendService {
                 infoByWhiteboard.delete(whiteboardId);
             }
         }
+    }
+
+    /**
+     * Get the number of clients on a whiteboard
+     *
+     * @param {string} wid
+     * @returns number|null
+     */
+    getNbClientOnWhiteboard(wid) {
+        const infoByWhiteboard = this.#infoByWhiteboard;
+        const info = infoByWhiteboard.get(wid);
+
+        if (info) return info.nbConnectedUsers;
+        else return null;
     }
 }
 

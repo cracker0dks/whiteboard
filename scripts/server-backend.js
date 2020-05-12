@@ -185,7 +185,7 @@ function startBackendServer(port) {
     io.on("connection", function (socket) {
         let whiteboardId = null;
         socket.on("disconnect", function () {
-            WhiteboardInfoBackendService.disconnect(socket.id, whiteboardId);
+            WhiteboardInfoBackendService.leave(socket.id, whiteboardId);
             socket.compress(false).broadcast.to(whiteboardId).emit("refreshUserBadges", null); //Removes old user Badges
         });
 

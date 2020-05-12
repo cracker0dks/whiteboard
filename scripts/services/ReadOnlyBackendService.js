@@ -42,7 +42,9 @@ class ReadOnlyBackendService {
      */
     getReadOnlyId(whiteboardId) {
         // make sure it's inited
-        this.init(whiteboardId);
+        if (this.isReadOnly(whiteboardId)) return whiteboardId;
+        // run in isReadOnly
+        // this.init(whiteboardId);
         return this.#idToReadOnlyId.get(whiteboardId);
     }
 

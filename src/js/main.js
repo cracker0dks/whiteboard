@@ -8,29 +8,37 @@ import pdfjsLib from "pdfjs-dist/webpack";
 import shortcutFunctions from "./shortcutFunctions";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
-import { getQueryVariable, getSubDir } from "./utils";
+import { getSubDir } from "./utils";
 import ConfigService from "./services/ConfigService";
 import { v4 as uuidv4 } from "uuid";
 
-let whiteboardId = getQueryVariable("whiteboardid");
-const randomid = getQueryVariable("randomid");
-if (randomid && !whiteboardId) {
-    //set random whiteboard on empty whiteboardid
+const urlParams = new URLSearchParams(window.location.search);
+let whiteboardId = urlParams.get("whiteboardid");
+const randomid = urlParams.get("randomid");
+
+if (randomid) {
     whiteboardId = uuidv4();
-    const urlParams = new URLSearchParams(window.location.search);
     urlParams.delete("randomid");
+    window.location.search = urlParams;
+}
+
+if (!whiteboardId) {
+    whiteboardId = "myNewWhiteboard";
+}
+
+whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9\-]/g, "");
+
+if (urlParams.get("whiteboardid") !== whiteboardId) {
     urlParams.set("whiteboardid", whiteboardId);
     window.location.search = urlParams;
 }
 
-whiteboardId = whiteboardId || "myNewWhiteboard";
-whiteboardId = unescape(encodeURIComponent(whiteboardId)).replace(/[^a-zA-Z0-9\-]/g, "");
-const myUsername = getQueryVariable("username") || "unknown" + (Math.random() + "").substring(2, 6);
-const accessToken = getQueryVariable("accesstoken") || "";
+const myUsername = urlParams.get("username") || "unknown" + (Math.random() + "").substring(2, 6);
+const accessToken = urlParams.get("accesstoken") || "";
 
 // Custom Html Title
-const title = getQueryVariable("title");
-if (!title === false) {
+const title = urlParams.get("title");
+if (title) {
     document.title = decodeURIComponent(title);
 }
 
@@ -131,7 +139,7 @@ function initWhiteboard() {
         // by default set in readOnly mode
         ReadOnlyService.activateReadOnlyMode();
 
-        if (getQueryVariable("webdav") == "true") {
+        if (urlParams.get("webdav") === "true") {
             $("#uploadWebDavBtn").show();
         }
 

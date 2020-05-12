@@ -1,3 +1,5 @@
+import ConfigService from "./ConfigService";
+
 /**
  * Class the handle the read-only logic
  */
@@ -40,6 +42,8 @@ class ReadOnlyService {
      * Deactivate read-only mode
      */
     deactivateReadOnlyMode() {
+        if (ConfigService.isReadOnly) return;
+
         this.#readOnlyActive = false;
 
         $(".whiteboard-tool").prop("disabled", false);

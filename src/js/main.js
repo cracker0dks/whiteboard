@@ -10,16 +10,15 @@ import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
 import { getQueryVariable, getSubDir } from "./utils";
 import ConfigService from "./services/ConfigService";
+import { v4 as uuidv4 } from "uuid";
 
 let whiteboardId = getQueryVariable("whiteboardid");
 const randomid = getQueryVariable("randomid");
 if (randomid && !whiteboardId) {
     //set random whiteboard on empty whiteboardid
-    whiteboardId = Array(2)
-        .fill(null)
-        .map(() => Math.random().toString(36).substr(2))
-        .join("");
+    whiteboardId = uuidv4();
     const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete("randomid");
     urlParams.set("whiteboardid", whiteboardId);
     window.location.search = urlParams;
 }

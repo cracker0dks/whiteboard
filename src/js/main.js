@@ -80,6 +80,53 @@ function main() {
     });
 }
 
+function showBasicAlert(html, newOptions) {
+    var options = {
+        header: "INFO MESSAGE",
+        okBtnText: "Ok",
+        headercolor: "#d25d5d",
+        hideAfter: false,
+        onOkClick: false,
+    };
+    if (newOptions) {
+        for (var i in newOptions) {
+            options[i] = newOptions[i];
+        }
+    }
+    var alertHtml = $(
+        '<div class="basicalert" style="position:absolute; left:0px; width:100%; top:70px; font-family: monospace;">' +
+            '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">' +
+            '<div style="border-bottom: 1px solid #676767; background: ' +
+            options["headercolor"] +
+            '; padding-left: 5px; font-size: 0.8em;">' +
+            options["header"] +
+            '<div style="float: right; margin-right: 4px; color: #373737; cursor: pointer;" class="closeAlert">x</div></div>' +
+            '<div style="padding: 10px;" class="htmlcontent"></div>' +
+            '<div style="height: 20px; padding: 10px;"><button class="modalBtn okbtn" style="float: right;">' +
+            options["okBtnText"] +
+            "</button></div>" +
+            "</div>" +
+            "</div>"
+    );
+    alertHtml.find(".htmlcontent").append(html);
+    $("body").append(alertHtml);
+    alertHtml.find(".okbtn").click(function () {
+        if (options.onOkClick) {
+            options.onOkClick();
+        }
+        alertHtml.remove();
+    });
+    alertHtml.find(".closeAlert").click(function () {
+        alertHtml.remove();
+    });
+
+    if (options.hideAfter) {
+        setTimeout(function () {
+            alertHtml.find(".okbtn").click();
+        }, 1000 * options.hideAfter);
+    }
+}
+
 function initWhiteboard() {
     $(document).ready(function () {
         // by default set in readOnly mode
@@ -757,53 +804,6 @@ function initWhiteboard() {
             }
         }
     });
-
-    function showBasicAlert(html, newOptions) {
-        var options = {
-            header: "INFO MESSAGE",
-            okBtnText: "Ok",
-            headercolor: "#d25d5d",
-            hideAfter: false,
-            onOkClick: false,
-        };
-        if (newOptions) {
-            for (var i in newOptions) {
-                options[i] = newOptions[i];
-            }
-        }
-        var alertHtml = $(
-            '<div class="basicalert" style="position:absolute; left:0px; width:100%; top:70px; font-family: monospace;">' +
-                '<div style="width: 30%; margin: auto; background: #aaaaaa; border-radius: 5px; font-size: 1.2em; border: 1px solid gray;">' +
-                '<div style="border-bottom: 1px solid #676767; background: ' +
-                options["headercolor"] +
-                '; padding-left: 5px; font-size: 0.8em;">' +
-                options["header"] +
-                '<div style="float: right; margin-right: 4px; color: #373737; cursor: pointer;" class="closeAlert">x</div></div>' +
-                '<div style="padding: 10px;" class="htmlcontent"></div>' +
-                '<div style="height: 20px; padding: 10px;"><button class="modalBtn okbtn" style="float: right;">' +
-                options["okBtnText"] +
-                "</button></div>" +
-                "</div>" +
-                "</div>"
-        );
-        alertHtml.find(".htmlcontent").append(html);
-        $("body").append(alertHtml);
-        alertHtml.find(".okbtn").click(function () {
-            if (options.onOkClick) {
-                options.onOkClick();
-            }
-            alertHtml.remove();
-        });
-        alertHtml.find(".closeAlert").click(function () {
-            alertHtml.remove();
-        });
-
-        if (options.hideAfter) {
-            setTimeout(function () {
-                alertHtml.find(".okbtn").click();
-            }, 1000 * options.hideAfter);
-        }
-    }
 }
 
 export default main;

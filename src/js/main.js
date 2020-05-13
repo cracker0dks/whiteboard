@@ -238,21 +238,21 @@ function initWhiteboard() {
 
         // save image as png
         $("#saveAsImageBtn").click(function () {
-            var imgData = whiteboard.getImageDataBase64();
-
-            var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
-            setTimeout(function () {
-                //FireFox seems to require a setTimeout for this to work.
-                var a = document.createElement("a");
-                a.href = imgData;
-                a.download = "whiteboard.png";
-                w.document.body.appendChild(a);
-                a.click();
-                w.document.body.removeChild(a);
+            whiteboard.getImageDataBase64(function (imgData) {
+                var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
                 setTimeout(function () {
-                    w.close();
-                }, 100);
-            }, 0);
+                    //FireFox seems to require a setTimeout for this to work.
+                    var a = document.createElement("a");
+                    a.href = imgData;
+                    a.download = "whiteboard.png";
+                    w.document.body.appendChild(a);
+                    a.click();
+                    w.document.body.removeChild(a);
+                    setTimeout(function () {
+                        w.close();
+                    }, 100);
+                }, 0);
+            });
         });
 
         // save image to json containing steps
@@ -333,22 +333,23 @@ function initWhiteboard() {
                 localStorage.setItem("webdavusername", webdavusername);
                 var webdavpassword = webDavHtml.find(".webdavpassword").val();
                 localStorage.setItem("webdavpassword", webdavpassword);
-                var base64data = whiteboard.getImageDataBase64();
-                var webdavaccess = {
-                    webdavserver: webdavserver,
-                    webdavpath: webdavpath,
-                    webdavusername: webdavusername,
-                    webdavpassword: webdavpassword,
-                };
-                webDavHtml.find(".loadingWebdavText").show();
-                webDavHtml.find(".webdavUploadBtn").hide();
-                saveWhiteboardToWebdav(base64data, webdavaccess, function (err) {
-                    if (err) {
-                        webDavHtml.find(".loadingWebdavText").hide();
-                        webDavHtml.find(".webdavUploadBtn").show();
-                    } else {
-                        webDavHtml.parents(".basicalert").remove();
-                    }
+                whiteboard.getImageDataBase64(function (base64data) {
+                    var webdavaccess = {
+                        webdavserver: webdavserver,
+                        webdavpath: webdavpath,
+                        webdavusername: webdavusername,
+                        webdavpassword: webdavpassword,
+                    };
+                    webDavHtml.find(".loadingWebdavText").show();
+                    webDavHtml.find(".webdavUploadBtn").hide();
+                    saveWhiteboardToWebdav(base64data, webdavaccess, function (err) {
+                        if (err) {
+                            webDavHtml.find(".loadingWebdavText").hide();
+                            webDavHtml.find(".webdavUploadBtn").show();
+                        } else {
+                            webDavHtml.parents(".basicalert").remove();
+                        }
+                    });
                 });
             });
             showBasicAlert(webDavHtml, {

@@ -5,6 +5,7 @@ import InfoService from "./services/InfoService";
 import ThrottlingService from "./services/ThrottlingService";
 import ConfigService from "./services/ConfigService";
 import { fillTextMultiLine } from "./utils";
+import html2canvas from "html2canvas";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -1172,7 +1173,7 @@ const whiteboard = {
     refreshUserBadges() {
         this.cursorContainer.find(".userbadge").remove();
     },
-    getImageDataBase64() {
+    getImageDataBase64(callback) {
         var _this = this;
         var width = this.mouseOverlay.width();
         var height = this.mouseOverlay.height();
@@ -1194,25 +1195,35 @@ const whiteboard = {
         var destCtx = copyCanvas.getContext("2d"); //Draw the maincanvas to the exportcanvas
         destCtx.drawImage(this.canvas, 0, 0);
 
+        var textBoxCnt = 0;
         $.each($(".textBox"), function () {
             //Draw the text on top
+            textBoxCnt++;
+
             var textContainer = $(this);
-            var textEl = $(this).find(".textContent");
-            var text = textEl.html();
-            text = text.split("<div>").join("").split("</div>").join("\n");
-            var fontSize = textEl.css("font-size");
-            var fontColor = textEl.css("color");
             var p = textContainer.position();
+
             var left = Math.round(p.left * 100) / 100;
             var top = Math.round(p.top * 100) / 100;
-            top += 25; //Fix top position
-            ctx.font = fontSize + " Monospace";
-            ctx.fillStyle = fontColor;
-            fillTextMultiLine(ctx, text, left, top);
+
+            html2canvas(this, { backgroundColor: "rgba(0, 0, 0, 0)", removeContainer: true }).then(
+                function (canvas) {
+                    console.log("canvas", canvas);
+
+                    destCtx.drawImage(canvas, left, top);
+                    textBoxCnt--;
+                    checkForReturn();
+                }
+            );
         });
 
-        var url = copyCanvas.toDataURL();
-        return url;
+        function checkForReturn() {
+            if (textBoxCnt == 0) {
+                var url = copyCanvas.toDataURL();
+                callback(url);
+            }
+        }
+        checkForReturn();
     },
     getImageDataJson() {
         var sendObj = [];

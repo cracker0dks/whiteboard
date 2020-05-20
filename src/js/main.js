@@ -283,7 +283,6 @@ function initWhiteboard() {
             showBasicAlert("Please drag the image into the browser.");
         });
 
-        console.log(ConfigService.imageDownloadFormat, ConfigService.showSmallestScreenIndicator);
         // save image as imgae
         $("#saveAsImageBtn").click(function () {
             whiteboard.getImageDataBase64(ConfigService.imageDownloadFormat, function (imgData) {

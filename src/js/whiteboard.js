@@ -1173,7 +1173,7 @@ const whiteboard = {
     refreshUserBadges() {
         this.cursorContainer.find(".userbadge").remove();
     },
-    getImageDataBase64(callback) {
+    getImageDataBase64(format, callback) {
         var _this = this;
         var width = this.mouseOverlay.width();
         var height = this.mouseOverlay.height();
@@ -1193,6 +1193,11 @@ const whiteboard = {
         });
 
         var destCtx = copyCanvas.getContext("2d"); //Draw the maincanvas to the exportcanvas
+        if (format === "jpeg") {
+            //Set white background for jpeg images
+            destCtx.fillStyle = "#FFFFFF";
+            destCtx.fillRect(0, 0, width, height);
+        }
         destCtx.drawImage(this.canvas, 0, 0);
 
         var textBoxCnt = 0;
@@ -1219,7 +1224,7 @@ const whiteboard = {
 
         function checkForReturn() {
             if (textBoxCnt == 0) {
-                var url = copyCanvas.toDataURL();
+                var url = copyCanvas.toDataURL("image/" + format);
                 callback(url);
             }
         }

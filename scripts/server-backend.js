@@ -26,6 +26,7 @@ function startBackendServer(port) {
     console.log("Webserver & socketserver running on port:" + port);
 
     const { accessToken, enableWebdav } = config.backend;
+    const { imageDownloadFormat } = config.frontend;
 
     app.get("/api/loadwhiteboard", function (req, res) {
         var wid = req["query"]["wid"];
@@ -91,7 +92,7 @@ function startBackendServer(port) {
 
         var name = fields["name"] || "";
         var date = fields["date"] || +new Date();
-        var filename = whiteboardId + "_" + date + ".png";
+        var filename = whiteboardId + "_" + date + "." + imageDownloadFormat;
         var webdavaccess = fields["webdavaccess"] || false;
         try {
             webdavaccess = JSON.parse(webdavaccess);

@@ -48,6 +48,9 @@
         "showSmallestScreenIndicator": {
           "type": "boolean"
         },
+        "imageDownloadFormat": {
+          "type": "string"
+        },
         "performance": {
           "type": "object",
           "additionalProperties": false,

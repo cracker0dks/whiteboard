@@ -283,15 +283,16 @@ function initWhiteboard() {
             showBasicAlert("Please drag the image into the browser.");
         });
 
-        // save image as png
+        console.log(ConfigService.imageDownloadFormat, ConfigService.showSmallestScreenIndicator);
+        // save image as imgae
         $("#saveAsImageBtn").click(function () {
-            whiteboard.getImageDataBase64(function (imgData) {
+            whiteboard.getImageDataBase64(ConfigService.imageDownloadFormat, function (imgData) {
                 var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
                 setTimeout(function () {
                     //FireFox seems to require a setTimeout for this to work.
                     var a = document.createElement("a");
                     a.href = imgData;
-                    a.download = "whiteboard.png";
+                    a.download = "whiteboard." + ConfigService.imageDownloadFormat;
                     w.document.body.appendChild(a);
                     a.click();
                     w.document.body.removeChild(a);
@@ -380,7 +381,9 @@ function initWhiteboard() {
                 localStorage.setItem("webdavusername", webdavusername);
                 var webdavpassword = webDavHtml.find(".webdavpassword").val();
                 localStorage.setItem("webdavpassword", webdavpassword);
-                whiteboard.getImageDataBase64(function (base64data) {
+                whiteboard.getImageDataBase64(ConfigService.imageDownloadFormat, function (
+                    base64data
+                ) {
                     var webdavaccess = {
                         webdavserver: webdavserver,
                         webdavpath: webdavpath,

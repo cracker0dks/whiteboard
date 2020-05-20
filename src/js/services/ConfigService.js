@@ -33,6 +33,14 @@ class ConfigService {
     }
 
     /**
+     * @type {string}
+     */
+    #imageDownloadFormat = "png";
+    get imageDownloadFormat() {
+        return this.#imageDownloadFormat;
+    }
+
+    /**
      * @type {{minDistDelta: number, minTimeDelta: number}}
      */
     #pointerEventsThrottling = { minDistDelta: 0, minTimeDelta: 0 };
@@ -57,10 +65,16 @@ class ConfigService {
         this.#configFromServer = configFromServer;
 
         const { common } = configFromServer;
-        const { onWhiteboardLoad, showSmallestScreenIndicator, performance } = common;
+        const {
+            onWhiteboardLoad,
+            showSmallestScreenIndicator,
+            imageDownloadFormat,
+            performance,
+        } = common;
 
         this.#onWhiteboardLoad = onWhiteboardLoad;
         this.#showSmallestScreenIndicator = showSmallestScreenIndicator;
+        this.#imageDownloadFormat = imageDownloadFormat;
         this.#refreshInfoInterval = 1000 / performance.refreshInfoFreq;
 
         console.log("Whiteboard config from server:", configFromServer, "parsed:", this);

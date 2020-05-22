@@ -17,7 +17,7 @@ Information related to updating this app can be found [here](./doc/updating_guid
 - Shows remote user cursors while drawing
 - Undo / Redo function for each user
 - Drag+Drop / Copy+Paste Images or PDFs from PC and Browsers
-- Resize, Move & Draw Images to Canvas or Background
+- Resize, Move, Rotate & Draw Images to Canvas or Background
 - Write text
 - Save Whiteboard to Image and JSON
 - Draw angle lines by pressing "shift" while drawing (with line tool)

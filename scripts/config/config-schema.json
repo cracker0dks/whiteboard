@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Whiteboard config",
+  "type": "object",
+  "properties": {
+    "backend": {
+      "type": "object",
+      "required": ["accessToken", "performance", "enableWebdav"],
+      "additionalProperties": false,
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "enableWebdav": {
+          "type": "boolean"
+        },
+        "performance": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["whiteboardInfoBroadcastFreq"],
+          "properties": {
+            "whiteboardInfoBroadcastFreq": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "frontend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["onWhiteboardLoad", "showSmallestScreenIndicator", "performance"],
+      "properties": {
+        "onWhiteboardLoad": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["displayInfo", "setReadOnly"],
+          "properties": {
+            "setReadOnly": {
+              "type": "boolean"
+            },
+            "displayInfo": {
+              "type": "boolean"
+            }
+          }
+        },
+        "showSmallestScreenIndicator": {
+          "type": "boolean"
+        },
+        "imageDownloadFormat": {
+          "type": "string"
+        },
+        "drawBackgroundGrid": {
+          "type": "boolean"
+        },
+        "backgroundGridImage": {
+          "type": "string"
+        },
+        "performance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pointerEventsThrottling", "refreshInfoFreq"],
+          "properties": {
+            "pointerEventsThrottling": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["fromUserCount", "minDistDelta", "maxFreq"],
+                "properties": {
+                  "fromUserCount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "minDistDelta": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "maxFreq": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "refreshInfoFreq": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["backend", "frontend"],
+  "additionalProperties": false
+}

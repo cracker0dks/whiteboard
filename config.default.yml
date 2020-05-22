@@ -1,0 +1,54 @@
+# Backend configuration
+backend:
+  # Access token required for interacting with the server -- string (empty string for no restrictions)
+  accessToken: ""
+
+  # Enable the function to save to a webdav-server (check README for more info) -- boolean
+  enableWebdav: false
+
+  # Backend performance tweaks
+  performance:
+    # Whiteboard information broadcasting frequency (in Hz i.e. /s) -- number
+    # => diminishing this will result in more latency
+    whiteboardInfoBroadcastFreq: 1
+
+# Frontend configuration
+frontend:
+  # When a whiteboard is loaded on a client
+  onWhiteboardLoad:
+    # should an (editable) whiteboard be started in read-only mode by default -- boolean
+    setReadOnly: false
+
+    # should the whiteboard info be displayed by default -- boolean
+    displayInfo: false
+
+  # Show the smallest screen indicator ? (with dotted lines) -- boolean
+  showSmallestScreenIndicator: true
+
+  # Image download format, can be "png", "jpeg" (or "webp" -> only working on chrome) -- string
+  imageDownloadFormat: "png"
+
+  # draw the background grid to images on download ? (If True, even PNGs are also not transparent anymore) -- boolean
+  drawBackgroundGrid: false
+
+  # Background Image; Can be "bg_grid.png" or "bg_dots.png"  -- string
+  backgroundGridImage: "bg_grid.png"
+
+  # Frontend performance tweaks
+  performance:
+    # Refresh frequency of the debug / info div (in Hz i.e. /s) -- number
+    refreshInfoFreq: 5
+
+    # Throttling of pointer events (except drawing related) -- array of object (one must have fromUserCount == 0)
+    # Throttling of events can be defined for different user count levels
+    # Throttling consist of skipping certain events (i.e. not broadcasting them to others)
+    pointerEventsThrottling:
+      - # User count from which the specific throttling is applied -- number
+        fromUserCount: 0
+        # Min screen distance (in pixels) below which throttling is applied
+        minDistDelta: 1
+        # Maximum frequency above which throttling is applied
+        maxFreq: 30
+      - fromUserCount: 10
+        minDistDelta: 5
+        maxFreq: 10

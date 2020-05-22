@@ -1,3 +1,7 @@
+:root {
+    --selected-icon-bg-color: #dfdfdf;
+}
+
 body {
     position: relative;
     margin: 0px;
@@ -13,7 +17,8 @@ body {
 
 .btn-group button {
     background: transparent;
-    border: 1px solid #636060;
+    border: 2px solid #636060;
+    margin: -1px;
     /* Green border */
     color: black;
     /* White text */
@@ -25,15 +30,29 @@ body {
     /* Float the buttons side by side */
     font-size: 1.2em;
     height: 45px;
+    width: 50px;
 }
 
 button::-moz-focus-inner {
     border: 0;
 }
 
-.btn-group button:not(:last-child) {
-    border-right: none;
-    /* Prevent double borders */
+.whiteboard-edit-group.group-disabled {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 166, 0, 0.366),
+        rgba(255, 166, 0, 0.366) 10px,
+        rgba(255, 166, 0, 0.666) 10px,
+        rgba(255, 166, 0, 0.666) 20px
+    );
+}
+
+/*
+ * Deactivate all pointer events on all the children
+ * of a group when it's disabled.
+ */
+.whiteboard-edit-group.group-disabled > * {
+    pointer-events: none;
 }
 
 /* Clear floats (clearfix hack) */
@@ -57,12 +76,13 @@ button {
 .btn-group {
     background-color: #808080ab;
     margin-left: 5px;
+    margin-bottom: 5px;
     float: left;
     position: relative;
 }
 
-.whiteboardTool.active {
-    background: #bfbfbf;
+.whiteboard-tool.active:not(:disabled) {
+    background: var(--selected-icon-bg-color);
 }
 
 #whiteboardThicknessSlider {
@@ -73,19 +93,21 @@ button {
     background: transparent;
     outline: none;
     opacity: 1;
-    -webkit-transition: opacity .15s ease-in-out;
-    transition: opacity .15s ease-in-out;
+    -webkit-transition: opacity 0.15s ease-in-out;
+    transition: opacity 0.15s ease-in-out;
 }
 
 .textBox.active {
     border: 1px dashed gray;
 }
 
-.textBox>.removeIcon, .textBox>.moveIcon {
+.textBox > .removeIcon,
+.textBox > .moveIcon {
     display: none;
 }
 
-.textBox.active>.removeIcon, .textBox.active>.moveIcon {
+.textBox.active > .removeIcon,
+.textBox.active > .moveIcon {
     display: block;
 }
 
@@ -95,4 +117,18 @@ button {
     border: 0px;
     min-width: 50px;
     cursor: pointer;
+}
+
+#displayWhiteboardInfoBtn.active {
+    background: var(--selected-icon-bg-color);
+}
+
+#whiteboardInfoContainer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.displayNone {
+    display: none;
 }

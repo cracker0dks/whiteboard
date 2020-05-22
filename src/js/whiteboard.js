@@ -118,7 +118,7 @@ const whiteboard = {
         this.ctx = this.canvas.getContext("2d");
         this.oldGCO = this.ctx.globalCompositeOperation;
 
-        $(window).resize(function () {
+        window.addEventListener("resize", function () {
             // Handel resize
             const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
             _this.canvas.width = $(window).width();
@@ -773,34 +773,39 @@ const whiteboard = {
             imgDiv.remove();
             _this.setTool(oldTool);
         });
+        var rotationAngle = 0;
+        var recoupLeft = 0;
+        var recoupTop = 0;
+        var p = imgDiv.position();
+        var left = 200;
+        var top = 200;
         imgDiv.find(".addToCanvasBtn,.addToBackgroundBtn").click(function () {
             var draw = $(this).attr("draw");
             _this.imgDragActive = false;
-            _this.refreshCursorAppearance();
+
             var width = imgDiv.width();
             var height = imgDiv.height();
-            var p = imgDiv.position();
-            var left = Math.round(p.left * 100) / 100;
-            var top = Math.round(p.top * 100) / 100;
+
             if (draw == "1") {
                 //draw image to canvas
-                _this.drawImgToCanvas(url, width, height, left, top);
+                _this.drawImgToCanvas(url, width, height, left, top, rotationAngle);
             } else {
                 //Add image to background
-                _this.drawImgToBackground(url, width, height, left, top);
+                _this.drawImgToBackground(url, width, height, left, top, rotationAngle);
             }
             _this.sendFunction({
                 t: "addImgBG",
                 draw: draw,
                 url: url,
-                d: [width, height, left, top],
+                d: [width, height, left, top, rotationAngle],
             });
             _this.drawId++;
             imgDiv.remove();
+            _this.refreshCursorAppearance();
             _this.setTool(oldTool);
         });
         _this.mouseOverlay.append(imgDiv);
-        var recoupLeft, recoupTop;
+
         imgDiv.draggable({
             start: function (event, ui) {
                 var left = parseInt($(this).css("left"), 10);
@@ -814,15 +819,23 @@ const whiteboard = {
                 ui.position.left += recoupLeft;
                 ui.position.top += recoupTop;
             },
+            stop: function (event, ui) {
+                left = ui.position.left;
+                top = ui.position.top;
+            },
         });
         imgDiv.resizable();
         var params = {
             // Callback fired on rotation start.
             start: function (event, ui) {},
             // Callback fired during rotation.
-            rotate: function (event, ui) {},
+            rotate: function (event, ui) {
+                //console.log(ui)
+            },
             // Callback fired on rotation end.
-            stop: function (event, ui) {},
+            stop: function (event, ui) {
+                rotationAngle = ui.angle.current;
+            },
             handle: imgDiv.find(".rotationHandle"),
         };
         imgDiv.rotatable(params);
@@ -830,7 +843,7 @@ const whiteboard = {
         // render newly added icons
         dom.i2svg();
     },
-    drawImgToBackground(url, width, height, left, top) {
+    drawImgToBackground(url, width, height, left, top, rotationAngle) {
         this.imgContainer.append(
             '<img crossorigin="anonymous" style="width:' +
                 width +
@@ -840,7 +853,9 @@ const whiteboard = {
                 top +
                 "px; left:" +
                 left +
-                'px;" src="' +
+                "px; transform: rotate(" +
+                rotationAngle +
+                'rad);" src="' +
                 url +
                 '">'
         );
@@ -953,11 +968,17 @@ const whiteboard = {
             .find(".textContent")
             .css({ color: color });
     },
-    drawImgToCanvas(url, width, height, left, top, doneCallback) {
+    drawImgToCanvas(url, width, height, left, top, rotationAngle, doneCallback) {
         var _this = this;
         var img = document.createElement("img");
         img.onload = function () {
-            _this.ctx.drawImage(img, left, top, width, height);
+            rotationAngle = rotationAngle ? rotationAngle : 0;
+            _this.ctx.save();
+            _this.ctx.translate(left + width / 2, top + height / 2);
+            _this.ctx.rotate(rotationAngle);
+            _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
+            _this.ctx.restore();
+            //_this.ctx.drawImage(img, left, top, width, height);
             if (doneCallback) {
                 doneCallback();
             }
@@ -1111,10 +1132,18 @@ const whiteboard = {
                         data[1],
                         data[2],
                         data[3],
+                        data[4],
                         doneCallback
                     );
                 } else {
-                    _this.drawImgToBackground(content["url"], data[0], data[1], data[2], data[3]);
+                    _this.drawImgToBackground(
+                        content["url"],
+                        data[0],
+                        data[1],
+                        data[2],
+                        data[3],
+                        data[4]
+                    );
                 }
             } else if (tool === "addTextBox") {
                 _this.addTextBox(data[0], data[1], data[2], data[3], data[4]);

@@ -571,6 +571,9 @@ function initWhiteboard() {
                                         headercolor: "#0082c9",
                                     });
 
+                                    // render newly added icons
+                                    dom.i2svg();
+
                                     showPDFPageAsImage(1);
                                     function showPDFPageAsImage(pageNumber) {
                                         // Fetch the page

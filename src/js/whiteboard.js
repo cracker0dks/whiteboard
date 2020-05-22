@@ -1173,62 +1173,78 @@ const whiteboard = {
     refreshUserBadges() {
         this.cursorContainer.find(".userbadge").remove();
     },
-    getImageDataBase64(format, callback) {
+    getImageDataBase64(options, callback) {
         var _this = this;
         var width = this.mouseOverlay.width();
         var height = this.mouseOverlay.height();
         var copyCanvas = document.createElement("canvas");
         copyCanvas.width = width;
         copyCanvas.height = height;
-        var ctx = copyCanvas.getContext("2d");
+        var imageFormat = options.imageFormat || "png";
+        var drawBackgroundGrid = options.drawBackgroundGrid || false;
 
-        $.each(_this.imgContainer.find("img"), function () {
-            //Draw Backgroundimages to the export canvas
-            var width = $(this).width();
-            var height = $(this).height();
-            var p = $(this).position();
-            var left = Math.round(p.left * 100) / 100;
-            var top = Math.round(p.top * 100) / 100;
-            ctx.drawImage(this, left, top, width, height);
-        });
+        var brackGroundImg = new Image();
+        brackGroundImg.src = _this.settings.backgroundGridUrl;
 
-        var destCtx = copyCanvas.getContext("2d"); //Draw the maincanvas to the exportcanvas
-        if (format === "jpeg") {
-            //Set white background for jpeg images
-            destCtx.fillStyle = "#FFFFFF";
-            destCtx.fillRect(0, 0, width, height);
-        }
-        destCtx.drawImage(this.canvas, 0, 0);
+        brackGroundImg.onload = function () {
+            var destCtx = copyCanvas.getContext("2d"); //Draw the maincanvas to the exportcanvas
 
-        var textBoxCnt = 0;
-        $.each($(".textBox"), function () {
-            //Draw the text on top
-            textBoxCnt++;
+            if (imageFormat === "jpeg") {
+                //Set white background for jpeg images
+                destCtx.fillStyle = "#FFFFFF";
+                destCtx.fillRect(0, 0, width, height);
+            }
 
-            var textContainer = $(this);
-            var p = textContainer.position();
+            if (drawBackgroundGrid) {
+                var ptrn = destCtx.createPattern(brackGroundImg, "repeat"); // Create a pattern with this image, and set it to "repeat".
+                destCtx.fillStyle = ptrn;
+                destCtx.fillRect(0, 0, copyCanvas.width, copyCanvas.height); // context.fillRect(x, y, width, height);
+            }
 
-            var left = Math.round(p.left * 100) / 100;
-            var top = Math.round(p.top * 100) / 100;
+            $.each(_this.imgContainer.find("img"), function () {
+                //Draw Backgroundimages to the export canvas
+                var width = $(this).width();
+                var height = $(this).height();
+                var p = $(this).position();
+                var left = Math.round(p.left * 100) / 100;
+                var top = Math.round(p.top * 100) / 100;
+                destCtx.drawImage(this, left, top, width, height);
+            });
 
-            html2canvas(this, { backgroundColor: "rgba(0, 0, 0, 0)", removeContainer: true }).then(
-                function (canvas) {
+            //Copy drawings
+            destCtx.drawImage(_this.canvas, 0, 0);
+
+            var textBoxCnt = 0;
+            $.each($(".textBox"), function () {
+                //Draw the text on top
+                textBoxCnt++;
+
+                var textContainer = $(this);
+                var p = textContainer.position();
+
+                var left = Math.round(p.left * 100) / 100;
+                var top = Math.round(p.top * 100) / 100;
+
+                html2canvas(this, {
+                    backgroundColor: "rgba(0, 0, 0, 0)",
+                    removeContainer: true,
+                }).then(function (canvas) {
                     console.log("canvas", canvas);
 
                     destCtx.drawImage(canvas, left, top);
                     textBoxCnt--;
                     checkForReturn();
-                }
-            );
-        });
+                });
+            });
 
-        function checkForReturn() {
-            if (textBoxCnt == 0) {
-                var url = copyCanvas.toDataURL("image/" + format);
-                callback(url);
+            function checkForReturn() {
+                if (textBoxCnt == 0) {
+                    var url = copyCanvas.toDataURL("image/" + imageFormat);
+                    callback(url);
+                }
             }
-        }
-        checkForReturn();
+            checkForReturn();
+        };
     },
     getImageDataJson() {
         var sendObj = [];

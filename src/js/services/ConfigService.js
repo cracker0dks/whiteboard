@@ -41,6 +41,14 @@ class ConfigService {
     }
 
     /**
+     * @type {boolean}
+     */
+    #drawBackgroundGrid = false;
+    get drawBackgroundGrid() {
+        return this.#drawBackgroundGrid;
+    }
+
+    /**
      * @type {{minDistDelta: number, minTimeDelta: number}}
      */
     #pointerEventsThrottling = { minDistDelta: 0, minTimeDelta: 0 };
@@ -69,12 +77,14 @@ class ConfigService {
             onWhiteboardLoad,
             showSmallestScreenIndicator,
             imageDownloadFormat,
+            drawBackgroundGrid,
             performance,
         } = common;
 
         this.#onWhiteboardLoad = onWhiteboardLoad;
         this.#showSmallestScreenIndicator = showSmallestScreenIndicator;
         this.#imageDownloadFormat = imageDownloadFormat;
+        this.#drawBackgroundGrid = drawBackgroundGrid;
         this.#refreshInfoInterval = 1000 / performance.refreshInfoFreq;
 
         console.log("Whiteboard config from server:", configFromServer, "parsed:", this);

@@ -28,6 +28,9 @@ frontend:
   # Image download format, can be "png", "jpeg" (or "webp" -> only working on chrome) -- string
   imageDownloadFormat: "png"
 
+  # draw the background grid to images on download ? (If True, even PNGs are also not transparent anymore) -- boolean
+  drawBackgroundGrid: false
+
   # Frontend performance tweaks
   performance:
     # Refresh frequency of the debug / info div (in Hz i.e. /s) -- number

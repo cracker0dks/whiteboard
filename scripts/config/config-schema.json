@@ -51,6 +51,9 @@
         "imageDownloadFormat": {
           "type": "string"
         },
+        "drawBackgroundGrid": {
+          "type": "boolean"
+        },
         "performance": {
           "type": "object",
           "additionalProperties": false,

@@ -31,6 +31,9 @@ frontend:
   # draw the background grid to images on download ? (If True, even PNGs are also not transparent anymore) -- boolean
   drawBackgroundGrid: false
 
+  # Background Image; Can be "bg_grid.png" or "bg_dots.png"  -- string
+  backgroundGridImage: "bg_grid.png"
+
   # Frontend performance tweaks
   performance:
     # Refresh frequency of the debug / info div (in Hz i.e. /s) -- number

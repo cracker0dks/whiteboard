@@ -54,6 +54,9 @@
         "drawBackgroundGrid": {
           "type": "boolean"
         },
+        "backgroundGridImage": {
+          "type": "string"
+        },
         "performance": {
           "type": "object",
           "additionalProperties": false,

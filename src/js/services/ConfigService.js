@@ -49,6 +49,14 @@ class ConfigService {
     }
 
     /**
+     * @type {string}
+     */
+    #backgroundGridImage = "bg_grid.png";
+    get backgroundGridImage() {
+        return this.#backgroundGridImage;
+    }
+
+    /**
      * @type {{minDistDelta: number, minTimeDelta: number}}
      */
     #pointerEventsThrottling = { minDistDelta: 0, minTimeDelta: 0 };
@@ -78,6 +86,7 @@ class ConfigService {
             showSmallestScreenIndicator,
             imageDownloadFormat,
             drawBackgroundGrid,
+            backgroundGridImage,
             performance,
         } = common;
 
@@ -85,6 +94,7 @@ class ConfigService {
         this.#showSmallestScreenIndicator = showSmallestScreenIndicator;
         this.#imageDownloadFormat = imageDownloadFormat;
         this.#drawBackgroundGrid = drawBackgroundGrid;
+        this.#backgroundGridImage = backgroundGridImage;
         this.#refreshInfoInterval = 1000 / performance.refreshInfoFreq;
 
         console.log("Whiteboard config from server:", configFromServer, "parsed:", this);

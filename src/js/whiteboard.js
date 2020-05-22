@@ -4,7 +4,6 @@ import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
 import ThrottlingService from "./services/ThrottlingService";
 import ConfigService from "./services/ConfigService";
-import { fillTextMultiLine } from "./utils";
 import html2canvas from "html2canvas";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
@@ -51,7 +50,7 @@ const whiteboard = {
         whiteboardId: "0",
         username: "unknown",
         sendFunction: null,
-        backgroundGridUrl: "./images/KtEBa2.png",
+        backgroundGridUrl: "./images/gb_grid.png",
     },
     lastPointerSentTime: 0,
     /**

@@ -764,6 +764,7 @@ const whiteboard = {
                 '<button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>' +
                 "</div>" +
                 '<i style="position:absolute; bottom: -4px; right: 2px; font-size: 2em; color: gray; transform: rotate(-45deg);" class="fas fa-sort-down" aria-hidden="true"></i>' +
+                '<div class="rotationHandle" style="position:absolute; bottom: -30px; left: 0px; width:100%; text-align:center; cursor:ew-resize;"><i class="fa fa-undo"></i></div>' +
                 "</div>"
         );
         imgDiv.find(".xCanvasBtn").click(function () {
@@ -799,7 +800,21 @@ const whiteboard = {
             _this.setTool(oldTool);
         });
         _this.mouseOverlay.append(imgDiv);
-        imgDiv.draggable();
+        var recoupLeft, recoupTop;
+        imgDiv.draggable({
+            start: function (event, ui) {
+                var left = parseInt($(this).css("left"), 10);
+                left = isNaN(left) ? 0 : left;
+                var top = parseInt($(this).css("top"), 10);
+                top = isNaN(top) ? 0 : top;
+                recoupLeft = left - ui.position.left;
+                recoupTop = top - ui.position.top;
+            },
+            drag: function (event, ui) {
+                ui.position.left += recoupLeft;
+                ui.position.top += recoupTop;
+            },
+        });
         imgDiv.resizable();
         var params = {
             // Callback fired on rotation start.
@@ -808,17 +823,9 @@ const whiteboard = {
             rotate: function (event, ui) {},
             // Callback fired on rotation end.
             stop: function (event, ui) {},
-            // Set the rotation center
-            rotationCenterOffset: {
-                top: 20,
-                left: 20,
-            },
-            transforms: {
-                translate: "(50%, 50%)",
-                scale: "(2)",
-            },
+            handle: imgDiv.find(".rotationHandle"),
         };
-        imgDiv.rotatable();
+        imgDiv.rotatable(params);
 
         // render newly added icons
         dom.i2svg();

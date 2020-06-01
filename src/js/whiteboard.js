@@ -375,27 +375,33 @@ const whiteboard = {
                     width,
                     height
                 );
-                imgDiv.find(".xCanvasBtn").click(function () {
-                    _this.imgDragActive = false;
-                    _this.refreshCursorAppearance();
-                    imgDiv.remove();
-                    dragOutOverlay.remove();
-                });
-                imgDiv.find(".addToCanvasBtn").click(function () {
-                    _this.imgDragActive = false;
-                    _this.refreshCursorAppearance();
-                    const p = imgDiv.position();
-                    const leftT = Math.round(p.left * 100) / 100;
-                    const topT = Math.round(p.top * 100) / 100;
-                    _this.drawId++;
-                    _this.sendFunction({
-                        t: _this.tool,
-                        d: [left, top, leftT, topT, width, height],
+                imgDiv
+                    .find(".xCanvasBtn")
+                    .off("click")
+                    .click(function () {
+                        _this.imgDragActive = false;
+                        _this.refreshCursorAppearance();
+                        imgDiv.remove();
+                        dragOutOverlay.remove();
                     });
-                    _this.dragCanvasRectContent(left, top, leftT, topT, width, height);
-                    imgDiv.remove();
-                    dragOutOverlay.remove();
-                });
+                imgDiv
+                    .find(".addToCanvasBtn")
+                    .off("click")
+                    .click(function () {
+                        _this.imgDragActive = false;
+                        _this.refreshCursorAppearance();
+                        const p = imgDiv.position();
+                        const leftT = Math.round(p.left * 100) / 100;
+                        const topT = Math.round(p.top * 100) / 100;
+                        _this.drawId++;
+                        _this.sendFunction({
+                            t: _this.tool,
+                            d: [left, top, leftT, topT, width, height],
+                        });
+                        _this.dragCanvasRectContent(left, top, leftT, topT, width, height);
+                        imgDiv.remove();
+                        dragOutOverlay.remove();
+                    });
                 imgDiv.draggable();
                 _this.svgContainer.find("rect").remove();
             }
@@ -766,43 +772,49 @@ const whiteboard = {
                 '<div class="rotationHandle" style="position:absolute; bottom: -30px; left: 0px; width:100%; text-align:center; cursor:ew-resize;"><i class="fa fa-undo"></i></div>' +
                 "</div>"
         );
-        imgDiv.find(".xCanvasBtn").click(function () {
-            _this.imgDragActive = false;
-            _this.refreshCursorAppearance();
-            imgDiv.remove();
-            _this.setTool(oldTool);
-        });
+        imgDiv
+            .find(".xCanvasBtn")
+            .off("click")
+            .click(function () {
+                _this.imgDragActive = false;
+                _this.refreshCursorAppearance();
+                imgDiv.remove();
+                _this.setTool(oldTool);
+            });
         var rotationAngle = 0;
         var recoupLeft = 0;
         var recoupTop = 0;
         var p = imgDiv.position();
         var left = 200;
         var top = 200;
-        imgDiv.find(".addToCanvasBtn,.addToBackgroundBtn").click(function () {
-            var draw = $(this).attr("draw");
-            _this.imgDragActive = false;
+        imgDiv
+            .find(".addToCanvasBtn,.addToBackgroundBtn")
+            .off("click")
+            .click(function () {
+                var draw = $(this).attr("draw");
+                _this.imgDragActive = false;
 
-            var width = imgDiv.width();
-            var height = imgDiv.height();
+                var width = imgDiv.width();
+                var height = imgDiv.height();
 
-            if (draw == "1") {
-                //draw image to canvas
-                _this.drawImgToCanvas(url, width, height, left, top, rotationAngle);
-            } else {
-                //Add image to background
-                _this.drawImgToBackground(url, width, height, left, top, rotationAngle);
-            }
-            _this.sendFunction({
-                t: "addImgBG",
-                draw: draw,
-                url: url,
-                d: [width, height, left, top, rotationAngle],
+                if (draw == "1") {
+                    //draw image to canvas
+                    _this.drawImgToCanvas(url, width, height, left, top, rotationAngle);
+                } else {
+                    //Add image to background
+                    _this.drawImgToBackground(url, width, height, left, top, rotationAngle);
+                }
+                _this.sendFunction({
+                    t: "addImgBG",
+                    draw: draw,
+                    url: url,
+                    d: [width, height, left, top, rotationAngle],
+                });
+                _this.drawId++;
+                imgDiv.remove();
+                _this.refreshCursorAppearance();
+                _this.setTool(oldTool);
             });
-            _this.drawId++;
-            imgDiv.remove();
-            _this.refreshCursorAppearance();
-            _this.setTool(oldTool);
-        });
         _this.mouseOverlay.append(imgDiv);
 
         imgDiv.draggable({
@@ -930,12 +942,15 @@ const whiteboard = {
             var text = btoa(unescape(encodeURIComponent($(this).html()))); //Get html and make encode base64 also take care of the charset
             _this.sendFunction({ t: "setTextboxText", d: [txId, text] });
         });
-        textBox.find(".removeIcon").click(function (e) {
-            $("#" + txId).remove();
-            _this.sendFunction({ t: "removeTextbox", d: [txId] });
-            e.preventDefault();
-            return false;
-        });
+        textBox
+            .find(".removeIcon")
+            .off("click")
+            .click(function (e) {
+                $("#" + txId).remove();
+                _this.sendFunction({ t: "removeTextbox", d: [txId] });
+                e.preventDefault();
+                return false;
+            });
         if (newLocalBox) {
             textBox.find(".textContent").focus();
         }

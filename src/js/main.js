@@ -117,15 +117,21 @@ function showBasicAlert(html, newOptions) {
     );
     alertHtml.find(".htmlcontent").append(html);
     $("body").append(alertHtml);
-    alertHtml.find(".okbtn").click(function () {
-        if (options.onOkClick) {
-            options.onOkClick();
-        }
-        alertHtml.remove();
-    });
-    alertHtml.find(".closeAlert").click(function () {
-        alertHtml.remove();
-    });
+    alertHtml
+        .find(".okbtn")
+        .off("click")
+        .click(function () {
+            if (options.onOkClick) {
+                options.onOkClick();
+            }
+            alertHtml.remove();
+        });
+    alertHtml
+        .find(".closeAlert")
+        .off("click")
+        .click(function () {
+            alertHtml.remove();
+        });
 
     if (options.hideAfter) {
         setTimeout(function () {
@@ -236,272 +242,309 @@ function initWhiteboard() {
         });
 
         // whiteboard clear button
-        $("#whiteboardTrashBtn").click(function () {
-            $("#whiteboardTrashBtnConfirm").show().focus();
-            $(this).css({ visibility: "hidden" });
-        });
+        $("#whiteboardTrashBtn")
+            .off("click")
+            .click(function () {
+                $("#whiteboardTrashBtnConfirm").show().focus();
+                $(this).css({ visibility: "hidden" });
+            });
 
         $("#whiteboardTrashBtnConfirm").mouseout(function () {
             $(this).hide();
             $("#whiteboardTrashBtn").css({ visibility: "inherit" });
         });
 
-        $("#whiteboardTrashBtnConfirm").click(function () {
-            $(this).hide();
-            $("#whiteboardTrashBtn").css({ visibility: "inherit" });
-            whiteboard.clearWhiteboard();
-        });
+        $("#whiteboardTrashBtnConfirm")
+            .off("click")
+            .click(function () {
+                $(this).hide();
+                $("#whiteboardTrashBtn").css({ visibility: "inherit" });
+                whiteboard.clearWhiteboard();
+            });
 
         // undo button
-        $("#whiteboardUndoBtn").click(function () {
-            whiteboard.undoWhiteboardClick();
-        });
+        $("#whiteboardUndoBtn")
+            .off("click")
+            .click(function () {
+                whiteboard.undoWhiteboardClick();
+            });
 
         // redo button
-        $("#whiteboardRedoBtn").click(function () {
-            whiteboard.redoWhiteboardClick();
-        });
+        $("#whiteboardRedoBtn")
+            .off("click")
+            .click(function () {
+                whiteboard.redoWhiteboardClick();
+            });
 
         // view only
-        $("#whiteboardLockBtn").click(() => {
-            ReadOnlyService.deactivateReadOnlyMode();
-        });
-        $("#whiteboardUnlockBtn").click(() => {
-            ReadOnlyService.activateReadOnlyMode();
-        });
+        $("#whiteboardLockBtn")
+            .off("click")
+            .click(() => {
+                ReadOnlyService.deactivateReadOnlyMode();
+            });
+        $("#whiteboardUnlockBtn")
+            .off("click")
+            .click(() => {
+                ReadOnlyService.activateReadOnlyMode();
+            });
         $("#whiteboardUnlockBtn").hide();
         $("#whiteboardLockBtn").show();
 
         // switch tool
-        $(".whiteboard-tool").click(function () {
-            $(".whiteboard-tool").removeClass("active");
-            $(this).addClass("active");
-            var activeTool = $(this).attr("tool");
-            whiteboard.setTool(activeTool);
-            if (activeTool == "mouse" || activeTool == "recSelect") {
-                $(".activeToolIcon").empty();
-            } else {
-                $(".activeToolIcon").html($(this).html()); //Set Active icon the same as the button icon
-            }
-        });
+        $(".whiteboard-tool")
+            .off("click")
+            .click(function () {
+                $(".whiteboard-tool").removeClass("active");
+                $(this).addClass("active");
+                var activeTool = $(this).attr("tool");
+                whiteboard.setTool(activeTool);
+                if (activeTool == "mouse" || activeTool == "recSelect") {
+                    $(".activeToolIcon").empty();
+                } else {
+                    $(".activeToolIcon").html($(this).html()); //Set Active icon the same as the button icon
+                }
+            });
 
         // upload image button
-        $("#addImgToCanvasBtn").click(function () {
-            if (ReadOnlyService.readOnlyActive) return;
-            showBasicAlert("Please drag the image into the browser.");
-        });
+        $("#addImgToCanvasBtn")
+            .off("click")
+            .click(function () {
+                if (ReadOnlyService.readOnlyActive) return;
+                showBasicAlert("Please drag the image into the browser.");
+            });
 
         // save image as imgae
-        $("#saveAsImageBtn").click(function () {
-            whiteboard.getImageDataBase64(
-                {
-                    imageFormat: ConfigService.imageDownloadFormat,
-                    drawBackgroundGrid: ConfigService.drawBackgroundGrid,
-                },
-                function (imgData) {
-                    var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
-                    setTimeout(function () {
-                        //FireFox seems to require a setTimeout for this to work.
-                        var a = document.createElement("a");
-                        a.href = imgData;
-                        a.download = "whiteboard." + ConfigService.imageDownloadFormat;
-                        w.document.body.appendChild(a);
-                        a.click();
-                        w.document.body.removeChild(a);
-                        setTimeout(function () {
-                            w.close();
-                        }, 100);
-                    }, 0);
-                }
-            );
-        });
-
-        // save image to json containing steps
-        $("#saveAsJSONBtn").click(function () {
-            var imgData = whiteboard.getImageDataJson();
-
-            var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
-            setTimeout(function () {
-                //FireFox seems to require a setTimeout for this to work.
-                var a = document.createElement("a");
-                a.href = window.URL.createObjectURL(new Blob([imgData], { type: "text/json" }));
-                a.download = "whiteboard.json";
-                w.document.body.appendChild(a);
-                a.click();
-                w.document.body.removeChild(a);
-                setTimeout(function () {
-                    w.close();
-                }, 100);
-            }, 0);
-        });
-
-        $("#uploadWebDavBtn").click(function () {
-            if ($(".webdavUploadBtn").length > 0) {
-                return;
-            }
-
-            var webdavserver = localStorage.getItem("webdavserver") || "";
-            var webdavpath = localStorage.getItem("webdavpath") || "/";
-            var webdavusername = localStorage.getItem("webdavusername") || "";
-            var webdavpassword = localStorage.getItem("webdavpassword") || "";
-            var webDavHtml = $(
-                "<div>" +
-                    "<table>" +
-                    "<tr>" +
-                    "<td>Server URL:</td>" +
-                    '<td><input class="webdavserver" type="text" value="' +
-                    webdavserver +
-                    '" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
-                    "<td></td>" +
-                    "</tr>" +
-                    "<tr>" +
-                    "<td>Path:</td>" +
-                    '<td><input class="webdavpath" type="text" placeholder="folder" value="' +
-                    webdavpath +
-                    '"></td>' +
-                    '<td style="font-size: 0.7em;"><i>path always have to start & end with "/"</i></td>' +
-                    "</tr>" +
-                    "<tr>" +
-                    "<td>Username:</td>" +
-                    '<td><input class="webdavusername" type="text" value="' +
-                    webdavusername +
-                    '" placeholder="username"></td>' +
-                    '<td style="font-size: 0.7em;"></td>' +
-                    "</tr>" +
-                    "<tr>" +
-                    "<td>Password:</td>" +
-                    '<td><input class="webdavpassword" type="password" value="' +
-                    webdavpassword +
-                    '" placeholder="password"></td>' +
-                    '<td style="font-size: 0.7em;"></td>' +
-                    "</tr>" +
-                    "<tr>" +
-                    '<td style="font-size: 0.7em;" colspan="3">Note: You have to generate and use app credentials if you have 2 Factor Auth activated on your dav/nextcloud server!</td>' +
-                    "</tr>" +
-                    "<tr>" +
-                    "<td></td>" +
-                    '<td colspan="2"><span class="loadingWebdavText" style="display:none;">Saving to webdav, please wait...</span><button class="modalBtn webdavUploadBtn"><i class="fas fa-upload"></i> Start Upload</button></td>' +
-                    "</tr>" +
-                    "</table>" +
-                    "</div>"
-            );
-            webDavHtml.find(".webdavUploadBtn").click(function () {
-                var webdavserver = webDavHtml.find(".webdavserver").val();
-                localStorage.setItem("webdavserver", webdavserver);
-                var webdavpath = webDavHtml.find(".webdavpath").val();
-                localStorage.setItem("webdavpath", webdavpath);
-                var webdavusername = webDavHtml.find(".webdavusername").val();
-                localStorage.setItem("webdavusername", webdavusername);
-                var webdavpassword = webDavHtml.find(".webdavpassword").val();
-                localStorage.setItem("webdavpassword", webdavpassword);
+        $("#saveAsImageBtn")
+            .off("click")
+            .click(function () {
                 whiteboard.getImageDataBase64(
                     {
                         imageFormat: ConfigService.imageDownloadFormat,
                         drawBackgroundGrid: ConfigService.drawBackgroundGrid,
                     },
-                    function (base64data) {
-                        var webdavaccess = {
-                            webdavserver: webdavserver,
-                            webdavpath: webdavpath,
-                            webdavusername: webdavusername,
-                            webdavpassword: webdavpassword,
-                        };
-                        webDavHtml.find(".loadingWebdavText").show();
-                        webDavHtml.find(".webdavUploadBtn").hide();
-                        saveWhiteboardToWebdav(base64data, webdavaccess, function (err) {
-                            if (err) {
-                                webDavHtml.find(".loadingWebdavText").hide();
-                                webDavHtml.find(".webdavUploadBtn").show();
-                            } else {
-                                webDavHtml.parents(".basicalert").remove();
-                            }
-                        });
+                    function (imgData) {
+                        var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
+                        setTimeout(function () {
+                            //FireFox seems to require a setTimeout for this to work.
+                            var a = document.createElement("a");
+                            a.href = imgData;
+                            a.download = "whiteboard." + ConfigService.imageDownloadFormat;
+                            w.document.body.appendChild(a);
+                            a.click();
+                            w.document.body.removeChild(a);
+                            setTimeout(function () {
+                                w.close();
+                            }, 100);
+                        }, 0);
                     }
                 );
             });
-            showBasicAlert(webDavHtml, {
-                header: "Save to Webdav",
-                okBtnText: "cancel",
-                headercolor: "#0082c9",
+
+        // save image to json containing steps
+        $("#saveAsJSONBtn")
+            .off("click")
+            .click(function () {
+                var imgData = whiteboard.getImageDataJson();
+
+                var w = window.open("about:blank"); //Firefox will not allow downloads without extra window
+                setTimeout(function () {
+                    //FireFox seems to require a setTimeout for this to work.
+                    var a = document.createElement("a");
+                    a.href = window.URL.createObjectURL(new Blob([imgData], { type: "text/json" }));
+                    a.download = "whiteboard.json";
+                    w.document.body.appendChild(a);
+                    a.click();
+                    w.document.body.removeChild(a);
+                    setTimeout(function () {
+                        w.close();
+                    }, 100);
+                }, 0);
             });
-            // render newly added icons
-            dom.i2svg();
-        });
 
-        // upload json containing steps
-        $("#uploadJsonBtn").click(function () {
-            $("#myFile").click();
-        });
-
-        $("#shareWhiteboardBtn").click(() => {
-            function urlToClipboard(whiteboardId = null) {
-                const { protocol, host, pathname, search } = window.location;
-                const basePath = `${protocol}//${host}${pathname}`;
-                const getParams = new URLSearchParams(search);
-
-                // Clear ursername from get parameters
-                getParams.delete("username");
-
-                if (whiteboardId) {
-                    // override whiteboardId value in URL
-                    getParams.set("whiteboardid", whiteboardId);
+        $("#uploadWebDavBtn")
+            .off("click")
+            .click(function () {
+                if ($(".webdavUploadBtn").length > 0) {
+                    return;
                 }
 
-                const url = `${basePath}?${getParams.toString()}`;
-                $("<textarea/>")
-                    .appendTo("body")
-                    .val(url)
-                    .select()
-                    .each(() => {
-                        document.execCommand("copy");
-                    })
-                    .remove();
-            }
-
-            // UI related
-            // clear message
-            $("#shareWhiteboardDialogMessage").toggleClass("displayNone", true);
-
-            $("#shareWhiteboardDialog").toggleClass("displayNone", false);
-            $("#shareWhiteboardDialogGoBack").click(() => {
-                $("#shareWhiteboardDialog").toggleClass("displayNone", true);
-            });
-
-            $("#shareWhiteboardDialogCopyReadOnlyLink").click(() => {
-                urlToClipboard(ConfigService.correspondingReadOnlyWid);
-
-                $("#shareWhiteboardDialogMessage")
-                    .toggleClass("displayNone", false)
-                    .text("Read-only link copied to clipboard ✓");
-            });
-
-            $("#shareWhiteboardDialogCopyReadWriteLink")
-                .toggleClass("displayNone", ConfigService.isReadOnly)
-                .click(() => {
-                    $("#shareWhiteboardDialogMessage")
-                        .toggleClass("displayNone", false)
-                        .text("Read/write link copied to clipboard ✓");
-                    urlToClipboard();
+                var webdavserver = localStorage.getItem("webdavserver") || "";
+                var webdavpath = localStorage.getItem("webdavpath") || "/";
+                var webdavusername = localStorage.getItem("webdavusername") || "";
+                var webdavpassword = localStorage.getItem("webdavpassword") || "";
+                var webDavHtml = $(
+                    "<div>" +
+                        "<table>" +
+                        "<tr>" +
+                        "<td>Server URL:</td>" +
+                        '<td><input class="webdavserver" type="text" value="' +
+                        webdavserver +
+                        '" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
+                        "<td></td>" +
+                        "</tr>" +
+                        "<tr>" +
+                        "<td>Path:</td>" +
+                        '<td><input class="webdavpath" type="text" placeholder="folder" value="' +
+                        webdavpath +
+                        '"></td>' +
+                        '<td style="font-size: 0.7em;"><i>path always have to start & end with "/"</i></td>' +
+                        "</tr>" +
+                        "<tr>" +
+                        "<td>Username:</td>" +
+                        '<td><input class="webdavusername" type="text" value="' +
+                        webdavusername +
+                        '" placeholder="username"></td>' +
+                        '<td style="font-size: 0.7em;"></td>' +
+                        "</tr>" +
+                        "<tr>" +
+                        "<td>Password:</td>" +
+                        '<td><input class="webdavpassword" type="password" value="' +
+                        webdavpassword +
+                        '" placeholder="password"></td>' +
+                        '<td style="font-size: 0.7em;"></td>' +
+                        "</tr>" +
+                        "<tr>" +
+                        '<td style="font-size: 0.7em;" colspan="3">Note: You have to generate and use app credentials if you have 2 Factor Auth activated on your dav/nextcloud server!</td>' +
+                        "</tr>" +
+                        "<tr>" +
+                        "<td></td>" +
+                        '<td colspan="2"><span class="loadingWebdavText" style="display:none;">Saving to webdav, please wait...</span><button class="modalBtn webdavUploadBtn"><i class="fas fa-upload"></i> Start Upload</button></td>' +
+                        "</tr>" +
+                        "</table>" +
+                        "</div>"
+                );
+                webDavHtml
+                    .find(".webdavUploadBtn")
+                    .off("click")
+                    .click(function () {
+                        var webdavserver = webDavHtml.find(".webdavserver").val();
+                        localStorage.setItem("webdavserver", webdavserver);
+                        var webdavpath = webDavHtml.find(".webdavpath").val();
+                        localStorage.setItem("webdavpath", webdavpath);
+                        var webdavusername = webDavHtml.find(".webdavusername").val();
+                        localStorage.setItem("webdavusername", webdavusername);
+                        var webdavpassword = webDavHtml.find(".webdavpassword").val();
+                        localStorage.setItem("webdavpassword", webdavpassword);
+                        whiteboard.getImageDataBase64(
+                            {
+                                imageFormat: ConfigService.imageDownloadFormat,
+                                drawBackgroundGrid: ConfigService.drawBackgroundGrid,
+                            },
+                            function (base64data) {
+                                var webdavaccess = {
+                                    webdavserver: webdavserver,
+                                    webdavpath: webdavpath,
+                                    webdavusername: webdavusername,
+                                    webdavpassword: webdavpassword,
+                                };
+                                webDavHtml.find(".loadingWebdavText").show();
+                                webDavHtml.find(".webdavUploadBtn").hide();
+                                saveWhiteboardToWebdav(base64data, webdavaccess, function (err) {
+                                    if (err) {
+                                        webDavHtml.find(".loadingWebdavText").hide();
+                                        webDavHtml.find(".webdavUploadBtn").show();
+                                    } else {
+                                        webDavHtml.parents(".basicalert").remove();
+                                    }
+                                });
+                            }
+                        );
+                    });
+                showBasicAlert(webDavHtml, {
+                    header: "Save to Webdav",
+                    okBtnText: "cancel",
+                    headercolor: "#0082c9",
                 });
-        });
+                // render newly added icons
+                dom.i2svg();
+            });
 
-        $("#displayWhiteboardInfoBtn").click(() => {
-            InfoService.toggleDisplayInfo();
-        });
+        // upload json containing steps
+        $("#uploadJsonBtn")
+            .off("click")
+            .click(function () {
+                $("#myFile").click();
+            });
+
+        $("#shareWhiteboardBtn")
+            .off("click")
+            .click(() => {
+                function urlToClipboard(whiteboardId = null) {
+                    const { protocol, host, pathname, search } = window.location;
+                    const basePath = `${protocol}//${host}${pathname}`;
+                    const getParams = new URLSearchParams(search);
+
+                    // Clear ursername from get parameters
+                    getParams.delete("username");
+
+                    if (whiteboardId) {
+                        // override whiteboardId value in URL
+                        getParams.set("whiteboardid", whiteboardId);
+                    }
+
+                    const url = `${basePath}?${getParams.toString()}`;
+                    $("<textarea/>")
+                        .appendTo("body")
+                        .val(url)
+                        .select()
+                        .each(() => {
+                            document.execCommand("copy");
+                        })
+                        .remove();
+                }
+
+                // UI related
+                // clear message
+                $("#shareWhiteboardDialogMessage").toggleClass("displayNone", true);
+
+                $("#shareWhiteboardDialog").toggleClass("displayNone", false);
+                $("#shareWhiteboardDialogGoBack")
+                    .off("click")
+                    .click(() => {
+                        $("#shareWhiteboardDialog").toggleClass("displayNone", true);
+                    });
+
+                $("#shareWhiteboardDialogCopyReadOnlyLink")
+                    .off("click")
+                    .click(() => {
+                        urlToClipboard(ConfigService.correspondingReadOnlyWid);
+
+                        $("#shareWhiteboardDialogMessage")
+                            .toggleClass("displayNone", false)
+                            .text("Read-only link copied to clipboard ✓");
+                    });
+
+                $("#shareWhiteboardDialogCopyReadWriteLink")
+                    .toggleClass("displayNone", ConfigService.isReadOnly)
+                    .click(() => {
+                        $("#shareWhiteboardDialogMessage")
+                            .toggleClass("displayNone", false)
+                            .text("Read/write link copied to clipboard ✓");
+                        urlToClipboard();
+                    });
+            });
+
+        $("#displayWhiteboardInfoBtn")
+            .off("click")
+            .click(() => {
+                InfoService.toggleDisplayInfo();
+            });
 
         var btnsMini = false;
-        $("#minMaxBtn").click(function () {
-            if (!btnsMini) {
-                $("#toolbar").find(".btn-group:not(.minGroup)").hide();
-                $(this).find("#minBtn").hide();
-                $(this).find("#maxBtn").show();
-            } else {
-                $("#toolbar").find(".btn-group").show();
-                $(this).find("#minBtn").show();
-                $(this).find("#maxBtn").hide();
-            }
-            btnsMini = !btnsMini;
-        });
+        $("#minMaxBtn")
+            .off("click")
+            .click(function () {
+                if (!btnsMini) {
+                    $("#toolbar").find(".btn-group:not(.minGroup)").hide();
+                    $(this).find("#minBtn").hide();
+                    $(this).find("#maxBtn").show();
+                } else {
+                    $("#toolbar").find(".btn-group").show();
+                    $(this).find("#minBtn").show();
+                    $(this).find("#maxBtn").hide();
+                }
+                btnsMini = !btnsMini;
+            });
 
         // load json to whiteboard
         $("#myFile").on("change", function () {
@@ -590,12 +633,15 @@ function initWhiteboard() {
                                         showPDFPageAsImage(parseInt($(this).val()));
                                     });
 
-                                    modalDiv.find("button").click(function () {
-                                        if (currentDataUrl) {
-                                            $(".basicalert").remove();
-                                            uploadImgAndAddToWhiteboard(currentDataUrl);
-                                        }
-                                    });
+                                    modalDiv
+                                        .find("button")
+                                        .off("click")
+                                        .click(function () {
+                                            if (currentDataUrl) {
+                                                $(".basicalert").remove();
+                                                uploadImgAndAddToWhiteboard(currentDataUrl);
+                                            }
+                                        });
 
                                     for (var i = 1; i < pdf.numPages + 1; i++) {
                                         modalDiv

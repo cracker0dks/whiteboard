@@ -433,25 +433,56 @@ function initWhiteboard() {
             $("#myFile").click();
         });
 
-        $("#shareWhiteboardBtn").click(function () {
-            var url = window.location.href;
-            var s = url.indexOf("&username=") !== -1 ? "&username=" : "username="; //Remove username from url
-            var urlSlpit = url.split(s);
-            var urlStart = urlSlpit[0];
-            if (urlSlpit.length > 1) {
-                var endSplit = urlSlpit[1].split("&");
-                endSplit = endSplit.splice(1, 1);
-                urlStart += "&" + endSplit.join("&");
+        $("#shareWhiteboardBtn").click(() => {
+            function urlToClipboard(whiteboardId = null) {
+                const { protocol, host, pathname, search } = window.location;
+                const basePath = `${protocol}//${host}${pathname}`;
+                const getParams = new URLSearchParams(search);
+
+                // Clear ursername from get parameters
+                getParams.delete("username");
+
+                if (whiteboardId) {
+                    // override whiteboardId value in URL
+                    getParams.set("whiteboardid", whiteboardId);
+                }
+
+                const url = `${basePath}?${getParams.toString()}`;
+                $("<textarea/>")
+                    .appendTo("body")
+                    .val(url)
+                    .select()
+                    .each(() => {
+                        document.execCommand("copy");
+                    })
+                    .remove();
             }
-            $("<textarea/>")
-                .appendTo("body")
-                .val(urlStart)
-                .select()
-                .each(function () {
-                    document.execCommand("copy");
-                })
-                .remove();
-            showBasicAlert("Copied Whiteboard-URL to clipboard.", { hideAfter: 2 });
+
+            // UI related
+            // clear message
+            $("#shareWhiteboardDialogMessage").toggleClass("displayNone", true);
+
+            $("#shareWhiteboardDialog").toggleClass("displayNone", false);
+            $("#shareWhiteboardDialogGoBack").click(() => {
+                $("#shareWhiteboardDialog").toggleClass("displayNone", true);
+            });
+
+            $("#shareWhiteboardDialogCopyReadOnlyLink").click(() => {
+                urlToClipboard(ConfigService.correspondingReadOnlyWid);
+
+                $("#shareWhiteboardDialogMessage")
+                    .toggleClass("displayNone", false)
+                    .text("Read-only link copied to clipboard ✓");
+            });
+
+            $("#shareWhiteboardDialogCopyReadWriteLink")
+                .toggleClass("displayNone", ConfigService.isReadOnly)
+                .click(() => {
+                    $("#shareWhiteboardDialogMessage")
+                        .toggleClass("displayNone", false)
+                        .text("Read/write link copied to clipboard ✓");
+                    urlToClipboard();
+                });
         });
 
         $("#displayWhiteboardInfoBtn").click(() => {

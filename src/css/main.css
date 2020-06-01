@@ -8,6 +8,8 @@ body {
     height: calc(var(--vh, 1vh) * 100);
     width: 100%;
     overflow: hidden;
+    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica,
+        Arial, sans-serif;
 }
 
 #whiteboardContainer {
@@ -131,4 +133,34 @@ button {
 
 .displayNone {
     display: none;
+}
+
+#shareWhiteboardDialog {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(1, 1, 1, 0.35);
+    z-index: 10000000000000;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#shareWhiteboardDialogMessage {
+    background-color: lightgreen;
+    padding: 20px;
+    font-weight: bold;
+}
+
+.shareWhiteboardDialogContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.shareWhiteboardDialogItem {
+    padding: 5px;
+    margin: 5px;
 }

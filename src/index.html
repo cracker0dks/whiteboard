@@ -258,5 +258,29 @@
             <p># msg. sent to server: <i id="messageSentCount">0</i></p>
             <p># msg. received from server: <i id="messageReceivedCount">0</i></p>
         </div>
+
+        <div id="shareWhiteboardDialog" class="displayNone">
+            <div class="shareWhiteboardDialogContent">
+                <button
+                    class="shareWhiteboardDialogItem"
+                    id="shareWhiteboardDialogCopyReadOnlyLink"
+                >
+                    <i class="fa fa-lock"></i>&nbsp;Share read-only link
+                </button>
+                <button
+                    class="shareWhiteboardDialogItem displayNone"
+                    id="shareWhiteboardDialogCopyReadWriteLink"
+                >
+                    <i class="fa fa-lock-open"></i>&nbsp;Share read/write link
+                </button>
+                <button class="shareWhiteboardDialogItem" id="shareWhiteboardDialogGoBack">
+                    <b>Go back to the whiteboard</b>
+                </button>
+                <p
+                    class="shareWhiteboardDialogItem displayNone"
+                    id="shareWhiteboardDialogMessage"
+                ></p>
+            </div>
+        </div>
     </body>
 </html>

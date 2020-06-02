@@ -987,12 +987,15 @@ const whiteboard = {
         var img = document.createElement("img");
         img.onload = function () {
             rotationAngle = rotationAngle ? rotationAngle : 0;
-            _this.ctx.save();
-            _this.ctx.translate(left + width / 2, top + height / 2);
-            _this.ctx.rotate(rotationAngle);
-            _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
-            _this.ctx.restore();
-            //_this.ctx.drawImage(img, left, top, width, height);
+            if (rotationAngle === 0) {
+                _this.ctx.drawImage(img, left, top, width, height);
+            } else {
+                _this.ctx.save();
+                _this.ctx.translate(left + width / 2, top + height / 2);
+                _this.ctx.rotate(rotationAngle);
+                _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
+                _this.ctx.restore();
+            }
             if (doneCallback) {
                 doneCallback();
             }

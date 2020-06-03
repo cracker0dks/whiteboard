@@ -1266,9 +1266,11 @@ const whiteboard = {
             }
 
             if (drawBackgroundGrid) {
+                destCtx.globalAlpha = 0.8;
                 var ptrn = destCtx.createPattern(brackGroundImg, "repeat"); // Create a pattern with this image, and set it to "repeat".
                 destCtx.fillStyle = ptrn;
                 destCtx.fillRect(0, 0, copyCanvas.width, copyCanvas.height); // context.fillRect(x, y, width, height);
+                destCtx.globalAlpha = 1;
             }
 
             $.each(_this.imgContainer.find("img"), function () {

@@ -952,7 +952,10 @@ const whiteboard = {
                 return false;
             });
         if (newLocalBox) {
-            textBox.find(".textContent").focus();
+            //per https://stackoverflow.com/questions/2388164/set-focus-on-div-contenteditable-element
+            setTimeout(() => {
+                textBox.find(".textContent").focus();
+            }, 0);
         }
         if (this.tool === "text") {
             textBox.addClass("active");
@@ -1326,7 +1329,7 @@ const whiteboard = {
             delete sendObj[i]["wid"];
             delete sendObj[i]["drawId"];
         }
-        return JSON.stringify(sendObj);
+        return JSON.stringify(sendObj, null, 2);
     },
     loadData: function (content) {
         var _this = this;

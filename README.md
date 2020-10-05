@@ -1,6 +1,6 @@
 # whiteboard
 
-This is a lightweight NodeJS collaborative Whiteboard/Sketchboard witch can easily be customized...
+This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easily be customized...
 
 ![start](./doc/start.png)
 
@@ -20,8 +20,8 @@ Information related to updating this app can be found [here](./doc/updating_guid
 - Resize, Move, Rotate & Draw Images to Canvas or Background
 - Write text
 - Save Whiteboard to Image and JSON
-- Draw angle lines by pressing "shift" while drawing (with line tool)
-- Draw square by pressing "shift" while drawing (with rectangle tool)
+- Draw angle lines by pressing "Shift" while drawing (with line tool)
+- Draw square by pressing "Shift" while drawing (with rectangle tool)
 - Indicator that shows the smallest screen participating
 - Keybindings for ALL the functions
 - Working on PC, Tablet & Mobile
@@ -108,7 +108,7 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 `http://YOURIP:8080?whiteboardid=MYID&username=MYNAME`
 
 - whiteboardid => All people with the same ID are drawing on the same board
-- username => The name witch is showing to others while drawing
+- username => The name which will be shown to others while drawing
 - title => Change the name of the Browser Tab
 - randomid => if set to true, a random whiteboardId will be generated if not given aswell
 
@@ -131,7 +131,7 @@ To run the project with custom settings:
 
 #### Security - AccessToken (Optional)
 
-To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff..., you can set an accesstoken at server start (see [here](./config.default.yml)).
+To prevent clients who might know or guess the base URL from abusing the server to upload files and stuff, you can set an accesstoken at server start (see [here](./config.default.yml)).
 
 Then set the same token on the client side as well:
 

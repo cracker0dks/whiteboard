@@ -686,6 +686,9 @@ const whiteboard = {
         var steps = Math.ceil(length / 5);
         _this.ctx.beginPath();
         _this.ctx.moveTo(x0, y0);
+        if (steps == 0) {
+            _this.ctx.lineTo(x0, y0);
+        }
         for (var i = 0; i < steps; i++) {
             var point = lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, (i + 1) / steps);
             _this.ctx.lineTo(point[0], point[1]);

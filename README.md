@@ -8,10 +8,6 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easi
 
 [HERE](https://cloud13.de/testwhiteboard/) (Reset every night)
 
-## Updating
-
-Information related to updating this app can be found [here](./doc/updating_guide.md).
-
 ## Some Features
 
 - Shows remote user cursors while drawing
@@ -184,9 +180,9 @@ Add this to your server part:
 
 To run it at /whiteboard. Don't forget to change -> YOURIP!
 
-## Apache Reverse Proxy  configuration
+## Apache Reverse Proxy configuration
 
-````
+```
 <VirtualHost example.org:443>
 ...
 # Proxy /whiteboard/ to whiteboard container
@@ -194,7 +190,8 @@ ProxyPass "/whiteboard/" "http://YOURIP:8080/"
 ProxyPassReverse "/whiteboard/" "http://YOURIP:8080/"
 ...
 </VirtualHost>
-````
+```
+
 To run it at /whiteboard. Don't forget to change -> YOURIP!
 
 ## Nextcloud integration

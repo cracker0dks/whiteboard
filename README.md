@@ -184,6 +184,19 @@ Add this to your server part:
 
 To run it at /whiteboard. Don't forget to change -> YOURIP!
 
+## Apache Reverse Proxy  configuration
+
+````
+<VirtualHost example.org:443>
+...
+# Proxy /whiteboard/ to whiteboard container
+ProxyPass "/whiteboard/" "http://YOURIP:8080/"
+ProxyPassReverse "/whiteboard/" "http://YOURIP:8080/"
+...
+</VirtualHost>
+````
+To run it at /whiteboard. Don't forget to change -> YOURIP!
+
 ## Nextcloud integration
 
 1. Install this app on your server

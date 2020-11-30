@@ -30,9 +30,30 @@ body {
     /* Pointer/hand icon */
     float: left;
     /* Float the buttons side by side */
-    font-size: 1.2em;
-    height: 45px;
-    width: 50px;
+}
+
+@media (max-device-width: 1024px) {
+    .btn-group button {
+        font-size: 3em;
+        height: 135px;
+        width: 150px;
+    }
+
+    .minGroup {
+        width: 80px;
+    }
+}
+
+@media (min-device-width: 1024px) {
+    .btn-group button {
+        font-size: 1.2em;
+        height: 45px;
+        width: 50px;
+    }
+
+    .minGroup {
+        width: 25px;
+    }
 }
 
 button::-moz-focus-inner {

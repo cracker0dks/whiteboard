@@ -129,16 +129,19 @@ function startBackendServer(port) {
                         if (webdavaccess) {
                             //Save image to webdav
                             if (enableWebdav) {
-                                saveImageToWebdav(savingPath, filename, webdavaccess, function (
-                                    err
-                                ) {
-                                    if (err) {
-                                        console.log("error", err);
-                                        callback(err);
-                                    } else {
-                                        callback();
+                                saveImageToWebdav(
+                                    savingPath,
+                                    filename,
+                                    webdavaccess,
+                                    function (err) {
+                                        if (err) {
+                                            console.log("error", err);
+                                            callback(err);
+                                        } else {
+                                            callback();
+                                        }
                                     }
-                                });
+                                );
                             } else {
                                 callback("Webdav is not enabled on the server!");
                             }

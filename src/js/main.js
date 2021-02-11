@@ -4,7 +4,7 @@ import whiteboard from "./whiteboard";
 import keybinds from "./keybinds";
 import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
-import pdfjsLib from "pdfjs-dist";
+//import pdfjsLib from "pdfjs-dist/webpack";
 import shortcutFunctions from "./shortcutFunctions";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";

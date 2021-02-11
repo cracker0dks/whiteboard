@@ -4,7 +4,7 @@ import whiteboard from "./whiteboard";
 import keybinds from "./keybinds";
 import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
-import pdfjsLib from "pdfjs-dist/webpack";
+import pdfjsLib from "pdfjs-dist";
 import shortcutFunctions from "./shortcutFunctions";
 import ReadOnlyService from "./services/ReadOnlyService";
 import InfoService from "./services/InfoService";
@@ -815,7 +815,7 @@ function initWhiteboard() {
         var date = +new Date();
         $.ajax({
             type: "POST",
-            url: document.URL.substr(0, document.URL.lastIndexOf("/")) + "api/upload",
+            url: document.URL.substr(0, document.URL.lastIndexOf("/")) + "/api/upload",
             data: {
                 imagedata: base64data,
                 whiteboardId: whiteboardId,
@@ -827,10 +827,11 @@ function initWhiteboard() {
                 showBasicAlert("Whiteboard was saved to Webdav!", {
                     headercolor: "#5c9e5c",
                 });
-                console.log("Image uploaded for webdav!");
+                console.log("Image uploaded to webdav!");
                 callback();
             },
             error: function (err) {
+                console.error(err);
                 if (err.status == 403) {
                     showBasicAlert(
                         "Could not connect to Webdav folder! Please check the credentials and paths and try again!"

@@ -4,7 +4,7 @@ backend:
   accessToken: ""
 
   # Enable the function to save to a webdav-server (check README for more info) -- boolean
-  enableWebdav: false
+  enableWebdav: true
 
   # Backend performance tweaks
   performance:

@@ -11,11 +11,11 @@
         <div id="whiteboardContainer"></div>
 
         <!---Toolbar -!-->
-        <div id="toolbar" style="position: absolute; top: 10px; left: 10px;">
+        <div id="toolbar" style="position: absolute; top: 10px; left: 10px">
             <div class="btn-group">
                 <button
                     id="whiteboardLockBtn"
-                    style="background-color: orange;"
+                    style="background-color: orange"
                     title="View and Write"
                     type="button"
                 >
@@ -31,7 +31,7 @@
                     <i class="fa fa-trash"></i>
                 </button>
                 <button
-                    style="position: absolute; left: 0px; top: 0px; width: 46px; display: none;"
+                    style="display: none"
                     id="whiteboardTrashBtnConfirm"
                     title="Confirm clear..."
                     type="button"
@@ -51,7 +51,7 @@
                     <i class="fa fa-mouse-pointer"></i>
                 </button>
                 <button
-                    style="padding-bottom: 11px;"
+                    style="padding-bottom: 11px"
                     tool="recSelect"
                     title="Select an area"
                     type="button"
@@ -68,7 +68,7 @@
                     <i class="fa fa-pencil-alt"></i>
                 </button>
                 <button
-                    style="padding-bottom: 8px; padding-top: 6px;"
+                    style="padding-bottom: 8px; padding-top: 6px"
                     tool="line"
                     title="draw a line"
                     type="button"
@@ -91,10 +91,10 @@
             </div>
 
             <div class="btn-group whiteboard-edit-group">
-                <button style="width: 190px; cursor: default;">
+                <button style="width: 190px; cursor: default">
                     <div
                         class="activeToolIcon"
-                        style="position: absolute; top: 2px; left: 2px; font-size: 0.6em;"
+                        style="position: absolute; top: 2px; left: 2px; font-size: 0.6em"
                     >
                         <i class="fa fa-pencil-alt"></i>
                     </div>
@@ -111,7 +111,7 @@
                     <input
                         title="Thickness"
                         id="whiteboardThicknessSlider"
-                        style="position: absolute; left: 9px; width: 130px; top: 15px;"
+                        style="position: absolute; left: 9px; width: 130px; top: 15px"
                         type="range"
                         min="1"
                         max="50"
@@ -149,7 +149,7 @@
                 </button>
 
                 <button
-                    style="position: relative;"
+                    style="position: relative"
                     id="uploadJsonBtn"
                     title="Load saved JSON to whiteboard"
                     type="button"
@@ -167,7 +167,7 @@
                     ></i>
                 </button>
 
-                <input style="display: none;" id="myFile" type="file" />
+                <input style="display: none" id="myFile" type="file" />
             </div>
 
             <div class="btn-group">
@@ -185,7 +185,7 @@
                     ></i>
                 </button>
                 <button
-                    style="position: relative; display: none;"
+                    style="position: relative; display: none"
                     id="uploadWebDavBtn"
                     title="Save whiteboard to webdav"
                     type="button"
@@ -203,7 +203,7 @@
                     ></i>
                 </button>
                 <button
-                    style="position: relative;"
+                    style="position: relative"
                     id="saveAsJSONBtn"
                     title="Save whiteboard as JSON"
                     type="button"
@@ -232,19 +232,19 @@
 
             <div class="btn-group minGroup">
                 <button
-                    style="width: 100%; padding: 11px 11px;"
+                    style="width: 100%; padding: 11px 11px"
                     id="minMaxBtn"
                     title="hide buttons"
                     type="button"
                 >
                     <i
                         id="minBtn"
-                        style="position: relative; left: -5px;"
+                        style="position: relative; left: -5px"
                         class="fas fa-angle-left"
                     ></i>
                     <i
                         id="maxBtn"
-                        style="position: relative; left: -5px; display: none;"
+                        style="position: relative; left: -5px; display: none"
                         class="fas fa-angle-right"
                     ></i>
                 </button>

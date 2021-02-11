@@ -246,19 +246,19 @@ function initWhiteboard() {
             .off("click")
             .click(function () {
                 $("#whiteboardTrashBtnConfirm").show().focus();
-                $(this).css({ visibility: "hidden" });
+                $(this).hide();
             });
 
         $("#whiteboardTrashBtnConfirm").mouseout(function () {
             $(this).hide();
-            $("#whiteboardTrashBtn").css({ visibility: "inherit" });
+            $("#whiteboardTrashBtn").show();
         });
 
         $("#whiteboardTrashBtnConfirm")
             .off("click")
             .click(function () {
                 $(this).hide();
-                $("#whiteboardTrashBtn").css({ visibility: "inherit" });
+                $("#whiteboardTrashBtn").show();
                 whiteboard.clearWhiteboard();
             });
 

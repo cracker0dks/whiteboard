@@ -7,6 +7,7 @@ const path = require("path");
 const config = {
     entry: {
         main: ["./src/js/index.js"],
+        "pdf.worker": "pdfjs-dist/build/pdf.worker.entry",
     },
     output: {
         path: path.join(__dirname, "..", "dist"),

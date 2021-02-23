@@ -134,7 +134,11 @@
                 <button tool="text" title="write text" type="button" class="whiteboard-tool">
                     <i class="fas fa-font"></i>
                 </button>
-                <button title="text background-color">
+                <button
+                    id="textboxBackgroundColorPickerBtn"
+                    style="display: none"
+                    title="text background-color"
+                >
                     <div
                         id="textboxBackgroundColorPicker"
                         style="
@@ -142,6 +146,9 @@
                             height: 23px;
                             border-radius: 3px;
                             border: 1px solid darkgrey;
+                            left: -4px;
+                            top: -2px;
+                            position: relative;
                         "
                         data-color="#f5f587"
                     ></div>

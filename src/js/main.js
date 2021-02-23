@@ -304,6 +304,12 @@ function initWhiteboard() {
                 } else {
                     $(".activeToolIcon").html($(this).html()); //Set Active icon the same as the button icon
                 }
+
+                if (activeTool == "text") {
+                    $("#textboxBackgroundColorPickerBtn").show();
+                } else {
+                    $("#textboxBackgroundColorPickerBtn").hide();
+                }
             });
 
         // upload image button

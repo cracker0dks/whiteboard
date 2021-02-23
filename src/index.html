@@ -82,9 +82,6 @@
                 <button tool="circle" title="draw a circle" type="button" class="whiteboard-tool">
                     <i class="far fa-circle"></i>
                 </button>
-                <button tool="text" title="write text" type="button" class="whiteboard-tool">
-                    <i class="fas fa-font"></i>
-                </button>
                 <button tool="eraser" title="take the eraser" type="button" class="whiteboard-tool">
                     <i class="fa fa-eraser"></i>
                 </button>
@@ -129,6 +126,24 @@
                             border: 1px solid darkgrey;
                         "
                         data-color="#000000"
+                    ></div>
+                </button>
+            </div>
+
+            <div class="btn-group whiteboard-edit-group">
+                <button tool="text" title="write text" type="button" class="whiteboard-tool">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button title="text background-color">
+                    <div
+                        id="textboxBackgroundColorPicker"
+                        style="
+                            width: 26px;
+                            height: 23px;
+                            border-radius: 3px;
+                            border: 1px solid darkgrey;
+                        "
+                        data-color="#f5f587"
                     ></div>
                 </button>
             </div>

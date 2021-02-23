@@ -424,9 +424,24 @@ const whiteboard = {
             const txId = "tx" + +new Date();
             _this.sendFunction({
                 t: "addTextBox",
-                d: [_this.drawcolor, fontsize, currentPos.x, currentPos.y, txId],
+                d: [
+                    _this.drawcolor,
+                    _this.textboxBackgroundColor,
+                    fontsize,
+                    currentPos.x,
+                    currentPos.y,
+                    txId,
+                ],
             });
-            _this.addTextBox(_this.drawcolor, fontsize, currentPos.x, currentPos.y, txId, true);
+            _this.addTextBox(
+                _this.drawcolor,
+                _this.textboxBackgroundColor,
+                fontsize,
+                currentPos.x,
+                currentPos.y,
+                txId,
+                true
+            );
         });
     },
     /**
@@ -874,7 +889,7 @@ const whiteboard = {
                 '">'
         );
     },
-    addTextBox(textcolor, fontsize, left, top, txId, newLocalBox) {
+    addTextBox(textcolor, textboxBackgroundColor, fontsize, left, top, txId, newLocalBox) {
         var _this = this;
         var textBox = $(
             '<div id="' +
@@ -883,7 +898,10 @@ const whiteboard = {
                 top +
                 "px; left:" +
                 left +
-                'px;">' +
+                "px;" +
+                "background-color:" +
+                textboxBackgroundColor +
+                ';">' +
                 '<div contentEditable="true" spellcheck="false" class="textContent" style="outline: none; font-size:' +
                 fontsize +
                 "em; color:" +
@@ -987,6 +1005,11 @@ const whiteboard = {
         $("#" + txId)
             .find(".textContent")
             .css({ color: color });
+    },
+    setTextboxBackgroundColor(txId, textboxBackgroundColor) {
+        $("#" + txId)
+            .find(".textContent")
+            .css({ "background-color": textboxBackgroundColor });
     },
     drawImgToCanvas(url, width, height, left, top, rotationAngle, doneCallback) {
         var _this = this;
@@ -1100,6 +1123,18 @@ const whiteboard = {
             _this.setTextboxFontColor(_this.latestActiveTextBoxId, color);
         }
     },
+    setTextBackgroundColor(textboxBackgroundColor) {
+        var _this = this;
+        _this.textboxBackgroundColor = textboxBackgroundColor;
+        $("#textboxBackgroundColorPicker").css({ background: textboxBackgroundColor });
+        if (_this.tool == "text" && _this.latestActiveTextBoxId) {
+            _this.sendFunction({
+                t: "setTextboxBackgroundColor",
+                d: [_this.latestActiveTextBoxId, textboxBackgroundColor],
+            });
+            _this.setTextboxBackgroundColor(_this.latestActiveTextBoxId, textboxBackgroundColor);
+        }
+    },
     updateSmallestScreenResolution() {
         const { smallestScreenResolution } = InfoService;
         const { showSmallestScreenIndicator } = ConfigService;
@@ -1169,7 +1204,7 @@ const whiteboard = {
                     );
                 }
             } else if (tool === "addTextBox") {
-                _this.addTextBox(data[0], data[1], data[2], data[3], data[4]);
+                _this.addTextBox(data[0], data[1], data[2], data[3], data[4], data[5]);
             } else if (tool === "setTextboxText") {
                 _this.setTextboxText(data[0], data[1]);
             } else if (tool === "removeTextbox") {
@@ -1180,6 +1215,8 @@ const whiteboard = {
                 _this.setTextboxFontSize(data[0], data[1]);
             } else if (tool === "setTextboxFontColor") {
                 _this.setTextboxFontColor(data[0], data[1]);
+            } else if (tool === "setTextboxBackgroundColor") {
+                _this.setTextboxBackgroundColor(data[0], data[1]);
             } else if (tool === "clear") {
                 _this.canvas.height = _this.canvas.height;
                 _this.imgContainer.empty();
@@ -1234,6 +1271,7 @@ const whiteboard = {
                 "setTextboxPosition",
                 "setTextboxFontSize",
                 "setTextboxFontColor",
+                "setTextboxBackgroundColor",
             ].includes(tool)
         ) {
             content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;
@@ -1404,6 +1442,7 @@ const whiteboard = {
                 "setTextboxPosition",
                 "setTextboxFontSize",
                 "setTextboxFontColor",
+                "setTextboxBackgroundColor",
             ].includes(tool)
         ) {
             _this.drawBuffer.push(content);

@@ -747,6 +747,15 @@ function initWhiteboard() {
             },
         });
 
+        new Picker({
+            parent: $("#textboxBackgroundColorPicker")[0],
+            color: "#f5f587",
+            bgcolor: "#f5f587",
+            onChange: function (bgcolor) {
+                whiteboard.setTextBackgroundColor(bgcolor.rgbaString);
+            },
+        });
+
         // on startup select mouse
         shortcutFunctions.setTool_mouse();
         // fix bug cursor not showing up

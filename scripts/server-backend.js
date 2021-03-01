@@ -46,6 +46,18 @@ function startBackendServer(port) {
         }
     });
 
+    app.get("/api/getReadOnlyWid", function (req, res) {
+        const wid = req["query"]["wid"];
+        const at = req["query"]["at"]; //accesstoken
+        if (accessToken === "" || accessToken == at) {
+            res.send(ReadOnlyBackendService.getReadOnlyId(wid));
+            res.end();
+        } else {
+            res.status(401); //Unauthorized
+            res.end();
+        }
+    });
+
     app.post("/api/upload", function (req, res) {
         //File upload
         var form = new formidable.IncomingForm(); //Receive form
@@ -89,6 +101,30 @@ function startBackendServer(port) {
         form.parse(req);
     });
 
+    app.get("/api/drawToWhiteboard", function (req, res) {
+        let query = escapeAllContentStrings(req["query"]);
+        const wid = query["wid"];
+        const at = query["at"]; //accesstoken
+        if (!wid || ReadOnlyBackendService.isReadOnly(wid)) {
+            res.status(401); //Unauthorized
+            res.end();
+        }
+
+        if (accessToken === "" || accessToken == at) {
+            const broadcastTo = (wid) => io.compress(false).to(wid).emit("drawToWhiteboard", query);
+            // broadcast to current whiteboard
+            broadcastTo(wid);
+            // broadcast the same query to the associated read-only whiteboard
+            const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
+            broadcastTo(readOnlyId);
+            s_whiteboard.handleEventsAndData(query); //save whiteboardchanges on the server
+            res.send("done");
+        } else {
+            res.status(401); //Unauthorized
+            res.end();
+        }
+    });
+
     function progressUploadFormData(formData, callback) {
         console.log("Progress new Form Data");
         const fields = escapeAllContentStrings(formData.fields);
@@ -97,7 +133,6 @@ function startBackendServer(port) {
 
         const readOnlyWid = ReadOnlyBackendService.getReadOnlyId(wid);
 
-        const name = fields["name"] || "";
         const date = fields["date"] || +new Date();
         const filename = `${readOnlyWid}_${date}.png`;
         let webdavaccess = fields["webdavaccess"] || false;
@@ -152,7 +187,7 @@ function startBackendServer(port) {
                 });
             } else {
                 callback("no imagedata!");
-                console.log("No image Data found for this upload!", name);
+                console.log("No image Data found for this upload!", filename);
             }
         });
     }

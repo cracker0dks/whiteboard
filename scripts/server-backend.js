@@ -30,6 +30,21 @@ function startBackendServer(port) {
 
     const { accessToken, enableWebdav } = config.backend;
 
+    /**
+     * @api {get} /api/loadwhiteboard Get Whiteboard Data
+     * @apiDescription This returns all the Available Data ever drawn to this Whiteboard
+     * @apiName loadwhiteboard
+     * @apiGroup WhiteboardAPI
+     *
+     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
+     *
+     * @apiSuccess {String} body returns the data as JSON String
+     * @apiError {Number} 401 Unauthorized
+     *
+     * @apiExample {curl} Example usage:
+     *     curl -i http://[rootUrl]/api/loadwhiteboard?wid=[MyWhiteboardId]
+     */
     app.get("/api/loadwhiteboard", function (req, res) {
         const wid = req["query"]["wid"];
         const at = req["query"]["at"]; //accesstoken
@@ -46,6 +61,21 @@ function startBackendServer(port) {
         }
     });
 
+    /**
+     * @api {get} /api/getReadOnlyWid Get the readOnlyWhiteboardId
+     * @apiDescription This returns the readOnlyWhiteboardId for a given WhiteboardId
+     * @apiName getReadOnlyWid
+     * @apiGroup WhiteboardAPI
+     *
+     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
+     *
+     * @apiSuccess {String} body returns the readOnlyWhiteboardId as text
+     * @apiError {Number} 401 Unauthorized
+     *
+     * @apiExample {curl} Example usage:
+     *     curl -i http://[rootUrl]/api/getReadOnlyWid?wid=[MyWhiteboardId]
+     */
     app.get("/api/getReadOnlyWid", function (req, res) {
         const wid = req["query"]["wid"];
         const at = req["query"]["at"]; //accesstoken
@@ -58,6 +88,21 @@ function startBackendServer(port) {
         }
     });
 
+    /**
+     * @api {post} /api/upload Upload Images
+     * @apiDescription Upload Image to the server. Note that you need to add the image to the board after upload by calling "drawToWhiteboard" with addImgBG set as tool
+     * @apiName upload
+     * @apiGroup WhiteboardAPI
+     *
+     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
+     * @apiParam {Number} current timestamp
+     * @apiParam {Boolean} webdavaccess set true to upload to webdav (Optional; Only if activated for this server)
+     * @apiParam {String} imagedata The imagedata base64 encoded
+     *
+     * @apiSuccess {String} body returns "done"
+     * @apiError {Number} 401 Unauthorized
+     */
     app.post("/api/upload", function (req, res) {
         //File upload
         var form = new formidable.IncomingForm(); //Receive form
@@ -101,6 +146,39 @@ function startBackendServer(port) {
         form.parse(req);
     });
 
+    /**
+     * @api {get} /api/drawToWhiteboard Draw on the Whiteboard
+     * @apiDescription Function draw on whiteboard with different tools and more...
+     * @apiName drawToWhiteboard
+     * @apiGroup WhiteboardAPI
+     *
+     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
+     * @apiParam {String} t The tool you want to use:  "line",
+     * "pen",
+     * "rect",
+     * "circle",
+     * "eraser",
+     * "addImgBG",
+     * "recSelect",
+     * "eraseRec",
+     * "addTextBox",
+     * "setTextboxText",
+     * "removeTextbox",
+     * "setTextboxPosition",
+     * "setTextboxFontSize",
+     * "setTextboxFontColor",
+     * @apiParam {String} [username] The username performing this action. Only relevant for the undo/redo function
+     * @apiParam {Number} [draw] Only has a function if t is set to "addImgBG". Set 1 to draw on canvas; 0  to draw into background
+     * @apiParam {String} [url] Only has a function if t is set to "addImgBG", then it has to be set to: [rootUrl]/uploads/[ReadOnlyWid]/[ReadOnlyWid]_[date].png
+     * @apiParam {String} [c] Color: Only used if color is needed (pen, rect, circle, addTextBox ... )
+     * @apiParam {String} [th] Thickness: Only used if Thickness is needed (pen, rect ... )
+     * @apiParam {Number[]} d has different function on every tool you use:
+     * pen: [width, height, left, top, rotation]
+     *
+     * @apiSuccess {String} body returns the "done" as text
+     * @apiError {Number} 401 Unauthorized
+     */
     app.get("/api/drawToWhiteboard", function (req, res) {
         let query = escapeAllContentStrings(req["query"]);
         const wid = query["wid"];

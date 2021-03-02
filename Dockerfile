@@ -14,6 +14,8 @@ COPY assets ./assets
 COPY config ./config
 RUN npm run build
 
+# Create API Doc
+RUN apidoc -i scripts/ -o public/apidoc/
 
 #####################
 # Final image

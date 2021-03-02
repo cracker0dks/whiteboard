@@ -14,9 +14,6 @@ COPY assets ./assets
 COPY config ./config
 RUN npm run build
 
-# Create API Doc
-RUN apidoc -i scripts/ -o public/apidoc/
-
 #####################
 # Final image
 #####################
@@ -37,4 +34,4 @@ COPY scripts ./scripts
 COPY --from=base /opt/app/dist ./dist
 
 EXPOSE 8080
-ENTRYPOINT ["node", "scripts/server.js", "--mode=production"]
+ENTRYPOINT ["npm", "run", "start"]

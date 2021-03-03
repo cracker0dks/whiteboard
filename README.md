@@ -109,13 +109,6 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 - title => Change the name of the Browser Tab
 - randomid => if set to true, a random whiteboardId will be generated if not given aswell
 
-## REST API
-
-You can fully control the whiteboard through a REST API. Explore and test the API for your server version by surfing to: `[yourRootWhiteboardUrl]/apidoc/index.html`
-You can see the API for the Demowhiteboard here: [DemoAPI](https://cloud13.de/testwhiteboard/apidoc/index.html)
-
-Note: This API is pretty new, so be sure to use the latest Whiteboard version.
-
 ## Configuration
 
 Many settings of this project can be set using a simple `yaml` file, to change some behaviors or tweak performances.
@@ -142,6 +135,13 @@ Then set the same token on the client side as well:
 <b>Client (With and without docker):</b> `http://YOURIP:8080?accesstoken=mySecToken&whiteboardid=MYID&username=MYNAME`
 
 Done!
+
+#### REST API
+
+You can fully control the whiteboard through a REST API. Explore and test the API for your server version by surfing to: `[yourRootWhiteboardUrl]/apidoc/index.html`
+You can see the API for the Demowhiteboard here: [DemoAPI](https://cloud13.de/testwhiteboard/apidoc/index.html)
+
+Note: This API is pretty new, so be sure to use the latest Whiteboard version.
 
 #### WebDAV (Optional)
 

@@ -20,6 +20,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easi
 - Draw square by pressing "Shift" while drawing (with rectangle tool)
 - Indicator that shows the smallest screen participating
 - Keybindings for ALL the functions
+- REST API
 - Working on PC, Tablet & Mobile
 
 ## Projects using this Whiteboard
@@ -107,6 +108,13 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 - username => The name which will be shown to others while drawing
 - title => Change the name of the Browser Tab
 - randomid => if set to true, a random whiteboardId will be generated if not given aswell
+
+## REST API
+
+You can fully control the whiteboard through a REST API. Explore and test the API for your server version by surfing to: `[yourRootWhiteboardUrl]/apidoc/index.html`
+You can see the API for the Demowhiteboard here: [DemoAPI](https://cloud13.de/testwhiteboard/apidoc/index.html)
+
+Note: This API is pretty new, so be sure to use the latest Whiteboard version.
 
 ## Configuration
 

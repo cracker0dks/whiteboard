@@ -1,7 +1,23 @@
-//This file is only for saving the whiteboard. (Not to a file, only to RAM atm. Whiteboard is gone after server restart)
+//This file is only for saving the whiteboard.
+const fs = require("fs");
+const config = require("./config/config");
 
 var savedBoards = {};
 var savedUndos = {};
+var saveDelay = false;
+
+if (config.backend.enableFileDatabase) {
+    //read saved boards from file
+    fs.readFile("savedBoards.json", (err, data) => {
+        if (err) {
+            return console.log(
+                "Not persistend Whiteboard Datafile found... this is not a problem on the first start!"
+            );
+        }
+        savedBoards = JSON.parse(data);
+    });
+}
+
 module.exports = {
     handleEventsAndData: function (content) {
         var tool = content["t"]; //Tool witch is used
@@ -77,9 +93,7 @@ module.exports = {
             ].includes(tool)
         ) {
             //Save all this actions
-            if (!savedBoards[wid]) {
-                savedBoards[wid] = [];
-            }
+            savedBoards[wid] = savedBoards[wid] ? savedBoards[wid] : [];
             delete content["wid"]; //Delete id from content so we don't store it twice
             if (tool === "setTextboxText") {
                 for (var i = savedBoards[wid].length - 1; i >= 0; i--) {
@@ -93,6 +107,21 @@ module.exports = {
                 }
             }
             savedBoards[wid].push(content);
+        }
+
+        if (config.backend.enableFileDatabase) {
+            //Save whiteboard to file
+            if (!saveDelay) {
+                saveDelay = true;
+                setTimeout(function () {
+                    saveDelay = false;
+                    fs.writeFile("savedBoards.json", JSON.stringify(savedBoards), (err) => {
+                        if (err) {
+                            return console.log(err);
+                        }
+                    });
+                }, 1000 * 10); //Save after 10 sec
+            }
         }
     },
     loadStoredData: function (wid) {

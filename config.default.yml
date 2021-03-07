@@ -6,6 +6,9 @@ backend:
   # Enable the function to save to a webdav-server (check README for more info) -- boolean
   enableWebdav: false
 
+  # Enable the function to save the whiteboard to a file so you save the state even on server restarts -- boolean
+  enableFileDatabase: true
+
   # Backend performance tweaks
   performance:
     # Whiteboard information broadcasting frequency (in Hz i.e. /s) -- number

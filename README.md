@@ -165,7 +165,7 @@ Many more settings can be tweaked. All of them are described in the [default con
 
 ## Things you may want to know
 
-- Whiteboards are gone if you restart the Server, so keep that in mind (or save your whiteboard)
+- Whiteboards are gone if you restart the Server enable "enableFileDatabase" in the config file or export the board to prevent that.
 - You should be able to customize the layout without ever touching the whiteboard.js (take a look at index.html & main.js)
 
 ## ToDo

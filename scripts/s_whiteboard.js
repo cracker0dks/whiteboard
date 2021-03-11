@@ -11,7 +11,7 @@ if (config.backend.enableFileDatabase) {
     fs.readFile("savedBoards.json", (err, data) => {
         if (err) {
             return console.log(
-                "Not persistend Whiteboard Datafile found... this is not a problem on the first start!"
+                "No persistend Whiteboard Datafile found... this is not a problem on the first start!"
             );
         }
         savedBoards = JSON.parse(data);

@@ -93,7 +93,7 @@ The following are predefined shortcuts that you can override in the file [./src/
 | Move selected object left                                        | Left Arrow           | Left Arrow              |
 | Move selected object right                                       | Right Arrow          | Right Arrow             |
 | Drop object                                                      | Ctrl + Enter         | Command + Enter         |
-| Add Image to backgroud                                           | Shift + Enter        | Shift + Enter           |
+| Add Image to background                                          | Shift + Enter        | Shift + Enter           |
 | Cancel all actions                                               | Escape               | Escape                  |
 | Delete selected object                                           | Delete               | Delete                  |
 | Use Line tool when pen is active (Not changeable)                | Shift (Hold)         | Shift (Hold)            |

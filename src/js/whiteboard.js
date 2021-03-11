@@ -422,6 +422,7 @@ const whiteboard = {
             const currentPos = Point.fromEvent(e);
             const fontsize = _this.thickness * 0.5;
             const txId = "tx" + +new Date();
+            const isStickyNote = _this.tool === "stickynote";
             _this.sendFunction({
                 t: "addTextBox",
                 d: [
@@ -431,6 +432,7 @@ const whiteboard = {
                     currentPos.x,
                     currentPos.y,
                     txId,
+                    isStickyNote,
                 ],
             });
             _this.addTextBox(
@@ -440,6 +442,7 @@ const whiteboard = {
                 currentPos.x,
                 currentPos.y,
                 txId,
+                isStickyNote,
                 true
             );
         });
@@ -762,7 +765,7 @@ const whiteboard = {
         var _this = this;
         _this.thickness = thickness;
 
-        if (_this.tool == "text" && _this.latestActiveTextBoxId) {
+        if ((_this.tool == "text" || this.tool === "stickynote") && _this.latestActiveTextBoxId) {
             _this.sendFunction({
                 t: "setTextboxFontSize",
                 d: [_this.latestActiveTextBoxId, thickness],
@@ -889,12 +892,28 @@ const whiteboard = {
                 '">'
         );
     },
-    addTextBox(textcolor, textboxBackgroundColor, fontsize, left, top, txId, newLocalBox) {
+    addTextBox(
+        textcolor,
+        textboxBackgroundColor,
+        fontsize,
+        left,
+        top,
+        txId,
+        isStickyNote,
+        newLocalBox
+    ) {
         var _this = this;
+        console.log(isStickyNote);
+        var cssclass = "textBox";
+        if (isStickyNote) {
+            cssclass += " stickyNote";
+        }
         var textBox = $(
             '<div id="' +
                 txId +
-                '" class="textBox" style="font-family: Monospace; position:absolute; top:' +
+                '" class="' +
+                cssclass +
+                '" style="font-family: Monospace; position:absolute; top:' +
                 top +
                 "px; left:" +
                 left +
@@ -906,7 +925,7 @@ const whiteboard = {
                 fontsize +
                 "em; color:" +
                 textcolor +
-                '; min-width:50px; min-height:50px;"></div>' +
+                '; min-width:50px; min-height:50px"></div>' +
                 '<div title="remove textbox" class="removeIcon" style="position:absolute; cursor:pointer; top:-4px; right:2px;">x</div>' +
                 '<div title="move textbox" class="moveIcon" style="position:absolute; cursor:move; top:1px; left:2px; font-size: 0.5em;"><i class="fas fa-expand-arrows-alt"></i></div>' +
                 "</div>"
@@ -978,7 +997,7 @@ const whiteboard = {
                 textBox.find(".textContent").focus();
             }, 0);
         }
-        if (this.tool === "text") {
+        if (this.tool === "text" || this.tool === "stickynote") {
             textBox.addClass("active");
         }
 
@@ -1100,7 +1119,7 @@ const whiteboard = {
     },
     setTool: function (tool) {
         this.tool = tool;
-        if (this.tool === "text") {
+        if (this.tool === "text" || this.tool === "stickynote") {
             $(".textBox").addClass("active");
             this.textContainer.appendTo($(whiteboardContainer)); //Bring textContainer to the front
         } else {
@@ -1115,7 +1134,7 @@ const whiteboard = {
         var _this = this;
         _this.drawcolor = color;
         $("#whiteboardColorpicker").css({ background: color });
-        if (_this.tool == "text" && _this.latestActiveTextBoxId) {
+        if ((_this.tool == "text" || this.tool === "stickynote") && _this.latestActiveTextBoxId) {
             _this.sendFunction({
                 t: "setTextboxFontColor",
                 d: [_this.latestActiveTextBoxId, color],
@@ -1127,7 +1146,7 @@ const whiteboard = {
         var _this = this;
         _this.textboxBackgroundColor = textboxBackgroundColor;
         $("#textboxBackgroundColorPicker").css({ background: textboxBackgroundColor });
-        if (_this.tool == "text" && _this.latestActiveTextBoxId) {
+        if ((_this.tool == "text" || this.tool === "stickynote") && _this.latestActiveTextBoxId) {
             _this.sendFunction({
                 t: "setTextboxBackgroundColor",
                 d: [_this.latestActiveTextBoxId, textboxBackgroundColor],
@@ -1204,7 +1223,7 @@ const whiteboard = {
                     );
                 }
             } else if (tool === "addTextBox") {
-                _this.addTextBox(data[0], data[1], data[2], data[3], data[4], data[5]);
+                _this.addTextBox(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
             } else if (tool === "setTextboxText") {
                 _this.setTextboxText(data[0], data[1]);
             } else if (tool === "removeTextbox") {

@@ -305,7 +305,7 @@ function initWhiteboard() {
                     $(".activeToolIcon").html($(this).html()); //Set Active icon the same as the button icon
                 }
 
-                if (activeTool == "text") {
+                if (activeTool == "text" || activeTool == "stickynote") {
                     $("#textboxBackgroundColorPickerBtn").show();
                 } else {
                     $("#textboxBackgroundColorPickerBtn").hide();
@@ -919,7 +919,7 @@ function initWhiteboard() {
                 }
             }
 
-            if (!imgItemFound && whiteboard.tool != "text") {
+            if (!imgItemFound && whiteboard.tool != "text" && whiteboard.tool != "stickynote") {
                 showBasicAlert(
                     "Please Drag&Drop the image or pdf into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)"
                 );

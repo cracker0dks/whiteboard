@@ -108,6 +108,7 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 - username => The name which will be shown to others while drawing
 - title => Change the name of the Browser Tab
 - randomid => if set to true, a random whiteboardId will be generated if not given aswell
+- copyfromwid => set this to a whiteboardId you want a copy from. Only copies the content if the current whiteboard is empty.
 
 ## Configuration
 

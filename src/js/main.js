@@ -36,6 +36,7 @@ if (urlParams.get("whiteboardid") !== whiteboardId) {
 
 const myUsername = urlParams.get("username") || "unknown" + (Math.random() + "").substring(2, 6);
 const accessToken = urlParams.get("accesstoken") || "";
+const copyfromwid = urlParams.get("copyfromwid") || "";
 
 // Custom Html Title
 const title = urlParams.get("title");
@@ -170,7 +171,17 @@ function initWhiteboard() {
         // request whiteboard from server
         $.get(subdir + "/api/loadwhiteboard", { wid: whiteboardId, at: accessToken }).done(
             function (data) {
+                console.log(data);
                 whiteboard.loadData(data);
+                if (copyfromwid && data.length == 0) {
+                    //Copy from witheboard if current is empty and get parameter is given
+                    $.get(subdir + "/api/loadwhiteboard", {
+                        wid: copyfromwid,
+                        at: accessToken,
+                    }).done(function (data) {
+                        whiteboard.loadData(data);
+                    });
+                }
             }
         );
 

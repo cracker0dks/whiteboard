@@ -5,7 +5,7 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
 # Install app dependencies
-COPY ./package.json package-lock.json ./
+COPY ./package.json package-lock.json config.default.yml ./
 RUN npm ci
 
 # Bundle frontend

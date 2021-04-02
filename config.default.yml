@@ -7,7 +7,7 @@ backend:
   enableWebdav: false
 
   # Enable the function to save the whiteboard to a file so you save the state even on server restarts -- boolean
-  enableFileDatabase: false
+  enableFileDatabase: true
 
   # Backend performance tweaks
   performance:

@@ -39,7 +39,8 @@
     "jquery-ui-rotatable": "^1.1.0",
     "js-yaml": "3.13.1",
     "jsdom": "^14.0.0",
-    "socket.io": "2.*",
+    "socket.io": "^4.0.1",
+    "socket.io-client": "^4.0.1",
     "uuid": "^8.1.0",
     "webdav": "^4.3.0"
   },

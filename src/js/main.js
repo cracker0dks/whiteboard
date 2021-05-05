@@ -1,5 +1,5 @@
 import keymage from "keymage";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 import whiteboard from "./whiteboard";
 import keybinds from "./keybinds";
 import Picker from "vanilla-picker";

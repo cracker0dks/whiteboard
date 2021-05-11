@@ -14,7 +14,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easi
 - Undo / Redo function for each user
 - Drag+Drop / Copy+Paste Images or PDFs from PC and Browsers
 - Resize, Move, Rotate & Draw Images to Canvas or Background
-- Write text
+- Write text and sticky notes
 - Save Whiteboard to Image and JSON
 - Draw angle lines by pressing "Shift" while drawing (with line tool)
 - Draw square by pressing "Shift" while drawing (with rectangle tool)

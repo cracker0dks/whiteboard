@@ -331,8 +331,9 @@ function startBackendServer(port) {
                 socket.emit("whiteboardConfig", {
                     common: config.frontend,
                     whiteboardSpecific: {
-                        correspondingReadOnlyWid:
-                            ReadOnlyBackendService.getReadOnlyId(whiteboardId),
+                        correspondingReadOnlyWid: ReadOnlyBackendService.getReadOnlyId(
+                            whiteboardId
+                        ),
                         isReadOnly: ReadOnlyBackendService.isReadOnly(whiteboardId),
                     },
                 });

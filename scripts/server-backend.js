@@ -19,8 +19,7 @@ function startBackendServer(port) {
     var s_whiteboard = require("./s_whiteboard.js");
 
     var app = express();
-    app.use(express.static(path.join(__dirname, "..", "dist")));
-    app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));
+
     var server = require("http").Server(app);
     server.listen(port);
     var io = require("socket.io")(server, { path: "/ws-api" });
@@ -29,6 +28,10 @@ function startBackendServer(port) {
     console.log("Webserver & socketserver running on port:" + port);
 
     const { accessToken, enableWebdav } = config.backend;
+
+    //Expose static folders
+    app.use(express.static(path.join(__dirname, "..", "dist")));
+    app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));
 
     /**
      * @api {get} /api/loadwhiteboard Get Whiteboard Data

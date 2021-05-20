@@ -777,13 +777,20 @@ const whiteboard = {
     addImgToCanvasByUrl: function (url) {
         var _this = this;
         var oldTool = _this.tool;
+
+        const { imageURL } = ConfigService;
+        var finalURL = url;
+        if (imageURL && url.startsWith("/uploads/")) {
+            finalURL = imageURL + url;
+        }
+
         _this.setTool("mouse"); //Set to mouse tool while dropping to prevent errors
         _this.imgDragActive = true;
         _this.mouseOverlay.css({ cursor: "default" });
         var imgDiv = $(
             '<div class="dragMe" style="border: 2px dashed gray; position:absolute; left:200px; top:200px; min-width:160px; min-height:100px; cursor:move;">' +
                 '<img style="width:100%; height:100%;" src="' +
-                url +
+                finalURL +
                 '">' +
                 '<div style="position:absolute; right:5px; top:3px;">' +
                 '<button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Draw to canvas</button> ' +
@@ -821,15 +828,15 @@ const whiteboard = {
 
                 if (draw == "1") {
                     //draw image to canvas
-                    _this.drawImgToCanvas(url, width, height, left, top, rotationAngle);
+                    _this.drawImgToCanvas(finalURL, width, height, left, top, rotationAngle);
                 } else {
                     //Add image to background
-                    _this.drawImgToBackground(url, width, height, left, top, rotationAngle);
+                    _this.drawImgToBackground(finalURL, width, height, left, top, rotationAngle);
                 }
                 _this.sendFunction({
                     t: "addImgBG",
                     draw: draw,
-                    url: url,
+                    url: finalURL,
                     d: [width, height, left, top, rotationAngle],
                 });
                 _this.drawId++;
@@ -1184,6 +1191,7 @@ const whiteboard = {
         var color = content["c"];
         var username = content["username"];
         var thickness = content["th"];
+
         window.requestAnimationFrame(function () {
             if (tool === "line" || tool === "pen") {
                 if (data.length == 4) {

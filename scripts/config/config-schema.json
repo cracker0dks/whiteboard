@@ -54,6 +54,9 @@
         "imageDownloadFormat": {
           "type": "string"
         },
+        "imageURL": {
+          "type": "string"
+        },
         "drawBackgroundGrid": {
           "type": "boolean"
         },

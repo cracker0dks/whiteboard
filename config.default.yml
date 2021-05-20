@@ -32,7 +32,7 @@ frontend:
   imageDownloadFormat: "png"
 
   # if it is blank, images will use relative path, for example "/uploads/<image_path>.png"
-  imageURL : ""
+  imageURL: ""
 
   # draw the background grid to images on download ? (If True, even PNGs are also not transparent anymore) -- boolean
   drawBackgroundGrid: false

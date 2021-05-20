@@ -118,12 +118,9 @@ const whiteboard = {
         this.oldGCO = this.ctx.globalCompositeOperation;
 
         window.addEventListener("resize", function () {
-            // Handel resize
-            const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
             _this.canvas.width = $(window).width();
             _this.canvas.height = $(window).height(); // Set new canvas height
             _this.drawBuffer = [];
-            _this.loadData(dbCp); // draw old content in
         });
 
         $(_this.mouseOverlay).on("mousedown touchstart", function (e) {

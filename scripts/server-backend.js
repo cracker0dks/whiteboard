@@ -179,7 +179,7 @@ function startBackendServer(port) {
      * @apiParam {Number[]} d has different function on every tool you use:
      * pen: [width, height, left, top, rotation]
      *
-     * @apiSuccess {String} body returns the "done" as text
+     * @apiSuccess {String} body returns "done" as text
      * @apiError {Number} 401 Unauthorized
      */
     app.get("/api/drawToWhiteboard", function (req, res) {

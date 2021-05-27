@@ -31,6 +31,9 @@ frontend:
   # Image download format, can be "png", "jpeg" (or "webp" -> only working on chrome) -- string
   imageDownloadFormat: "png"
 
+  # if it is blank, images will use relative path, for example "/uploads/<image_path>.png"
+  imageURL: ""
+
   # draw the background grid to images on download ? (If True, even PNGs are also not transparent anymore) -- boolean
   drawBackgroundGrid: false
 

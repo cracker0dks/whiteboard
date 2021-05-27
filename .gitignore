@@ -66,4 +66,4 @@ typings/
 .env
 
 /public/apidoc
-/savedBoards.json
+/savedBoards/*

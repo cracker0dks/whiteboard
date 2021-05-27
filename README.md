@@ -14,7 +14,7 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easi
 - Undo / Redo function for each user
 - Drag+Drop / Copy+Paste Images or PDFs from PC and Browsers
 - Resize, Move, Rotate & Draw Images to Canvas or Background
-- Write text
+- Write text and sticky notes
 - Save Whiteboard to Image and JSON
 - Draw angle lines by pressing "Shift" while drawing (with line tool)
 - Draw square by pressing "Shift" while drawing (with rectangle tool)
@@ -25,7 +25,8 @@ This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easi
 
 ## Projects using this Whiteboard
 
-- [meetzi](https://meetzi.de/) - WebRtc Conference tool
+- [Meetzi](https://meetzi.de/) - WebRtc Conference tool
+- [LAMS](https://www.lamsfoundation.org) - Managing and delivering online Collaboration learning activities
 - [Accelerator](https://github.com/cracker0dks/Accelerator) - WebRtc Conference tool
 - Your Project here...
 
@@ -108,6 +109,7 @@ Call your site with GET parameters to change the WhiteboardID or the Username
 - username => The name which will be shown to others while drawing
 - title => Change the name of the Browser Tab
 - randomid => if set to true, a random whiteboardId will be generated if not given aswell
+- copyfromwid => set this to a whiteboardId you want a copy from. Only copies the content if the current whiteboard is empty.
 
 ## Configuration
 

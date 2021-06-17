@@ -6,7 +6,7 @@ class ReadOnlyBackendService {
      * @type {Map<string, string>}
      * @private
      */
-    #idToReadOnlyId = new Map();
+    _idToReadOnlyId = new Map();
 
     /**
      * Mapping from a read-only whiteboard id to the matching editable whiteboard id
@@ -14,7 +14,7 @@ class ReadOnlyBackendService {
      * @type {Map<string, string>}
      * @private
      */
-    #readOnlyIdToId = new Map();
+    _readOnlyIdToId = new Map();
 
     /**
      * Make sure a whiteboardId is ignited in the service
@@ -24,8 +24,8 @@ class ReadOnlyBackendService {
      * @param {string} whiteboardId
      */
     init(whiteboardId) {
-        const idToReadOnlyId = this.#idToReadOnlyId;
-        const readOnlyIdToId = this.#readOnlyIdToId;
+        const idToReadOnlyId = this._idToReadOnlyId;
+        const readOnlyIdToId = this._readOnlyIdToId;
 
         if (!idToReadOnlyId.has(whiteboardId) && !readOnlyIdToId.has(whiteboardId)) {
             const readOnlyId = uuidv4();
@@ -45,7 +45,7 @@ class ReadOnlyBackendService {
         if (this.isReadOnly(whiteboardId)) return whiteboardId;
         // run in isReadOnly
         // this.init(whiteboardId);
-        return this.#idToReadOnlyId.get(whiteboardId);
+        return this._idToReadOnlyId.get(whiteboardId);
     }
 
     /**
@@ -55,7 +55,7 @@ class ReadOnlyBackendService {
      * @return {string}
      */
     getIdFromReadOnlyId(readOnlyId) {
-        return this.#readOnlyIdToId.get(readOnlyId);
+        return this._readOnlyIdToId.get(readOnlyId);
     }
 
     /**
@@ -66,7 +66,7 @@ class ReadOnlyBackendService {
      */
     isReadOnly(whiteboardId) {
         this.init(whiteboardId);
-        return this.#readOnlyIdToId.has(whiteboardId);
+        return this._readOnlyIdToId.has(whiteboardId);
     }
 }
 

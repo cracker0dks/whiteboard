@@ -48,7 +48,7 @@ const config = {
             "window.jQuery": "jquery",
             "window.$": "jquery",
         }),
-        new CopyPlugin([{ from: "assets", to: "" }]),
+        new CopyPlugin({ patterns: [{ from: "assets", to: "" }] }),
         new HtmlWebpackPlugin({
             template: "src/index.html",
             minify: false,

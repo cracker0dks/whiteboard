@@ -49,8 +49,9 @@ function startBackendServer(port) {
      *     curl -i http://[rootUrl]/api/loadwhiteboard?wid=[MyWhiteboardId]
      */
     app.get("/api/loadwhiteboard", function (req, res) {
-        const wid = req["query"]["wid"];
-        const at = req["query"]["at"]; //accesstoken
+        let query = escapeAllContentStrings(req["query"]);
+        const wid = query["wid"];
+        const at = query["at"]; //accesstoken
         if (accessToken === "" || accessToken == at) {
             const widForData = ReadOnlyBackendService.isReadOnly(wid)
                 ? ReadOnlyBackendService.getIdFromReadOnlyId(wid)
@@ -80,8 +81,9 @@ function startBackendServer(port) {
      *     curl -i http://[rootUrl]/api/getReadOnlyWid?wid=[MyWhiteboardId]
      */
     app.get("/api/getReadOnlyWid", function (req, res) {
-        const wid = req["query"]["wid"];
-        const at = req["query"]["at"]; //accesstoken
+        let query = escapeAllContentStrings(req["query"]);
+        const wid = query["wid"];
+        const at = query["at"]; //accesstoken
         if (accessToken === "" || accessToken == at) {
             res.send(ReadOnlyBackendService.getReadOnlyId(wid));
             res.end();

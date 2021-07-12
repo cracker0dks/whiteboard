@@ -148,7 +148,10 @@ module.exports = {
             //read saved board from file
             var fileName = wid + ".json";
             var filePath = FILE_DATABASE_FOLDER + "/" + fileName;
-            if(path.dirname(filePath) !== FILE_DATABASE_FOLDER || path.basename(fileName) !== fileName) {
+            if (
+                path.dirname(filePath) !== FILE_DATABASE_FOLDER ||
+                path.basename(fileName) !== fileName
+            ) {
                 var errorMessage = "Attempted path traversal attack: ";
                 console.log(errorMessage, filePath);
                 throw new Error(errorMessage + filePath);

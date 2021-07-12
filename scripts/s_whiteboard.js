@@ -1,6 +1,8 @@
 //This file is only for saving the whiteboard.
 const fs = require("fs");
+const path = require("path");
 const config = require("./config/config");
+const FILE_DATABASE_FOLDER = "savedBoards";
 
 var savedBoards = {};
 var savedUndos = {};
@@ -144,7 +146,13 @@ module.exports = {
         // try to load from DB
         if (config.backend.enableFileDatabase) {
             //read saved board from file
-            var filePath = "savedBoards/" + wid + ".json";
+            var fileName = wid + ".json";
+            var filePath = FILE_DATABASE_FOLDER + "/" + fileName;
+            if(path.dirname(filePath) !== FILE_DATABASE_FOLDER || path.basename(fileName) !== fileName) {
+                var errorMessage = "Attempted path traversal attack: ";
+                console.log(errorMessage, filePath);
+                throw new Error(errorMessage + filePath);
+            }
             if (fs.existsSync(filePath)) {
                 var data = fs.readFileSync(filePath);
                 if (data) {

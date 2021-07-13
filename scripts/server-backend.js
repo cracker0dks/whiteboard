@@ -3,6 +3,7 @@ const path = require("path");
 const config = require("./config/config");
 const ReadOnlyBackendService = require("./services/ReadOnlyBackendService");
 const WhiteboardInfoBackendService = require("./services/WhiteboardInfoBackendService");
+const { getSafeFilePath } = require("./utils");
 
 function startBackendServer(port) {
     var fs = require("fs-extra");
@@ -225,7 +226,7 @@ function startBackendServer(port) {
             webdavaccess = false;
         }
 
-        const savingDir = path.join("./public/uploads", readOnlyWid);
+        const savingDir = getSafeFilePath("public/uploads", readOnlyWid);
         fs.ensureDir(savingDir, function (err) {
             if (err) {
                 console.log("Could not create upload folder!", err);
@@ -238,7 +239,7 @@ function startBackendServer(port) {
                     .replace(/^data:image\/png;base64,/, "")
                     .replace(/^data:image\/jpeg;base64,/, "");
                 console.log(filename, "uploaded");
-                const savingPath = path.join(savingDir, filename);
+                const savingPath = getSafeFilePath(savingDir, filename);
                 fs.writeFile(savingPath, imagedata, "base64", function (err) {
                     if (err) {
                         console.log("error", err);

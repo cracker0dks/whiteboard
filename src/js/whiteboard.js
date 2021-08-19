@@ -884,21 +884,26 @@ const whiteboard = {
         dom.i2svg();
     },
     drawImgToBackground(url, width, height, left, top, rotationAngle) {
-        this.imgContainer.append(
-            '<img crossorigin="anonymous" style="width:' +
-                width +
-                "px; height:" +
-                height +
-                "px; position:absolute; top:" +
-                top +
-                "px; left:" +
-                left +
-                "px; transform: rotate(" +
-                rotationAngle +
-                'rad);" src="' +
-                url +
-                '">'
-        );
+        var _this = this;
+        testImage(url, function (vaildImg) {
+            if (vaildImg) {
+                _this.imgContainer.append(
+                    '<img crossorigin="anonymous" style="width:' +
+                        width +
+                        "px; height:" +
+                        height +
+                        "px; position:absolute; top:" +
+                        top +
+                        "px; left:" +
+                        left +
+                        "px; transform: rotate(" +
+                        rotationAngle +
+                        'rad);" src="' +
+                        url +
+                        '">'
+                );
+            }
+        });
     },
     addTextBox(
         textcolor,
@@ -1508,6 +1513,33 @@ function lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, a) {
     c1 -= delta;
     c2 -= delta;
     return [cm1 * xm1 + c0 * x0 + c1 * x1 + c2 * x2, cm1 * ym1 + c0 * y0 + c1 * y1 + c2 * y2];
+}
+
+function testImage(url, callback, timeout) {
+    timeout = timeout || 5000;
+    var timedOut = false,
+        timer;
+    var img = new Image();
+    img.onerror = img.onabort = function () {
+        if (!timedOut) {
+            clearTimeout(timer);
+            callback(false);
+        }
+    };
+    img.onload = function () {
+        if (!timedOut) {
+            clearTimeout(timer);
+            callback(true);
+        }
+    };
+    img.src = url;
+    timer = setTimeout(function () {
+        timedOut = true;
+        // reset .src to invalid URL so it stops previous
+        // loading, but doesn't trigger new load
+        img.src = "//!!!!/test.jpg";
+        callback(false);
+    }, timeout);
 }
 
 export default whiteboard;

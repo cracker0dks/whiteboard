@@ -315,6 +315,8 @@ function startBackendServer(port) {
             if (!whiteboardId || ReadOnlyBackendService.isReadOnly(whiteboardId)) return;
 
             content = escapeAllContentStrings(content);
+            content = purifyEncodedStrings(content);
+
             if (accessToken === "" || accessToken == content["at"]) {
                 const broadcastTo = (wid) =>
                     socket.compress(false).broadcast.to(wid).emit("drawToWhiteboard", content);
@@ -380,6 +382,46 @@ function startBackendServer(port) {
             }
         }
         return content;
+    }
+
+    //Sanitize strings known to be encoded and decoded
+    function purifyEncodedStrings(content) {
+        if (content.hasOwnProperty("t") && content["t"] === "setTextboxText") {
+            return purifyTextboxTextInContent(content);
+        }
+        return content;
+    }
+
+    function purifyTextboxTextInContent(content) {
+        const raw = content["d"][1];
+        const decoded = base64decode(raw);
+        const purified = DOMPurify.sanitize(decoded, {
+            ALLOWED_TAGS: ["div", "br"],
+            ALLOWED_ATTR: [],
+            ALLOW_DATA_ATTR: false,
+        });
+
+        if (purified !== decoded) {
+            console.warn("setTextboxText payload needed be DOMpurified");
+            console.warn("raw: " + removeControlCharactersForLogs(raw));
+            console.warn("decoded: " + removeControlCharactersForLogs(decoded));
+            console.warn("purified: " + removeControlCharactersForLogs(purified));
+        }
+
+        content["d"][1] = base64encode(purified);
+        return content;
+    }
+
+    function base64encode(s) {
+        return Buffer.from(s, "utf8").toString("base64");
+    }
+
+    function base64decode(s) {
+        return Buffer.from(s, "base64").toString("utf8");
+    }
+
+    function removeControlCharactersForLogs(s) {
+        return s.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
     }
 
     process.on("unhandledRejection", (error) => {

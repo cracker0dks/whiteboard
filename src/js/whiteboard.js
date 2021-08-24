@@ -5,6 +5,7 @@ import InfoService from "./services/InfoService";
 import ThrottlingService from "./services/ThrottlingService";
 import ConfigService from "./services/ConfigService";
 import html2canvas from "html2canvas";
+import DOMPurify from "dompurify";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -774,6 +775,14 @@ const whiteboard = {
             _this.setTextboxFontSize(_this.latestActiveTextBoxId, thickness);
         }
     },
+    imgWithSrc(url) {
+        return $(
+            DOMPurify.sanitize('<img src="' + url + '">', {
+                ALLOWED_TAGS: ["img"],
+                ALLOWED_ATTR: ["src"], // kill any attributes malicious url introduced
+            })
+        );
+    },
     addImgToCanvasByUrl: function (url) {
         var _this = this;
         var oldTool = _this.tool;
@@ -784,14 +793,14 @@ const whiteboard = {
             finalURL = imageURL + url;
         }
 
+        var img = this.imgWithSrc(finalURL).css({ width: "100%", height: "100%" });
+        finalURL = img.attr("src");
+
         _this.setTool("mouse"); //Set to mouse tool while dropping to prevent errors
         _this.imgDragActive = true;
         _this.mouseOverlay.css({ cursor: "default" });
         var imgDiv = $(
             '<div class="dragMe" style="border: 2px dashed gray; position:absolute; left:200px; top:200px; min-width:160px; min-height:100px; cursor:move;">' +
-                '<img style="width:100%; height:100%;" src="' +
-                finalURL +
-                '">' +
                 '<div style="position:absolute; right:5px; top:3px;">' +
                 '<button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Draw to canvas</button> ' +
                 '<button draw="0" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToBackgroundBtn btn btn-default">Add to background</button> ' +
@@ -801,6 +810,7 @@ const whiteboard = {
                 '<div class="rotationHandle" style="position:absolute; bottom: -30px; left: 0px; width:100%; text-align:center; cursor:ew-resize;"><i class="fa fa-undo"></i></div>' +
                 "</div>"
         );
+	imgDiv.prepend(img)
         imgDiv
             .find(".xCanvasBtn")
             .off("click")
@@ -884,25 +894,14 @@ const whiteboard = {
         dom.i2svg();
     },
     drawImgToBackground(url, width, height, left, top, rotationAngle) {
-        var _this = this;
-        testImage(url, function (vaildImg) {
-            if (vaildImg) {
-                _this.imgContainer.append(
-                    '<img crossorigin="anonymous" style="width:' +
-                        width +
-                        "px; height:" +
-                        height +
-                        "px; position:absolute; top:" +
-                        top +
-                        "px; left:" +
-                        left +
-                        "px; transform: rotate(" +
-                        rotationAngle +
-                        'rad);" src="' +
-                        url +
-                        '">'
-                );
-            }
+	const px = (v) => Number(v).toString() + "px";
+        this.imgContainer.append(this.imageWithSrc(url).css({
+            width: px(width),
+            height: px(height),
+            top: px(top),
+            left: px(left),
+            position: "absolute",
+            transform: "rotate(" + Number(rotationAngle) + "rad)",
         });
     },
     addTextBox(
@@ -1044,6 +1043,13 @@ const whiteboard = {
             .css({ "background-color": textboxBackgroundColor });
     },
     drawImgToCanvas(url, width, height, left, top, rotationAngle, doneCallback) {
+
+        top = Number(top);        // probably not as important here
+        left = Number(left);      // as it is when generating html
+        width = Number(width);
+        height = Number(height);
+        rotationAngle = Number(rotationAngle);
+
         var _this = this;
         var img = document.createElement("img");
         img.onload = function () {
@@ -1061,7 +1067,8 @@ const whiteboard = {
                 doneCallback();
             }
         };
-        img.src = url;
+
+        img.src = this.imgWithSrc(url).attr("src"); // or here - but consistent
     },
     undoWhiteboard: function (username) {
         //Not call this directly because you will get out of sync whit others...

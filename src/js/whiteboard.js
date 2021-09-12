@@ -810,7 +810,7 @@ const whiteboard = {
                 '<div class="rotationHandle" style="position:absolute; bottom: -30px; left: 0px; width:100%; text-align:center; cursor:ew-resize;"><i class="fa fa-undo"></i></div>' +
                 "</div>"
         );
-	imgDiv.prepend(img)
+        imgDiv.prepend(img);
         imgDiv
             .find(".xCanvasBtn")
             .off("click")
@@ -894,15 +894,17 @@ const whiteboard = {
         dom.i2svg();
     },
     drawImgToBackground(url, width, height, left, top, rotationAngle) {
-	const px = (v) => Number(v).toString() + "px";
-        this.imgContainer.append(this.imageWithSrc(url).css({
-            width: px(width),
-            height: px(height),
-            top: px(top),
-            left: px(left),
-            position: "absolute",
-            transform: "rotate(" + Number(rotationAngle) + "rad)",
-        });
+        const px = (v) => Number(v).toString() + "px";
+        this.imgContainer.append(
+            this.imageWithSrc(url).css({
+                width: px(width),
+                height: px(height),
+                top: px(top),
+                left: px(left),
+                position: "absolute",
+                transform: "rotate(" + Number(rotationAngle) + "rad)",
+            })
+        );
     },
     addTextBox(
         textcolor,
@@ -1043,9 +1045,8 @@ const whiteboard = {
             .css({ "background-color": textboxBackgroundColor });
     },
     drawImgToCanvas(url, width, height, left, top, rotationAngle, doneCallback) {
-
-        top = Number(top);        // probably not as important here
-        left = Number(left);      // as it is when generating html
+        top = Number(top); // probably not as important here
+        left = Number(left); // as it is when generating html
         width = Number(width);
         height = Number(height);
         rotationAngle = Number(rotationAngle);

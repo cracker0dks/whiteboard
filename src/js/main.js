@@ -907,7 +907,7 @@ function initWhiteboard() {
 
     // handle pasting from clipboard
     window.addEventListener("paste", function (e) {
-        if ($(".basicalert").length > 0) {
+        if ($(".basicalert").length > 0 || !!e.origin) {
             return;
         }
         if (e.clipboardData) {

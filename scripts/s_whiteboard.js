@@ -1,6 +1,8 @@
 //This file is only for saving the whiteboard.
 const fs = require("fs");
 const config = require("./config/config");
+const { getSafeFilePath } = require("./utils");
+const FILE_DATABASE_FOLDER = "savedBoards";
 
 var savedBoards = {};
 var savedUndos = {};
@@ -8,10 +10,20 @@ var saveDelay = {};
 
 if (config.backend.enableFileDatabase) {
     // make sure that folder with saved boards exists
-    fs.mkdirSync("savedBoards", {
+    fs.mkdirSync(FILE_DATABASE_FOLDER, {
         // this option also mutes an error if path exists
         recursive: true,
     });
+}
+
+/**
+ * Get the file path for a whiteboard.
+ * @param {string} wid Whiteboard id to get the path for
+ * @returns {string} File path to the whiteboard
+ * @throws {Error} if wid contains potentially unsafe directory characters
+ */
+function fileDatabasePath(wid) {
+    return getSafeFilePath(FILE_DATABASE_FOLDER, wid + ".json");
 }
 
 module.exports = {
@@ -24,7 +36,7 @@ module.exports = {
             delete savedBoards[wid];
             delete savedUndos[wid];
             // delete the corresponding file too
-            fs.unlink("savedBoards/" + wid + ".json", function (err) {
+            fs.unlink(fileDatabasePath(wid), function (err) {
                 if (err) {
                     return console.log(err);
                 }
@@ -120,7 +132,7 @@ module.exports = {
                     saveDelay[wid] = false;
                     if (savedBoards[wid]) {
                         fs.writeFile(
-                            "savedBoards/" + wid + ".json",
+                            fileDatabasePath(wid),
                             JSON.stringify(savedBoards[wid]),
                             (err) => {
                                 if (err) {
@@ -144,7 +156,7 @@ module.exports = {
         // try to load from DB
         if (config.backend.enableFileDatabase) {
             //read saved board from file
-            var filePath = "savedBoards/" + wid + ".json";
+            var filePath = fileDatabasePath(wid);
             if (fs.existsSync(filePath)) {
                 var data = fs.readFileSync(filePath);
                 if (data) {

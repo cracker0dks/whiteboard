@@ -1,34 +1,38 @@
+name: Deploy to Amazon ECS
 
 on:
-  name: Deploy to  production Amazon ECS
-  push:
-    branches:
-    - main
-  jobs:
+  release:
+    types: [created]
 
-  build:
-    name: build image
+jobs:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: us-east-1
 
-     - name: Login to Amazon ECR
+    - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build, tag, and push image to Amazon ECR
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ecr-web-image
+        ECR_REGISTRY: 787952688011.dkr.ecr.us-east-1.amazonaws.com
+        ECR_REPOSITORY: whiteboard
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -docker build -t ecr-web-imag .
-        docker push 787952688011.dkr.ecr.us-east-1.amazonaws.com/ecr-web-image:latest
-      
+      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 787952688011.dkr.ecr.us-east-1.amazonaws.com
+      docker build -t whiteboard .
+        docker tag whiteboard:latest 787952688011.dkr.ecr.us-east-1.amazonaws.com/whiteboard:latest
+       docker push 787952688011.dkr.ecr.us-east-1.amazonaws.com/whiteboard:latest
+    

@@ -68,5 +68,8 @@ typings/
 /public/apidoc
 /savedBoards/*
 
+# Temp swap file
+*.swp
+
 # pnpm
 pnpm-lock.yaml

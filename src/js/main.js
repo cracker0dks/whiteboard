@@ -771,6 +771,50 @@ function initWhiteboard() {
             onChange: function (bgcolor) {
                 whiteboard.setTextBackgroundColor(bgcolor.rgbaString);
             },
+            onOpen: function(current_color){
+                this._domPalette = $('.picker_palette', this.domElement);
+                let palette = ["rgba(255, 136, 0, 1)", "rgba(0, 0, 0, 1)", "rgba(0, 128, 0, 1)"];
+                if ($(".picker_splotch", this._domPalette).length === 0) {
+                  for (let i = 0; i < palette.length; i++){
+                    let palette_Color_obj = new (this.color.constructor)(palette[i]);
+                    let splotch_div = $("<div></div>")
+                      .addClass("picker_splotch")
+                      .attr({
+                        "id": "s" + i,
+                      })
+                      .css("background-color", palette_Color_obj.hslaString)
+                      .on('click', {that: this, obj: palette_Color_obj}, function(e){
+                          e.data.that._setColor(e.data.obj.hslaString);
+                      });
+                    this._domPalette.append(splotch_div);
+                  }
+                };
+            },
+            template: (function(){/*#####
+              <div class="picker_wrapper" tabindex="-1">
+                <div class="picker_arrow"></div>
+                <div class="picker_hue picker_slider">
+                  <div class="picker_selector"></div>
+                </div>
+                <div class="picker_sl">
+                  <div class="picker_selector"></div>
+                </div>
+                <div class="picker_alpha picker_slider">
+                  <div class="picker_selector"></div>
+                </div>
+                <div class="picker_palette"></div>
+                <div class="picker_editor">
+                  <input aria-label="Type a color name or hex value"/>
+                </div>
+                <div class="picker_sample"></div>
+                <div class="picker_done">
+                  <button>Ok</button>
+                </div>
+                <div class="picker_cancel">
+                  <button>Cancel</button>
+                </div>
+              </div>
+            #####*/}).toString().split(/#####/)[1]
         });
 
         // on startup select mouse

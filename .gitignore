@@ -67,3 +67,6 @@ typings/
 
 /public/apidoc
 /savedBoards/*
+
+# pnpm
+pnpm-lock.yaml

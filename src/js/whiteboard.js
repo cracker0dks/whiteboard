@@ -238,7 +238,6 @@ const whiteboard = {
             }
             if (ReadOnlyService.readOnlyActive) return;
             _this.drawFlag = false;
-            _this.drawId++;
             _this.ctx.globalCompositeOperation = _this.oldGCO;
 
             let currentPos = Point.fromEvent(e);
@@ -271,9 +270,7 @@ const whiteboard = {
                 });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "pen") {
-                _this.drawId--;
                 _this.pushPointSmoothPen(currentPos.x, currentPos.y);
-                _this.drawId++;
             } else if (_this.tool === "rect") {
                 if (_this.pressedKeys.shift) {
                     if (
@@ -407,6 +404,7 @@ const whiteboard = {
                 imgDiv.draggable();
                 _this.svgContainer.find("rect").remove();
             }
+            _this.drawId++;
         };
 
         _this.mouseOverlay.on("mouseout", function (e) {

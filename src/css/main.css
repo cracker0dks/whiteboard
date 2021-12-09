@@ -192,3 +192,30 @@ button {
     padding: 5px;
     margin: 5px;
 }
+
+.picker_wrapper .picker_palette {
+  width: 100%;
+  order: 1;
+  display: flex;
+  margin-top: 0;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.picker_wrapper .picker_splotch {
+  /*flex:1;*/
+  width: 17px;
+  height: 19px;
+  margin: 4px 4px;
+  box-shadow: 0 0 0 1px silver;
+  border: 2px solid transparent;
+}
+
+.picker_wrapper .picker_splotch:hover {
+  border: 2px solid black;
+}
+
+.picker_wrapper .picker_splotch.picker_splotch_active {
+  border: 2px dotted yellow;
+}
+

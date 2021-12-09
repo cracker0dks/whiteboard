@@ -759,7 +759,15 @@ function initWhiteboard() {
         if (!localStorage.getItem("savedColors")) {
             localStorage.setItem(
                 "savedColors",
-                JSON.stringify(["rgba(255, 136, 0, 1)", "rgba(0, 0, 0, 1)", "rgba(0, 128, 0, 1)"])
+                JSON.stringify([
+                    "rgba(0, 0, 0, 1)",
+                    "rgba(255, 255, 255, 1)",
+                    "rgba(255, 0, 0, 1)",
+                    "rgba(0, 255, 0, 1)",
+                    "rgba(0, 0, 255, 1)",
+                    "rgba(255, 255, 0, 1)",
+                    "rgba(255, 0, 255, 1)",
+                ])
             );
         }
 

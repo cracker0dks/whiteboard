@@ -756,66 +756,119 @@ function initWhiteboard() {
             whiteboard.dropIndicator.hide();
         });
 
-        new Picker({
-            parent: $("#whiteboardColorpicker")[0],
-            color: "#000000",
-            onChange: function (color) {
-                whiteboard.setDrawColor(color.rgbaString);
-            },
-        });
+        if (!localStorage.getItem("savedColors")) {
+            localStorage.setItem(
+                "savedColors",
+                JSON.stringify(["rgba(255, 136, 0, 1)", "rgba(0, 0, 0, 1)", "rgba(0, 128, 0, 1)"])
+            );
+        }
 
-        new Picker({
-            parent: $("#textboxBackgroundColorPicker")[0],
-            color: "#f5f587",
-            bgcolor: "#f5f587",
-            onChange: function (bgcolor) {
-                whiteboard.setTextBackgroundColor(bgcolor.rgbaString);
-            },
-            onOpen: function(current_color){
-                this._domPalette = $('.picker_palette', this.domElement);
-                let palette = ["rgba(255, 136, 0, 1)", "rgba(0, 0, 0, 1)", "rgba(0, 128, 0, 1)"];
-                if ($(".picker_splotch", this._domPalette).length === 0) {
-                  for (let i = 0; i < palette.length; i++){
-                    let palette_Color_obj = new (this.color.constructor)(palette[i]);
-                    let splotch_div = $("<div></div>")
-                      .addClass("picker_splotch")
-                      .attr({
-                        "id": "s" + i,
-                      })
-                      .css("background-color", palette_Color_obj.hslaString)
-                      .on('click', {that: this, obj: palette_Color_obj}, function(e){
-                          e.data.that._setColor(e.data.obj.hslaString);
-                      });
+        let colorPickerOnOpen = function (current_color) {
+            this._domPalette = $(".picker_palette", this.domElement);
+            const palette = JSON.parse(localStorage.getItem("savedColors"));
+            if ($(".picker_splotch", this._domPalette).length === 0) {
+                for (let i = 0; i < palette.length; i++) {
+                    let palette_Color_obj = new this.color.constructor(palette[i]);
+                    let splotch_div = $(
+                        '<div style="position:relative;"><span position="' +
+                            i +
+                            '" class="removeColor" style="position:absolute; cursor:pointer; right:-1px; top:-4px;">x</span></div>'
+                    )
+                        .addClass("picker_splotch")
+                        .attr({
+                            id: "s" + i,
+                        })
+                        .css("background-color", palette_Color_obj.hslaString)
+                        .on("click", { that: this, obj: palette_Color_obj }, function (e) {
+                            e.data.that._setColor(e.data.obj.hslaString);
+                        });
+                    splotch_div.find(".removeColor").on("click", function (e) {
+                        e.preventDefault();
+                        $(this).parent("div").remove();
+                        palette.splice(i, 1);
+                        localStorage.setItem("savedColors", JSON.stringify(palette));
+                    });
                     this._domPalette.append(splotch_div);
-                  }
-                };
-            },
-            template: (function(){/*#####
-              <div class="picker_wrapper" tabindex="-1">
-                <div class="picker_arrow"></div>
-                <div class="picker_hue picker_slider">
-                  <div class="picker_selector"></div>
-                </div>
-                <div class="picker_sl">
-                  <div class="picker_selector"></div>
-                </div>
-                <div class="picker_alpha picker_slider">
-                  <div class="picker_selector"></div>
-                </div>
-                <div class="picker_palette"></div>
-                <div class="picker_editor">
-                  <input aria-label="Type a color name or hex value"/>
-                </div>
-                <div class="picker_sample"></div>
-                <div class="picker_done">
-                  <button>Ok</button>
-                </div>
-                <div class="picker_cancel">
-                  <button>Cancel</button>
-                </div>
-              </div>
-            #####*/}).toString().split(/#####/)[1]
-        });
+                }
+            }
+        };
+
+        const colorPickerTemplate = `
+        <div class="picker_wrapper" tabindex="-1">
+          <div class="picker_arrow"></div>
+          <div class="picker_hue picker_slider">
+            <div class="picker_selector"></div>
+          </div>
+          <div class="picker_sl">
+            <div class="picker_selector"></div>
+          </div>
+          <div class="picker_alpha picker_slider">
+            <div class="picker_selector"></div>
+          </div>
+          <div class="picker_palette"></div>
+          <div class="picker_editor">
+            <input aria-label="Type a color name or hex value"/>
+          </div>
+          <div class="picker_sample"></div>
+          <div class="picker_done">
+            <button>Ok</button>
+          </div>
+          <div class="picker_cancel">
+            <button>Cancel</button>
+          </div>
+        </div>
+      `;
+
+        let colorPicker = null;
+        function intColorPicker(initColor) {
+            if (colorPicker) {
+                colorPicker.destroy();
+            }
+            colorPicker = new Picker({
+                parent: $("#whiteboardColorpicker")[0],
+                color: initColor || "#000000",
+                onChange: function (color) {
+                    whiteboard.setDrawColor(color.rgbaString);
+                },
+                onDone: function (color) {
+                    let palette = JSON.parse(localStorage.getItem("savedColors"));
+                    if (!palette.includes(color.rgbaString)) {
+                        palette.push(color.rgbaString);
+                        localStorage.setItem("savedColors", JSON.stringify(palette));
+                    }
+                    intColorPicker(color.rgbaString);
+                },
+                onOpen: colorPickerOnOpen,
+                template: colorPickerTemplate,
+            });
+        }
+        intColorPicker();
+
+        let bgColorPicker = null;
+        function intBgColorPicker(initColor) {
+            if (bgColorPicker) {
+                bgColorPicker.destroy();
+            }
+            bgColorPicker = new Picker({
+                parent: $("#textboxBackgroundColorPicker")[0],
+                color: initColor || "#f5f587",
+                bgcolor: initColor || "#f5f587",
+                onChange: function (bgcolor) {
+                    whiteboard.setTextBackgroundColor(bgcolor.rgbaString);
+                },
+                onDone: function (bgcolor) {
+                    let palette = JSON.parse(localStorage.getItem("savedColors"));
+                    if (!palette.includes(color.rgbaString)) {
+                        palette.push(color.rgbaString);
+                        localStorage.setItem("savedColors", JSON.stringify(palette));
+                    }
+                    intBgColorPicker(color.rgbaString);
+                },
+                onOpen: colorPickerOnOpen,
+                template: colorPickerTemplate,
+            });
+        }
+        intBgColorPicker();
 
         // on startup select mouse
         shortcutFunctions.setTool_mouse();

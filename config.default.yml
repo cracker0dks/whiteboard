@@ -37,7 +37,7 @@ frontend:
   # draw the background grid to images on download ? (If True, even PNGs are also not transparent anymore) -- boolean
   drawBackgroundGrid: false
 
-  # Background Image; Can be "bg_grid.png" or "bg_dots.png"  -- string
+  # Background Image; Can be "bg_grid.png", "bg_dots.png" or "bg_white.png" (Place your background at assets/images if you want your own background)  -- string
   backgroundGridImage: "bg_grid.png"
 
   # Frontend performance tweaks

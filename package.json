@@ -62,7 +62,7 @@
     "css-loader": "^5.2.6",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^4.2.5",
-    "jest": "26.0.1",
+    "jest": "^27.4.7",
     "jquery": "^3.6.0",
     "jquery-ui": "^1.13.1",
     "keymage": "^1.1.3",

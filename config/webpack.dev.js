@@ -8,9 +8,7 @@ const devConfig = merge(baseConfig, {
     optimization: {
         minimize: false,
     },
-    plugins: [new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin()].concat(
-        baseConfig.plugins
-    ),
+    plugins: [new webpack.NoEmitOnErrorsPlugin()].concat(baseConfig.plugins),
 });
 
 module.exports = devConfig;

@@ -1,4 +1,4 @@
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const baseConfig = require("./webpack.base");
 const webpack = require("webpack");
 
@@ -8,11 +8,9 @@ const devConfig = merge(baseConfig, {
     optimization: {
         minimize: false,
     },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.NamedModulesPlugin(),
-        new webpack.NoEmitOnErrorsPlugin(),
-    ].concat(baseConfig.plugins),
+    plugins: [new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin()].concat(
+        baseConfig.plugins
+    ),
 });
 
 module.exports = devConfig;

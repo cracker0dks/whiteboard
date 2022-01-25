@@ -1070,7 +1070,7 @@ const whiteboard = {
         img.src = this.imgWithSrc(url).attr("src"); // or here - but consistent
     },
     undoWhiteboard: function (username) {
-        //Not call this directly because you will get out of sync whit others...
+        //Not call this directly because you will get out of sync whith others...
         var _this = this;
         if (!username) {
             username = _this.settings.username;
@@ -1100,7 +1100,7 @@ const whiteboard = {
         });
     },
     redoWhiteboard: function (username) {
-        //Not call this directly because you will get out of sync whit others...
+        //Not call this directly because you will get out of sync whith others...
         var _this = this;
         if (!username) {
             username = _this.settings.username;

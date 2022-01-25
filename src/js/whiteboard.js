@@ -894,7 +894,7 @@ const whiteboard = {
     drawImgToBackground(url, width, height, left, top, rotationAngle) {
         const px = (v) => Number(v).toString() + "px";
         this.imgContainer.append(
-            this.imageWithSrc(url).css({
+            this.imgWithSrc(url).css({
                 width: px(width),
                 height: px(height),
                 top: px(top),

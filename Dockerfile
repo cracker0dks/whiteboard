@@ -1,4 +1,4 @@
-FROM node:12 as base
+FROM node:14 as base
 
 # Create app directory
 RUN mkdir -p /opt/app
@@ -18,7 +18,7 @@ RUN npm run build
 # Final image
 #####################
 
-FROM node:12-alpine
+FROM node:14-alpine
 ENV NODE_ENV=prod
 
 MAINTAINER cracker0dks

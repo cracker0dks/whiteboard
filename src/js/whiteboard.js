@@ -6,6 +6,7 @@ import ThrottlingService from "./services/ThrottlingService";
 import ConfigService from "./services/ConfigService";
 import html2canvas from "html2canvas";
 import DOMPurify from "dompurify";
+import signaturePad from "./signature";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -118,6 +119,10 @@ const whiteboard = {
         this.ctx = this.canvas.getContext("2d");
         this.oldGCO = this.ctx.globalCompositeOperation;
 
+        // Load the signature pad
+        signaturePad.loadSignaturePad();
+        signaturePad.hide();
+        
         window.addEventListener("resize", function () {
             // Handle resize
             const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
@@ -126,6 +131,9 @@ const whiteboard = {
             _this.drawBuffer = [];
             _this.textContainer.empty();
             _this.loadData(dbCp); // draw old content in
+
+            // Handle signature pad resize
+            signaturePad.resizeCanvas();
         });
 
         $(_this.mouseOverlay).on("mousedown touchstart", function (e) {
@@ -1547,5 +1555,18 @@ function testImage(url, callback, timeout) {
         callback(false);
     }, timeout);
 }
+
+/**
+ * Signature interactions with whiteboard
+ */
+$("button[tool=signature]")[0].addEventListener("click", function(){        
+    signaturePad.toggle();
+});
+
+$("button[data-action=done]")[0].addEventListener("click", function(){
+    var dataURL = signaturePad.getDataURL(); //data:image/png;base64,.....     
+    whiteboard.addImgToCanvasByUrl(dataURL);
+    signaturePad.hide();    
+});
 
 export default whiteboard;

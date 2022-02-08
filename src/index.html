@@ -10,6 +10,25 @@
         <!---Whiteboard container -!-->
         <div id="whiteboardContainer"></div>
 
+        <div id="signature-pad" class="signature-pad">
+            <div class="signature-pad--body">
+              <canvas></canvas>
+            </div>
+            <div class="signature-pad--footer">
+              <div class="description">Sign above</div>
+        
+              <div class="signature-pad--actions">
+                <div>
+                  <button type="button" class="button clear" data-action="clear">Clear</button>                  
+                  <button type="button" class="button" data-action="undo">Undo</button>        
+                </div>
+                <div>
+                  <button type="button" class="button save" data-action="save-png">Save</button>                  
+                  <button type="button" class="button done" data-action="done">Done</button>
+                </div>
+              </div>
+            </div>
+        </div>
         <!---Toolbar -!-->
         <div id="toolbar" style="position: absolute; top: 10px; left: 10px">
             <div class="btn-group">
@@ -84,6 +103,9 @@
                 </button>
                 <button tool="eraser" title="take the eraser" type="button" class="whiteboard-tool">
                     <i class="fa fa-eraser"></i>
+                </button>                
+                <button tool="signature" title="draw a signature area" type="button" class="whiteboard-tool">
+                    <i class="fa fa-signature"></i>
                 </button>
             </div>
 

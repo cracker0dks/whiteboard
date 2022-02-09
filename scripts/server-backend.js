@@ -26,7 +26,7 @@ function startBackendServer(port) {
     var io = require("socket.io")(server, { path: "/ws-api" });
     WhiteboardInfoBackendService.start(io);
 
-    console.log("Webserver & socketserver running on port:" + port);
+    console.log("socketserver running on port:" + port);
 
     const { accessToken, enableWebdav } = config.backend;
 

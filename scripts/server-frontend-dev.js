@@ -1,10 +1,5 @@
 const devServerConfig = {
     hot: true,
-    inline: true,
-    stats: {
-        children: false,
-        maxModules: 0,
-    },
     proxy: {
         // proxies for the backend
         "/api": "http://localhost:3000",
@@ -22,7 +17,7 @@ function startFrontendDevServer(port) {
     const WebpackDevServer = require("webpack-dev-server");
     const config = require("../config/webpack.dev");
 
-    new WebpackDevServer(webpack(config), devServerConfig).listen(port, (err) => {
+    new WebpackDevServer(webpack(config), devServerConfig).start(port, (err) => {
         if (err) {
             console.log(err);
         }

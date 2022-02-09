@@ -31,7 +31,8 @@ const getArgs = function () {
 const getSafeFilePath = function (rootPath, singleFileSegment) {
     var filePath = path.join(rootPath, singleFileSegment);
     if (
-        path.dirname(filePath) !== rootPath ||
+        (path.dirname(filePath) !== rootPath &&
+            path.dirname(filePath) !== rootPath.replace("/", "\\")) ||
         path.basename(filePath) !== singleFileSegment ||
         path.normalize(singleFileSegment) !== singleFileSegment
     ) {

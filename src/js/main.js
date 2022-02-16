@@ -926,7 +926,7 @@ function initWhiteboard() {
             url: document.URL.substr(0, document.URL.lastIndexOf("/")) + "/api/upload",
             data: {
                 imagedata: base64data,
-                whiteboardId: whiteboardId,
+                wid: whiteboardId,
                 date: date,
                 at: accessToken,
             },
@@ -952,7 +952,7 @@ function initWhiteboard() {
             url: document.URL.substr(0, document.URL.lastIndexOf("/")) + "/api/upload",
             data: {
                 imagedata: base64data,
-                whiteboardId: whiteboardId,
+                wid: whiteboardId,
                 date: date,
                 at: accessToken,
                 webdavaccess: JSON.stringify(webdavaccess),

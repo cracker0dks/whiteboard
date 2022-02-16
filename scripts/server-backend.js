@@ -102,7 +102,7 @@ function startBackendServer(port) {
      *
      * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
      * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
-     * @apiParam {Number} current timestamp
+     * @apiParam {Number} date current timestamp
      * @apiParam {Boolean} webdavaccess set true to upload to webdav (Optional; Only if activated for this server)
      * @apiParam {String} imagedata The imagedata base64 encoded
      *
@@ -212,7 +212,7 @@ function startBackendServer(port) {
     function progressUploadFormData(formData, callback) {
         console.log("Progress new Form Data");
         const fields = escapeAllContentStrings(formData.fields);
-        const wid = fields["whiteboardId"];
+        const wid = fields["wid"];
         if (ReadOnlyBackendService.isReadOnly(wid)) return;
 
         const readOnlyWid = ReadOnlyBackendService.getReadOnlyId(wid);

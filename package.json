@@ -41,7 +41,9 @@
     "jsdom": "^14.0.0",
     "jsprim": "^1.4.2",
     "socket.io": "^4.4.1",
-    "socket.io-client": "^4.4.1",
+    "signature_pad": "^4.0.1",
+    "socket.io": "^4.4.0",
+    "socket.io-client": "^4.4.0",
     "uuid": "^8.1.0",
     "webdav": "^4.8.0"
   },

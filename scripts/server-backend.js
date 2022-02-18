@@ -102,8 +102,8 @@ function startBackendServer(port) {
      *
      * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
      * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
-     * @apiParam {Number} date current timestamp
-     * @apiParam {Boolean} webdavaccess set true to upload to webdav (Optional; Only if activated for this server)
+     * @apiParam {Number} [date] current timestamp (This is for the filename on the server; Don't set it if not sure)
+     * @apiParam {Boolean} [webdavaccess] set true to upload to webdav (Optional; Only if activated for this server)
      * @apiParam {String} imagedata The imagedata base64 encoded
      *
      * @apiSuccess {String} body returns "done"
@@ -173,14 +173,14 @@ function startBackendServer(port) {
      * "removeTextbox",
      * "setTextboxPosition",
      * "setTextboxFontSize",
-     * "setTextboxFontColor",
+     * "setTextboxFontColor"
      * @apiParam {String} [username] The username performing this action. Only relevant for the undo/redo function
      * @apiParam {Number} [draw] Only has a function if t is set to "addImgBG". Set 1 to draw on canvas; 0  to draw into background
      * @apiParam {String} [url] Only has a function if t is set to "addImgBG", then it has to be set to: [rootUrl]/uploads/[ReadOnlyWid]/[ReadOnlyWid]_[date].png
      * @apiParam {String} [c] Color: Only used if color is needed (pen, rect, circle, addTextBox ... )
      * @apiParam {String} [th] Thickness: Only used if Thickness is needed (pen, rect ... )
      * @apiParam {Number[]} d has different function on every tool you use:
-     * pen: [width, height, left, top, rotation]
+     * fx. pen or addImgBG: [width, height, left, top, rotation]
      *
      * @apiSuccess {String} body returns "done" as text
      * @apiError {Number} 401 Unauthorized

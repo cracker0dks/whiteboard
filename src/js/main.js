@@ -321,6 +321,11 @@ function initWhiteboard() {
                 } else {
                     $("#textboxBackgroundColorPickerBtn").hide();
                 }
+                let savedThickness = localStorage.getItem("item_thickness_" + activeTool);
+                if (savedThickness) {
+                    whiteboard.setStrokeThickness(savedThickness);
+                    $("#whiteboardThicknessSlider").val(savedThickness);
+                }
             });
 
         // upload image button
@@ -584,7 +589,16 @@ function initWhiteboard() {
         $("#whiteboardThicknessSlider").on("input", function () {
             if (ReadOnlyService.readOnlyActive) return;
             whiteboard.setStrokeThickness($(this).val());
+            let activeTool = $(".whiteboard-tool.active").attr("tool");
+            localStorage.setItem("item_thickness_" + activeTool, $(this).val());
         });
+
+        let activeTool = $(".whiteboard-tool.active").attr("tool");
+        let savedThickness = localStorage.getItem("item_thickness_" + activeTool);
+        if (savedThickness) {
+            whiteboard.setStrokeThickness(savedThickness);
+            $("#whiteboardThicknessSlider").val(savedThickness);
+        }
 
         // handle drag&drop
         var dragCounter = 0;

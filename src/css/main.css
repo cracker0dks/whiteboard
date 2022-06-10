@@ -10,17 +10,32 @@ body {
     overflow: hidden;
     font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica,
         Arial, sans-serif;
+    /* Prevent document pinch-zoom & touch-hold-to-highlight */
+    touch-action: none;
+
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
-#whiteboardContainer {
-    height: calc(var(--vh, 1vh) * 100);
-    width: 100%;
+#whiteboardWrapper {
+    overflow: hidden;
+    height: 100%;
 }
 
 .btn-group button {
     background: transparent;
-    border: 2px solid #636060;
-    margin: -1px;
+    border: none;
+    margin: 5px;
     /* Green border */
     color: black;
     /* White text */
@@ -31,7 +46,7 @@ body {
     float: left;
     /* Float the buttons side by side */
 }
-
+/*
 @media (max-device-width: 1024px) {
     .btn-group button {
         font-size: 3em;
@@ -55,7 +70,7 @@ body {
         width: 25px;
     }
 }
-
+*/
 button::-moz-focus-inner {
     border: 0;
 }
@@ -97,9 +112,7 @@ button {
 }
 
 .btn-group {
-    background-color: #808080ab;
-    margin-left: 5px;
-    margin-bottom: 5px;
+    background-color: transparent;
     float: left;
     position: relative;
 }
@@ -217,4 +230,61 @@ button {
 
 .picker_wrapper .picker_splotch.picker_splotch_active {
     border: 2px dotted yellow;
+}
+
+#toolbar {
+    background-color: #fafafa;
+    box-shadow: 10px 10px 10px #33333350;
+    border-radius: 25px;
+    padding: 0 1em;
+    pointer-events: all;
+}
+
+.toolbar {
+    bottom: 30px;
+    position: fixed;
+}
+
+.flexContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    width: 100%;
+    overflow: visible;
+    pointer-events: none;
+    background: none;
+}
+
+.flexPlaceholder {
+    flex-grow: 1;
+    height: 0px;
+    overflow: visible;
+    pointer-events: none;
+    background: none;
+}
+
+@media (max-device-width: 768px) {
+    .btn-group button {
+        font-size: 3em;
+        height: 150px;
+        width: 150px;
+    }
+    .minGroup {
+        width: 80px;
+    }
+}
+
+@media (min-device-width: 768px) {
+    .btn-group button {
+        font-size: 1.4em;
+        height: 60px;
+        width: 60px;
+    }
+    .minGroup {
+        width: 30px;
+    }
+    #toolbar {
+        border-radius: 35px;
+    }
 }

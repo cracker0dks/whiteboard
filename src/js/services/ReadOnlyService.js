@@ -36,6 +36,7 @@ class ReadOnlyService {
         $(".whiteboard-edit-group").addClass("group-disabled");
         $("#whiteboardUnlockBtn").hide();
         $("#whiteboardLockBtn").show();
+        $("#toolbar").hide();
     }
 
     /**
@@ -51,6 +52,7 @@ class ReadOnlyService {
         $(".whiteboard-edit-group").removeClass("group-disabled");
         $("#whiteboardUnlockBtn").show();
         $("#whiteboardLockBtn").hide();
+        $("#toolbar").show();
 
         // restore previously selected tool
         const { previousToolHtmlElem } = this;

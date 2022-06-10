@@ -16,6 +16,60 @@ const pdfjsLib = require("pdfjs-dist");
 const urlParams = new URLSearchParams(window.location.search);
 let whiteboardId = urlParams.get("whiteboardid");
 const randomid = urlParams.get("randomid");
+const width = urlParams.get("width") || 2000;
+const height = urlParams.get("height") || 2000;
+const extendedTools = Boolean(urlParams.get("extendedTools"));
+const scaleFactor = urlParams.get("scaleFactor") || "";
+
+if (extendedTools == true) {
+    $("#wbTextElements").append(
+        '<button tool="text" title="write text" type="button" class="whiteboard-tool">' +
+            '<i class="fas fa-font"></i>' +
+            "</button>" +
+            '<button tool="stickynote" title="place a sticky note" type="button" class="whiteboard-tool">' +
+            '<i class="fas fa-sticky-note"></i>' +
+            "</button>" +
+            "<button" +
+            'id="textboxBackgroundColorPickerBtn"' +
+            'style="display: none"' +
+            'title="text background-color"' +
+            ">" +
+            "<div" +
+            'id="textboxBackgroundColorPicker"' +
+            'style="' +
+            "width: 26px;" +
+            "height: 23px;" +
+            "border-radius: 3px;" +
+            "border: 1px solid darkgrey;" +
+            "left: -4px;" +
+            "top: -2px;" +
+            "position: relative;" +
+            '"' +
+            'data-color="#f5f587"' +
+            "></div>" +
+            "</button>"
+    );
+}
+
+if (scaleFactor != "") {
+    //var scaleFactor = Math.round(Number(scaleFactorPar)*1000)/1000;
+    var scaleStyle =
+        "-ms-transform: scale(" +
+        scaleFactor +
+        "); -moz-transform: scale(" +
+        scaleFactor +
+        "); -o-transform: scale(" +
+        scaleFactor +
+        "); -webkit-transform: scale(" +
+        scaleFactor +
+        "); transform: scale(" +
+        scaleFactor +
+        "); ";
+    var toolbarContainer = document.getElementById("toolbarContainer");
+    toolbarContainer.style = scaleStyle;
+    //var toolbar = document.getElementById("toolbar");
+    toolbarContainer.style.bottom = String(30 * scaleFactor) + "px";
+}
 
 if (randomid) {
     whiteboardId = uuidv4();
@@ -166,6 +220,8 @@ function initWhiteboard() {
                 signaling_socket.emit("drawToWhiteboard", content);
                 InfoService.incrementNbMessagesSent();
             },
+            width: width,
+            height: height,
         });
 
         // request whiteboard from server
@@ -320,11 +376,6 @@ function initWhiteboard() {
                     $("#textboxBackgroundColorPickerBtn").show();
                 } else {
                     $("#textboxBackgroundColorPickerBtn").hide();
-                }
-                let savedThickness = localStorage.getItem("item_thickness_" + activeTool);
-                if (savedThickness) {
-                    whiteboard.setStrokeThickness(savedThickness);
-                    $("#whiteboardThicknessSlider").val(savedThickness);
                 }
             });
 
@@ -589,16 +640,7 @@ function initWhiteboard() {
         $("#whiteboardThicknessSlider").on("input", function () {
             if (ReadOnlyService.readOnlyActive) return;
             whiteboard.setStrokeThickness($(this).val());
-            let activeTool = $(".whiteboard-tool.active").attr("tool");
-            localStorage.setItem("item_thickness_" + activeTool, $(this).val());
         });
-
-        let activeTool = $(".whiteboard-tool.active").attr("tool");
-        let savedThickness = localStorage.getItem("item_thickness_" + activeTool);
-        if (savedThickness) {
-            whiteboard.setStrokeThickness(savedThickness);
-            $("#whiteboardThicknessSlider").val(savedThickness);
-        }
 
         // handle drag&drop
         var dragCounter = 0;
@@ -862,6 +904,7 @@ function initWhiteboard() {
                 },
                 onOpen: colorPickerOnOpen,
                 template: colorPickerTemplate,
+                popup: "top",
             });
         }
         intColorPicker();
@@ -888,6 +931,7 @@ function initWhiteboard() {
                 },
                 onOpen: colorPickerOnOpen,
                 template: colorPickerTemplate,
+                popup: "top",
             });
         }
         intBgColorPicker();

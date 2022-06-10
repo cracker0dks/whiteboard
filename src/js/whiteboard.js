@@ -6,6 +6,7 @@ import ThrottlingService from "./services/ThrottlingService";
 import ConfigService from "./services/ConfigService";
 import html2canvas from "html2canvas";
 import DOMPurify from "dompurify";
+import Hammer from "hammerjs";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -68,19 +69,19 @@ const whiteboard = {
 
         //background grid (repeating image) and smallest screen indication
         _this.backgroundGrid = $(
-            `<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url('${_this.settings["backgroundGridUrl"]}'); height: 100%; width: 100%;"></div>`
+            `<div style="position: absolute; left:0px; top:0px; opacity: 0.2; background-image:url('${_this.settings["backgroundGridUrl"]}'); height: ${_this.settings["height"]}px; width: ${_this.settings["width"]}px;"></div>`
         );
         // container for background images
         _this.imgContainer = $(
-            '<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>'
+            `<div style="position: absolute; left:0px; top:0px; height: ${_this.settings["height"]}px; width: ${_this.settings["width"]}px;"></div>`
         );
         // whiteboard canvas
         _this.canvasElement = $(
-            '<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0; cursor:crosshair;"></canvas>'
+            '<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0px; cursor:crosshair;"></canvas>'
         );
         // SVG container holding drawing or moving previews
         _this.svgContainer = $(
-            '<svg style="position: absolute; top:0px; left:0px;" width="100%" height="100%"></svg>'
+            `<svg style="position: absolute; top:0px; left:0px;" width='${_this.settings["width"]}' height='${_this.settings["height"]}'></svg>`
         );
         // drag and drop indicator, hidden by default
         _this.dropIndicator = $(
@@ -88,15 +89,15 @@ const whiteboard = {
         );
         // container for other users cursors
         _this.cursorContainer = $(
-            '<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>'
+            `<div style="position: absolute; left:0px; top:0px; height: ${_this.settings["height"]}px; width: ${_this.settings["width"]}px;"></div>`
         );
         // container for texts by users
         _this.textContainer = $(
-            '<div class="textcontainer" style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>'
+            `<div class="textcontainer" style="position: absolute; left:0px; top:0px; height: ${_this.settings["height"]}px; width: ${_this.settings["width"]}px; cursor:text;"></div>`
         );
         // mouse overlay for draw callbacks
         _this.mouseOverlay = $(
-            '<div id="mouseOverlay" style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>'
+            `<div id="mouseOverlay" style="cursor:none; position: absolute; left:0px; top:0px; height: ${_this.settings["height"]}px; width: ${_this.settings["width"]}px;"></div>`
         );
 
         $(whiteboardContainer)
@@ -109,30 +110,49 @@ const whiteboard = {
             .append(_this.textContainer)
             .append(_this.mouseOverlay);
 
+        document.getElementById("whiteboardContainer").style +=
+            "; width: " +
+            _this.settings["width"] +
+            "px; height: " +
+            _this.settings["height"] +
+            "px; ";
+
         // render newly added icons
         dom.i2svg();
 
         this.canvas = $("#whiteboardCanvas")[0];
-        this.canvas.height = $(window).height();
-        this.canvas.width = $(window).width();
+        this.canvas.height = this.settings["height"];
+        this.canvas.width = this.settings["width"];
+        this.container = $("#whiteboardContainer")[0];
+        this.container.height = this.settings["height"];
+        this.container.width = this.settings["width"];
         this.ctx = this.canvas.getContext("2d");
         this.oldGCO = this.ctx.globalCompositeOperation;
+
+        const mouseOverlay = new Hammer.Manager(_this.mouseOverlay[0], {});
+        mouseOverlay.add(new Hammer.Pan({ threshold: 0 }));
+
+        var whiteboardContainer = document.getElementById("whiteboardContainer");
+        var whiteboardWrapper = document.getElementById("whiteboardWrapper");
+        addZoomListeners(whiteboardWrapper, whiteboardContainer);
 
         window.addEventListener("resize", function () {
             // Handle resize
             const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
-            _this.canvas.width = $(window).width();
-            _this.canvas.height = $(window).height(); // Set new canvas height
+            //_this.canvas.width = $(window).width();
+            //_this.canvas.height = $(window).height(); // Set new canvas height
             _this.drawBuffer = [];
             _this.textContainer.empty();
             _this.loadData(dbCp); // draw old content in
         });
 
-        $(_this.mouseOverlay).on("mousedown touchstart", function (e) {
+        mouseOverlay.on("panstart", function (e) {
+            console.log("mouseOverlay panstart");
             _this.mousedown(e);
         });
 
         _this.mousedown = function (e) {
+            console.log(e);
             if (_this.imgDragActive || _this.drawFlag) {
                 return;
             }
@@ -228,7 +248,8 @@ const whiteboard = {
             _this.triggerMouseMove(e);
         });
 
-        _this.mouseOverlay.on("mouseup touchend touchcancel", function (e) {
+        mouseOverlay.on("panend", function (e) {
+            console.log("mouseOverlay panend");
             _this.mouseup(e);
         });
 
@@ -417,6 +438,308 @@ const whiteboard = {
             _this.triggerMouseOver();
         });
 
+        function addZoomListeners(parent, child) {
+            //overflow needs hidden
+
+            let posX = 0,
+                posY = 0,
+                scale = 1,
+                last_scale = 1,
+                last_posX = 0,
+                last_posY = 0,
+                max_pos_x = 0,
+                max_pos_y = 0,
+                min_pos_x = 0,
+                min_pos_y = 0,
+                scale_offset_x = 0,
+                scale_offset_y = 0,
+                zoom_offset_x = 0,
+                zoom_offset_y = 0,
+                zoom_correctMiddle_x = 0,
+                zoom_correctMiddle_y = 0,
+                zoom_pos_x = 0,
+                zoom_pos_y = 0,
+                transform = "",
+                parentWidth = parent.clientWidth,
+                parentHeight = parent.clientHeight,
+                childWidth = parentWidth / scale,
+                childHeight = parentHeight / scale,
+                lastTool;
+
+            const wbWidth = _this.settings["width"],
+                wbHeight = _this.settings["height"],
+                el = child,
+                scale_max = 4,
+                ua = window.navigator.userAgent,
+                iOS = !!ua.match(/iP(ad|od|hone)/i),
+                webkit = !!ua.match(/WebKit/i),
+                iOSSafari = iOS && webkit && !ua.match(/CriOS/i),
+                isIpadOS =
+                    navigator.maxTouchPoints &&
+                    navigator.maxTouchPoints > 2 &&
+                    /MacIntel/.test(navigator.platform),
+                isIOS = /iPad|iPhone|iPod/.test(navigator.platform) || isIpadOS;
+
+            fitContainerToScreenSize();
+
+            /* LOGGING */
+            console.group("zooming");
+            function logZoom() {
+                let zoomInfo = {
+                    //ev: ev,
+                    scale: scale,
+                    translate: {
+                        pos: { x: posX, y: posY },
+                        scale_offset: { x: scale_offset_x, y: scale_offset_y },
+                        zoom_offset: { x: zoom_offset_x, y: zoom_offset_y },
+                        zoom_correctMiddle: { x: zoom_correctMiddle_x, y: zoom_correctMiddle_y },
+                        zoom_pos: { x: zoom_pos_x, y: zoom_pos_y },
+                    },
+                    max: { x: max_pos_x, y: max_pos_y },
+                    min: { x: min_pos_x, y: min_pos_y },
+                    element: { width: el.clientWidth, height: el.clientHeight },
+                    parent: {
+                        width: parent.clientWidth / scale,
+                        height: parent.clientHeight / scale,
+                    },
+                    window: { width: window.innerWidth, height: window.innerHeight },
+                };
+                console.log(zoomInfo);
+            }
+
+            console.log(ua);
+            console.log(webkit + " " + iOSSafari + " " + isIOS + " " + isIpadOS);
+            // Safari Mac
+            if (webkit && !isIOS) {
+                parent.addEventListener("gesturestart", (ev) => {
+                    ev.preventDefault();
+                    pinchstart();
+                    applyTransform();
+                });
+                parent.addEventListener("gesturechange", (ev) => {
+                    ev.preventDefault();
+                    scale = Math.max(0.999, Math.min(last_scale * ev.scale, scale_max));
+                    pinch();
+                    applyTransform();
+                });
+                parent.addEventListener("gestureend", (ev) => {
+                    ev.preventDefault();
+                    pinchend();
+                    applyTransform();
+                });
+            }
+            //window.addEventListener("scroll", (ev) => ev.preventDefault());
+
+            const parentHammer = new Hammer.Manager(parent, {});
+            parentHammer.add(new Hammer.Pan({ threshold: 0 }));
+            parentHammer.add(new Hammer.Pinch());
+            parentHammer.get("pan").set({
+                enable: true,
+                direction: Hammer.DIRECTION_ALL,
+            });
+
+            mouseOverlay.get("pan").requireFailure(parentHammer.get("pinch"));
+
+            parentHammer.on("panstart pan panend", () => {
+                panstart();
+                applyTransform();
+            });
+
+            parentHammer.on("pan", (ev) => {
+                if (_this.tool === "mouse") {
+                    pan(ev);
+                }
+                applyTransform();
+            });
+
+            parentHammer.on("panend", () => {
+                panend();
+                applyTransform();
+            });
+
+            parentHammer.on("pinchstart", (ev) => {
+                console.log("parentHammer pinchstart");
+                pinchstart();
+                applyTransform();
+            });
+
+            parentHammer.on("pinch", (ev) => {
+                scale = Math.max(0.999, Math.min(last_scale * ev.scale, scale_max));
+                pinch();
+                applyTransform();
+            });
+
+            parentHammer.on("pinchend", (ev) => {
+                console.log("parentHammer pinchend");
+                pinchend();
+                applyTransform();
+            });
+
+            function correctZoomPosition() {
+                let parentWidth = parent.clientWidth;
+                let parentHeight = parent.clientHeight;
+                let childWidth = parentWidth / scale;
+                let childHeight = parentHeight / scale;
+
+                let offset_x = -zoom_correctMiddle_x; //scale_offset_x + zoom_correctMiddle_x + zoom_offset_x;
+                let offset_y = -zoom_correctMiddle_y; //scale_offset_y + zoom_correctMiddle_y + zoom_offset_y;
+
+                max_pos_x = offset_x; //(parWidth * (scale-1))/scale;//(((scale - 1) * elWidth / 2)/scale^2); //el.clientWidth
+                max_pos_y = offset_y; //(parHeight * (scale-1))/scale;//(((scale - 1) * elHeight / 2)/scale^2); //el.clientHeight
+                min_pos_x = -(wbWidth - childWidth + zoom_correctMiddle_x); //-max_pos_x;//scale_offset_x; //el.clientWidth
+                min_pos_y = -(wbHeight - childHeight + zoom_correctMiddle_y); //-max_pos_y;//scale_offset_y; //el.clientHeight
+
+                zoom_pos_x = zoom_pos_x < max_pos_x ? zoom_pos_x : max_pos_x;
+                zoom_pos_x = zoom_pos_x > min_pos_x ? zoom_pos_x : min_pos_x;
+
+                zoom_pos_y = zoom_pos_y < max_pos_y ? zoom_pos_y : max_pos_y;
+                zoom_pos_y = zoom_pos_y > min_pos_y ? zoom_pos_y : min_pos_y;
+            }
+            function fitContainerToScreenSize() {
+                parentWidth = parent.clientWidth;
+                parentHeight = parent.clientHeight;
+                childWidth = parentWidth / scale;
+                childHeight = parentHeight / scale;
+                child.style.width = childWidth + "px";
+                child.style.height = childHeight + "px";
+            }
+            function pinchstart() {
+                /*
+                _this.triggerMouseOut();
+                _this.triggerMouseOver();
+                _this.triggerMouseMove({ offsetX: _this.prevPos.x, offsetY: _this.prevPos.y });*/
+            }
+            function pinch() {
+                fitContainerToScreenSize();
+
+                scale_offset_x = -(((scale - 1) * childWidth) / 2 / scale); // aligns upper left corner correct with window upper left corner when zoomed
+                scale_offset_y = -(((scale - 1) * childHeight) / 2 / scale);
+                zoom_offset_x = (scale - 1) * (1 / scale) * childWidth; // - (elWidth*(scale-1)*(4/7));   //sets Zoom to upper left corner
+                zoom_offset_y = (scale - 1) * (1 / scale) * childHeight; //- (elWidth*(scale-1)*(3/7));
+                zoom_correctMiddle_x = -((scale - 1) * 0.5 * childWidth); // sets zoom from upper left corner to middle
+                zoom_correctMiddle_y = -((scale - 1) * 0.5 * childHeight);
+
+                correctZoomPosition();
+            }
+            function pinchend() {
+                last_scale = scale;
+                last_posX = zoom_pos_x;
+                last_posY = zoom_pos_y;
+                //last_posX = zoom_pos_x < max_pos_x ? zoom_pos_x : max_pos_x;
+                //last_posY = zoom_pos_y < max_pos_y ? zoom_pos_y : max_pos_y;
+                logZoom();
+            }
+            function panstart() {}
+            function pan(ev) {
+                fitContainerToScreenSize();
+
+                zoom_pos_x = last_posX + ev.deltaX / scale;
+                zoom_pos_y = last_posY + ev.deltaY / scale;
+
+                correctZoomPosition();
+            }
+            function panend() {
+                // last_posX = posX < max_pos_x ? posX : max_pos_x;
+                // last_posY = posY < max_pos_y ? posY : max_pos_y;
+                last_scale = scale;
+                last_posX = zoom_pos_x;
+                last_posY = zoom_pos_y;
+
+                logZoom();
+            }
+            function doubletap(ev) {
+                //transform = "scale3d(2, 2, 1) " + "translate3d(0, 0, 0) ";
+                //scale = 2;
+                //last_scale = 2;
+                console.log(
+                    window
+                        .getComputedStyle(el, null)
+                        .getPropertyValue("-webkit-transform")
+                        .toString()
+                );
+                try {
+                    if (
+                        window
+                            .getComputedStyle(el, null)
+                            .getPropertyValue("-webkit-transform")
+                            .toString() != "matrix(1, 0, 0, 1, 0, 0)"
+                    ) {
+                        transform = "scale3d(1, 1, 1) " + "translate3d(0, 0, 0) ";
+                        scale = 1;
+                        last_scale = 1;
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+                el.style.webkitTransform = transform;
+                transform = "";
+            }
+            function mousetouch(ev) {
+                //console.log(ev);
+                if (scale != 1) {
+                    let parWidth = parent.clientWidth / scale;
+                    let parHeight = parent.clientHeight / scale;
+                    el.style.width = parWidth + "px";
+                    el.style.height = parHeight + "px";
+                    let elWidth = el.clientWidth;
+                    let elHeight = el.clientHeight;
+                    //posX = last_posX + ev.deltaX;
+                    //posY = last_posY + ev.deltaY;
+                    max_pos_x = 10000; //(((scale - 1) * elWidth / 2)/scale^2); //el.clientWidth
+                    max_pos_y = 10000; //(((scale - 1) * elHeight / 2)/scale^2); //el.clientHeight
+                    min_pos_x = 0; //scale_offset_x; //el.clientWidth
+                    min_pos_y = 0; //scale_offset_y; //el.clientHeight
+                    if (posX > max_pos_x) {
+                        posX = max_pos_x;
+                    } else if (posX < min_pos_x) {
+                        posX = min_pos_x;
+                    } else {
+                        zoom_pos_x = ev.pageX * scale;
+                    }
+
+                    if (posY > max_pos_y) {
+                        posY = max_pos_y;
+                    } else if (posY < min_pos_y) {
+                        posY = min_pos_y;
+                    } else {
+                        zoom_pos_y = ev.pageY * scale;
+                    }
+
+                    posX = scale_offset_x + zoom_offset_x + zoom_correctMiddle_x + zoom_pos_x;
+                    posY = scale_offset_y + zoom_offset_y + zoom_correctMiddle_y + zoom_pos_y;
+                    //console.log(max_pos_x + "; " + max_pos_y);
+                    //console.log(posX + "; " + posY);
+                }
+            }
+            function mousetouchend(ev) {}
+
+            function applyTransform(ev) {
+                posX = scale_offset_x + zoom_offset_x + zoom_correctMiddle_x + zoom_pos_x;
+                posY = scale_offset_y + zoom_offset_y + zoom_correctMiddle_y + zoom_pos_y;
+
+                if (scale !== 1) {
+                    transform =
+                        "scale3d(" +
+                        scale +
+                        ", " +
+                        scale +
+                        ", 1)" +
+                        "translate3d(" +
+                        posX +
+                        "px," +
+                        posY +
+                        "px, 0) ";
+                } else {
+                    transform = "translate3d(" + posX + "px," + posY + "px, 0) ";
+                }
+
+                if (transform) {
+                    el.style.webkitTransform = transform;
+                }
+            }
+            console.groupEnd();
+        }
+
         // On text container click (Add a new textbox)
         _this.textContainer.on("click", function (e) {
             const currentPos = Point.fromEvent(e);
@@ -469,7 +792,12 @@ const whiteboard = {
 
         return new Point(outX, outY);
     },
-    triggerMouseMove: function (e) {
+    triggerMouseMove: function (callerEvent) {
+        let e;
+        // check for HammerJS Event
+        if (callerEvent.srcEvent) e = callerEvent.srcEvent;
+        else e = callerEvent;
+
         const _this = this;
         if (_this.imgDragActive) {
             return;

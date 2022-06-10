@@ -61,7 +61,7 @@ The following are predefined shortcuts that you can override in the file [./src/
 
 | Result                                                           | Windows and Linux    | macOS                   |
 | ---------------------------------------------------------------- | -------------------- | ----------------------- |
-| Clear the whiteboard                                             | Ctrl + Shift + Z     | Command + Shift + Z     |
+| Clear the whiteboard                                             | Ctrl + Shift + Del   | Command + Shift + Del   |
 | Undo your last step                                              | Ctrl + Z             | Command + Z             |
 | Redo your last undo                                              | Ctrl + Y             | Command + Y             |
 | Select an area                                                   | Ctrl + X             | Command + X             |

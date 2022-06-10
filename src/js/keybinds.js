@@ -7,7 +7,7 @@
 
 const keybinds = {
     // 'key(s)' : 'function',
-    "defmod-shift-z": "clearWhiteboard",
+    "defmod-shift-del": "clearWhiteboard",
     "defmod-z": "undoStep",
     "defmod-y": "redoStep",
     "defmod-x": "setTool_recSelect",

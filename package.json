@@ -1,6 +1,6 @@
 {
   "name": "whiteboard",
-  "version": "1.0.0",
+  "version": "1.7.0",
   "description": "Collaborative Whiteboard / Sketchboard",
   "main": "server.js",
   "directories": {},
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cracker0dks/whiteboard"
+    "url": "https://github.com/LILA-SCHULE/whiteboard"
   },
   "keywords": [
     "whiteboard",
@@ -77,7 +77,7 @@
     "webpack-dev-server": "^4.7.3",
     "webpack-merge": "^5.8.0"
   },
-  "author": "Cracker0dks",
+  "author": "LILA-SCHULE",
   "license": "MIT",
   "private": true,
   "browserslist": {

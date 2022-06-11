@@ -675,9 +675,19 @@ const whiteboard = {
         _this.penSmoothLastCoords.push(X, Y);
         if (_this.penSmoothLastCoords.length >= 8) {
             _this.drawPenSmoothLine(_this.penSmoothLastCoords, _this.drawcolor, _this.thickness);
+            let sendArray = [];
+            for (let i = 0; i < _this.penSmoothLastCoords.length; i++) {
+                sendArray.push(_this.penSmoothLastCoords[i]);
+                console.log(sendArray);
+                if (i % 2 == 0) {
+                    sendArray[i] -= this.viewCoords.x;
+                } else {
+                    sendArray[i] -= this.viewCoords.y;
+                }
+            }
             _this.sendFunction({
                 t: _this.tool,
-                d: _this.penSmoothLastCoords,
+                d: sendArray,
                 c: _this.drawcolor,
                 th: _this.thickness,
             });

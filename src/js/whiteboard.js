@@ -244,7 +244,12 @@ const whiteboard = {
             _this.ctx.globalCompositeOperation = _this.oldGCO;
 
             let currentPos = Point.fromEvent(e);
-
+            if (_this.tool !== "hand") {
+                console.log(currentPos.x, currentPos.y, _this.viewCoords.x, _this.viewCoords.y);
+                currentPos.x += _this.viewCoords.x;
+                currentPos.y += _this.viewCoords.y;
+                console.log(currentPos.x, currentPos.y);
+            }
             if (currentPos.isZeroZero) {
                 _this.sendFunction({
                     t: "cursor",
@@ -285,6 +290,7 @@ const whiteboard = {
                 _this.drawBuffer = [];
                 _this.textContainer.empty();
                 _this.loadData(dbCp); // draw old content in
+
                 console.log(_this.viewCoords.x, _this.viewCoords.y);
             } else if (_this.tool === "pen") {
                 _this.pushPointSmoothPen(currentPos.x, currentPos.y);
@@ -493,6 +499,12 @@ const whiteboard = {
         }
 
         let currentPos = Point.fromEvent(e);
+        if (_this.tool !== "hand") {
+            console.log(currentPos.x, currentPos.y, _this.viewCoords.x, _this.viewCoords.y);
+            currentPos.x -= _this.viewCoords.x;
+            currentPos.y -= _this.viewCoords.y;
+            console.log(currentPos.x, currentPos.y);
+        }
 
         window.requestAnimationFrame(function () {
             // update position

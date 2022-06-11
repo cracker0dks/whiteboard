@@ -38,6 +38,14 @@ class Point {
         return this.#x === 0 && this.#y === 0;
     }
 
+    set x(newX) {
+        this.#x = newX;
+    }
+
+    set y(newY) {
+        this.#y = newY;
+    }
+
     /**
      * Get a Point object from an event
      * @param {event} e

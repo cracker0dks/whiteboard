@@ -244,12 +244,10 @@ const whiteboard = {
             _this.ctx.globalCompositeOperation = _this.oldGCO;
 
             let currentPos = Point.fromEvent(e);
-            if (_this.tool !== "hand") {
-                console.log(currentPos.x, currentPos.y, _this.viewCoords.x, _this.viewCoords.y);
-                currentPos.x += _this.viewCoords.x;
-                currentPos.y += _this.viewCoords.y;
-                console.log(currentPos.x, currentPos.y);
-            }
+            // if (_this.tool !== "hand") {
+            //     currentPos.x += _this.viewCoords.x;
+            //     currentPos.y += _this.viewCoords.y;
+            // }
             if (currentPos.isZeroZero) {
                 _this.sendFunction({
                     t: "cursor",
@@ -499,12 +497,6 @@ const whiteboard = {
         }
 
         let currentPos = Point.fromEvent(e);
-        if (_this.tool !== "hand") {
-            console.log(currentPos.x, currentPos.y, _this.viewCoords.x, _this.viewCoords.y);
-            currentPos.x -= _this.viewCoords.x;
-            currentPos.y -= _this.viewCoords.y;
-            console.log(currentPos.x, currentPos.y);
-        }
 
         window.requestAnimationFrame(function () {
             // update position
@@ -585,6 +577,8 @@ const whiteboard = {
         });
 
         ThrottlingService.throttle(currentPos, () => {
+            currentPos.x -= _this.viewCoords.x;
+            currentPos.y -= _this.viewCoords.y;
             _this.lastPointerPosition = currentPos;
             _this.sendFunction({
                 t: "cursor",
@@ -720,7 +714,7 @@ const whiteboard = {
         _this.ctx.stroke();
         _this.ctx.closePath();
     },
-    drawPenSmoothLine: function (coords, color, thickness) {
+    drawPenSmoothLine: function (coords, color, thickness, remote) {
         var _this = this;
         var xm1 = coords[0];
         var ym1 = coords[1];
@@ -733,14 +727,16 @@ const whiteboard = {
         var length = Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
         var steps = Math.ceil(length / 5);
         _this.ctx.beginPath();
-        console.log(x0 + _this.viewCoords.x, y0 + _this.viewCoords.y);
-        _this.ctx.moveTo(x0 + _this.viewCoords.x, y0 + _this.viewCoords.y);
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
+        console.log(x0 + xOffset, y0 + yOffset);
+        _this.ctx.moveTo(x0 + xOffset, y0 + yOffset);
         if (steps == 0) {
-            _this.ctx.lineTo(x0 + _this.viewCoords.x, y0 + _this.viewCoords.y);
+            _this.ctx.lineTo(x0 + xOffset, y0 + yOffset);
         }
         for (var i = 0; i < steps; i++) {
             var point = lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, (i + 1) / steps);
-            _this.ctx.lineTo(point[0] + _this.viewCoords.x, point[1] + _this.viewCoords.y);
+            _this.ctx.lineTo(point[0] + xOffset, point[1] + yOffset);
         }
         _this.ctx.strokeStyle = color;
         _this.ctx.lineWidth = thickness;
@@ -1240,7 +1236,7 @@ const whiteboard = {
                     //Only used for old json imports
                     _this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness);
                 } else {
-                    _this.drawPenSmoothLine(data, color, thickness);
+                    _this.drawPenSmoothLine(data, color, thickness, true);
                 }
             } else if (tool === "rect") {
                 _this.drawRec(data[0], data[1], data[2], data[3], color, thickness);

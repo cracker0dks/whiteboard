@@ -26,6 +26,7 @@ const whiteboard = {
      * @type Point
      */
     startCoords: new Point(0, 0),
+    viewCoords: { x: 0, y: 0 },
     drawFlag: false,
     oldGCO: null,
     mouseover: false,
@@ -151,6 +152,8 @@ const whiteboard = {
                     currentPos.x,
                     currentPos.y,
                 ];
+            } else if (_this.tool === "hand") {
+                _this.startCoords = currentPos;
             } else if (_this.tool === "eraser") {
                 _this.drawEraserLine(
                     currentPos.x,
@@ -269,6 +272,20 @@ const whiteboard = {
                     th: _this.thickness,
                 });
                 _this.svgContainer.find("line").remove();
+            } else if (_this.tool === "hand") {
+                let xDif = _this.startCoords.x - currentPos.x;
+                let yDif = _this.startCoords.y - currentPos.y;
+
+                _this.viewCoords.x -= xDif;
+                _this.viewCoords.y -= yDif;
+
+                const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
+                _this.canvas.width = $(window).width();
+                _this.canvas.height = $(window).height(); // Set new canvas height
+                _this.drawBuffer = [];
+                _this.textContainer.empty();
+                _this.loadData(dbCp); // draw old content in
+                console.log(_this.viewCoords.x, _this.viewCoords.y);
             } else if (_this.tool === "pen") {
                 _this.pushPointSmoothPen(currentPos.x, currentPos.y);
             } else if (_this.tool === "rect") {
@@ -682,8 +699,9 @@ const whiteboard = {
     drawPenLine: function (fromX, fromY, toX, toY, color, thickness) {
         var _this = this;
         _this.ctx.beginPath();
-        _this.ctx.moveTo(fromX, fromY);
-        _this.ctx.lineTo(toX, toY);
+        console.log(fromX + viewCoords.x, fromY + viewCoords.y);
+        _this.ctx.moveTo(fromX + viewCoords.x, fromY + viewCoords.y);
+        _this.ctx.lineTo(toX + viewCoords.x, toY + viewCoords.y);
         _this.ctx.strokeStyle = color;
         _this.ctx.lineWidth = thickness;
         _this.ctx.lineCap = _this.lineCap;
@@ -703,13 +721,14 @@ const whiteboard = {
         var length = Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
         var steps = Math.ceil(length / 5);
         _this.ctx.beginPath();
-        _this.ctx.moveTo(x0, y0);
+        console.log(x0 + _this.viewCoords.x, y0 + _this.viewCoords.y);
+        _this.ctx.moveTo(x0 + _this.viewCoords.x, y0 + _this.viewCoords.y);
         if (steps == 0) {
-            _this.ctx.lineTo(x0, y0);
+            _this.ctx.lineTo(x0 + _this.viewCoords.x, y0 + _this.viewCoords.y);
         }
         for (var i = 0; i < steps; i++) {
             var point = lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, (i + 1) / steps);
-            _this.ctx.lineTo(point[0], point[1]);
+            _this.ctx.lineTo(point[0] + _this.viewCoords.x, point[1] + _this.viewCoords.y);
         }
         _this.ctx.strokeStyle = color;
         _this.ctx.lineWidth = thickness;

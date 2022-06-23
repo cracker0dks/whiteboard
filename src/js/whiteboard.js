@@ -227,6 +227,28 @@ const whiteboard = {
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
             e.preventDefault();
+
+            if (_this.tool == "hand" && _this.drawFlag) {
+                // window.requestAnimationFrame(function () {
+                let currentPos = Point.fromEvent(e);
+                let xDif = _this.startCoords.x - currentPos.x;
+                let yDif = _this.startCoords.y - currentPos.y;
+
+                _this.viewCoords.x -= xDif;
+                _this.viewCoords.y -= yDif;
+
+                _this.startCoords.x = currentPos.x;
+                _this.startCoords.y = currentPos.y;
+
+                const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
+                _this.canvas.width = $(window).width();
+                _this.canvas.height = $(window).height(); // Set new canvas height
+                _this.drawBuffer = [];
+                _this.textContainer.empty();
+                _this.loadData(dbCp); // draw old content in
+                //  });
+            }
+
             if (ReadOnlyService.readOnlyActive) return;
             _this.triggerMouseMove(e);
         });
@@ -244,10 +266,7 @@ const whiteboard = {
             _this.ctx.globalCompositeOperation = _this.oldGCO;
 
             let currentPos = Point.fromEvent(e);
-            // if (_this.tool !== "hand") {
-            //     currentPos.x += _this.viewCoords.x;
-            //     currentPos.y += _this.viewCoords.y;
-            // }
+
             if (currentPos.isZeroZero) {
                 _this.sendFunction({
                     t: "cursor",
@@ -739,7 +758,6 @@ const whiteboard = {
         _this.ctx.beginPath();
         let xOffset = remote ? _this.viewCoords.x : 0;
         let yOffset = remote ? _this.viewCoords.y : 0;
-        console.log(x0 + xOffset, y0 + yOffset);
         _this.ctx.moveTo(x0 + xOffset, y0 + yOffset);
         if (steps == 0) {
             _this.ctx.lineTo(x0 + xOffset, y0 + yOffset);
@@ -1305,13 +1323,16 @@ const whiteboard = {
                     if (_this.cursorContainer.find("." + content["username"]).length >= 1) {
                         _this.cursorContainer
                             .find("." + content["username"])
-                            .css({ left: data[0] + "px", top: data[1] - 15 + "px" });
+                            .css({
+                                left: data[0] + _this.viewCoords.x + "px",
+                                top: data[1] + _this.viewCoords.y - 15 + "px",
+                            });
                     } else {
                         _this.cursorContainer.append(
                             '<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' +
-                                data[0] +
+                                (data[0] + _this.viewCoords.x) +
                                 "px; top:" +
-                                (data[1] - 151) +
+                                (data[1] + _this.viewCoords.y - 151) +
                                 'px;" class="userbadge ' +
                                 content["username"] +
                                 '">' +

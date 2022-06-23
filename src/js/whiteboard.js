@@ -229,7 +229,7 @@ const whiteboard = {
             e.preventDefault();
 
             if (_this.tool == "hand" && _this.drawFlag) {
-                // window.requestAnimationFrame(function () {
+                // window.requestAnimationFrame(function () { //Maybe we need to implement something here so its less laggy
                 let currentPos = Point.fromEvent(e);
                 let xDif = _this.startCoords.x - currentPos.x;
                 let yDif = _this.startCoords.y - currentPos.y;
@@ -295,20 +295,7 @@ const whiteboard = {
                 });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "hand") {
-                let xDif = _this.startCoords.x - currentPos.x;
-                let yDif = _this.startCoords.y - currentPos.y;
-
-                _this.viewCoords.x -= xDif;
-                _this.viewCoords.y -= yDif;
-
-                const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
-                _this.canvas.width = $(window).width();
-                _this.canvas.height = $(window).height(); // Set new canvas height
-                _this.drawBuffer = [];
-                _this.textContainer.empty();
-                _this.loadData(dbCp); // draw old content in
-
-                console.log(_this.viewCoords.x, _this.viewCoords.y);
+                //We dont need to do anything here
             } else if (_this.tool === "pen") {
                 _this.pushPointSmoothPen(currentPos.x, currentPos.y);
             } else if (_this.tool === "rect") {
@@ -697,7 +684,6 @@ const whiteboard = {
             let sendArray = [];
             for (let i = 0; i < _this.penSmoothLastCoords.length; i++) {
                 sendArray.push(_this.penSmoothLastCoords[i]);
-                console.log(sendArray);
                 if (i % 2 == 0) {
                     sendArray[i] -= this.viewCoords.x;
                 } else {
@@ -1321,12 +1307,10 @@ const whiteboard = {
             } else if (tool === "cursor" && _this.settings) {
                 if (content["event"] === "move") {
                     if (_this.cursorContainer.find("." + content["username"]).length >= 1) {
-                        _this.cursorContainer
-                            .find("." + content["username"])
-                            .css({
-                                left: data[0] + _this.viewCoords.x + "px",
-                                top: data[1] + _this.viewCoords.y - 15 + "px",
-                            });
+                        _this.cursorContainer.find("." + content["username"]).css({
+                            left: data[0] + _this.viewCoords.x + "px",
+                            top: data[1] + _this.viewCoords.y - 15 + "px",
+                        });
                     } else {
                         _this.cursorContainer.append(
                             '<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' +

@@ -229,7 +229,6 @@ const whiteboard = {
             e.preventDefault();
 
             if (_this.tool == "hand" && _this.drawFlag) {
-                // window.requestAnimationFrame(function () { //Maybe we need to implement something here so its less laggy
                 let currentPos = Point.fromEvent(e);
                 let xDif = _this.startCoords.x - currentPos.x;
                 let yDif = _this.startCoords.y - currentPos.y;
@@ -246,7 +245,6 @@ const whiteboard = {
                 _this.drawBuffer = [];
                 _this.textContainer.empty();
                 _this.loadData(dbCp); // draw old content in
-                //  });
             }
 
             if (ReadOnlyService.readOnlyActive) return;
@@ -294,8 +292,6 @@ const whiteboard = {
                     th: _this.thickness,
                 });
                 _this.svgContainer.find("line").remove();
-            } else if (_this.tool === "hand") {
-                //We dont need to do anything here
             } else if (_this.tool === "pen") {
                 _this.pushPointSmoothPen(currentPos.x, currentPos.y);
             } else if (_this.tool === "rect") {
@@ -717,12 +713,13 @@ const whiteboard = {
         _this.ctx.closePath();
         _this.ctx.globalCompositeOperation = _this.oldGCO;
     },
-    drawPenLine: function (fromX, fromY, toX, toY, color, thickness) {
+    drawPenLine: function (fromX, fromY, toX, toY, color, thickness, remote) {
         var _this = this;
         _this.ctx.beginPath();
-        console.log(fromX + viewCoords.x, fromY + viewCoords.y);
-        _this.ctx.moveTo(fromX + viewCoords.x, fromY + viewCoords.y);
-        _this.ctx.lineTo(toX + viewCoords.x, toY + viewCoords.y);
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
+        _this.ctx.moveTo(fromX + xOffset, fromY + yOffset);
+        _this.ctx.lineTo(toX + xOffset, toY + yOffset);
         _this.ctx.strokeStyle = color;
         _this.ctx.lineWidth = thickness;
         _this.ctx.lineCap = _this.lineCap;
@@ -1248,7 +1245,7 @@ const whiteboard = {
             if (tool === "line" || tool === "pen") {
                 if (data.length == 4) {
                     //Only used for old json imports
-                    _this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness);
+                    _this.drawPenLine(data[0], data[1], data[2], data[3], color, thickness, true);
                 } else {
                     _this.drawPenSmoothLine(data, color, thickness, true);
                 }

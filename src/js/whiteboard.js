@@ -773,12 +773,14 @@ const whiteboard = {
         _this.ctx.closePath();
         _this.ctx.globalCompositeOperation = _this.oldGCO;
     },
-    drawRec: function (fromX, fromY, toX, toY, color, thickness) {
+    drawRec: function (fromX, fromY, toX, toY, color, thickness, remote) {
         var _this = this;
         toX = toX - fromX;
         toY = toY - fromY;
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.rect(fromX, fromY, toX, toY);
+        _this.ctx.rect(fromX + xOffset, fromY + yOffset, toX + xOffset, toY + yOffset);
         _this.ctx.strokeStyle = color;
         _this.ctx.lineWidth = thickness;
         _this.ctx.lineCap = _this.lineCap;
@@ -1255,7 +1257,7 @@ const whiteboard = {
                     _this.drawPenSmoothLine(data, color, thickness, true);
                 }
             } else if (tool === "rect") {
-                _this.drawRec(data[0], data[1], data[2], data[3], color, thickness);
+                _this.drawRec(data[0], data[1], data[2], data[3], color, thickness, true);
             } else if (tool === "circle") {
                 _this.drawCircle(data[0], data[1], data[2], color, thickness);
             } else if (tool === "eraser") {

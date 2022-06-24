@@ -287,7 +287,12 @@ const whiteboard = {
                 );
                 _this.sendFunction({
                     t: _this.tool,
-                    d: [currentPos.x, currentPos.y, _this.startCoords.x, _this.startCoords.y],
+                    d: [
+                        currentPos.x - _this.viewCoords.x,
+                        currentPos.y - _this.viewCoords.y,
+                        _this.startCoords.x - _this.viewCoords.x,
+                        _this.startCoords.y - _this.viewCoords.y
+                    ],
                     c: _this.drawcolor,
                     th: _this.thickness,
                 });

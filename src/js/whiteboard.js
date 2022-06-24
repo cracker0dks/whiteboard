@@ -775,10 +775,10 @@ const whiteboard = {
     },
     drawRec: function (fromX, fromY, toX, toY, color, thickness, remote) {
         var _this = this;
-        toX = toX - fromX;
-        toY = toY - fromY;
         let xOffset = remote ? _this.viewCoords.x : 0;
         let yOffset = remote ? _this.viewCoords.y : 0;
+        toX = toX - fromX - xOffset;
+        toY = toY - fromY - yOffset;
         _this.ctx.beginPath();
         _this.ctx.rect(fromX + xOffset, fromY + yOffset, toX + xOffset, toY + yOffset);
         _this.ctx.strokeStyle = color;

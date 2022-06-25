@@ -985,8 +985,16 @@ const whiteboard = {
         if (isStickyNote) {
             cssclass += " stickyNote";
         }
-        left = left + _this.viewCoords.x;
+
+        // TODO: Fix canvas shrink on textbox move out of the bounderies
+        // Rect goes out not able to remove from screen with a kind of left > +_this.canvas.width ? -9999 : left + _this.viewCoords.x
+        console.log(_this.viewCoords)
+        console.log(this.canvas)
+        left = left + _this.viewCoords.x
         top = top + _this.viewCoords.y;
+        console.log(left)
+        console.log(+_this.canvas.width)
+
         var textBox = $(
             '<div id="' +
                 txId +

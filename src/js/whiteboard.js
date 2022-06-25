@@ -164,7 +164,12 @@ const whiteboard = {
                 );
                 _this.sendFunction({
                     t: _this.tool,
-                    d: [currentPos.x, currentPos.y, currentPos.x, currentPos.y],
+                    d: [
+                        currentPos.x - _this.viewCoords.x,
+                        currentPos.y - _this.viewCoords.y,
+                        currentPos.x - _this.viewCoords.x,
+                        currentPos.y - _this.viewCoords.y,
+                    ],
                     th: _this.thickness,
                 });
             } else if (_this.tool === "line") {
@@ -527,7 +532,12 @@ const whiteboard = {
                     );
                     _this.sendFunction({
                         t: _this.tool,
-                        d: [currentPos.x, currentPos.y, _this.prevPos.x, _this.prevPos.y],
+                        d: [
+                            currentPos.x - _this.viewCoords.x,
+                            currentPos.y - _this.viewCoords.y,
+                            _this.prevPos.x - _this.viewCoords.x,
+                            _this.prevPos.y - _this.viewCoords.y
+                        ],
                         th: _this.thickness,
                     });
                 }
@@ -765,11 +775,13 @@ const whiteboard = {
         _this.ctx.stroke();
         _this.ctx.closePath();
     },
-    drawEraserLine: function (fromX, fromY, toX, toY, thickness) {
+    drawEraserLine: function (fromX, fromY, toX, toY, thickness, remote) {
         var _this = this;
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.moveTo(fromX, fromY);
-        _this.ctx.lineTo(toX, toY);
+        _this.ctx.moveTo(fromX + xOffset, fromY + yOffset);
+        _this.ctx.lineTo(toX + xOffset, toY + yOffset);
         _this.ctx.strokeStyle = "rgba(0,0,0,1)";
         _this.ctx.lineWidth = thickness * 2;
         _this.ctx.lineCap = _this.lineCap;
@@ -1268,7 +1280,7 @@ const whiteboard = {
             } else if (tool === "circle") {
                 _this.drawCircle(data[0], data[1], data[2], color, thickness, true);
             } else if (tool === "eraser") {
-                _this.drawEraserLine(data[0], data[1], data[2], data[3], thickness);
+                _this.drawEraserLine(data[0], data[1], data[2], data[3], thickness, true);
             } else if (tool === "eraseRec") {
                 _this.eraseRec(data[0], data[1], data[2], data[3]);
             } else if (tool === "recSelect") {

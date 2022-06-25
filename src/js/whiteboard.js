@@ -985,8 +985,8 @@ const whiteboard = {
         if (isStickyNote) {
             cssclass += " stickyNote";
         }
-        left = remote ? left + _this.viewCoords.x : left;
-        top = remote ? top + _this.viewCoords.y : top;
+        left = left + _this.viewCoords.x;
+        top = top + _this.viewCoords.y;
         var textBox = $(
             '<div id="' +
                 txId +

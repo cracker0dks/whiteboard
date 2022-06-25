@@ -327,7 +327,12 @@ const whiteboard = {
                 );
                 _this.sendFunction({
                     t: _this.tool,
-                    d: [_this.startCoords.x, _this.startCoords.y, currentPos.x, currentPos.y],
+                    d: [
+                        _this.startCoords.x - _this.viewCoords.x,
+                        _this.startCoords.y - _this.viewCoords.y,
+                        currentPos.x - _this.viewCoords.x,
+                        currentPos.y - _this.viewCoords.y
+                    ],
                     c: _this.drawcolor,
                     th: _this.thickness,
                 });
@@ -343,7 +348,7 @@ const whiteboard = {
                 );
                 _this.sendFunction({
                     t: _this.tool,
-                    d: [_this.startCoords.x, _this.startCoords.y, r],
+                    d: [_this.startCoords.x - _this.viewCoords.x, _this.startCoords.y - _this.viewCoords.y, r],
                     c: _this.drawcolor,
                     th: _this.thickness,
                 });
@@ -787,10 +792,12 @@ const whiteboard = {
         _this.ctx.stroke();
         _this.ctx.closePath();
     },
-    drawCircle: function (fromX, fromY, radius, color, thickness) {
+    drawCircle: function (fromX, fromY, radius, color, thickness, remote) {
         var _this = this;
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.arc(fromX, fromY, radius, 0, 2 * Math.PI, false);
+        _this.ctx.arc(fromX + xOffset, fromY + yOffset, radius, 0, 2 * Math.PI, false);
         _this.ctx.lineWidth = thickness;
         _this.ctx.strokeStyle = color;
         _this.ctx.stroke();
@@ -1259,7 +1266,7 @@ const whiteboard = {
             } else if (tool === "rect") {
                 _this.drawRec(data[0], data[1], data[2], data[3], color, thickness, true);
             } else if (tool === "circle") {
-                _this.drawCircle(data[0], data[1], data[2], color, thickness);
+                _this.drawCircle(data[0], data[1], data[2], color, thickness, true);
             } else if (tool === "eraser") {
                 _this.drawEraserLine(data[0], data[1], data[2], data[3], thickness);
             } else if (tool === "eraseRec") {

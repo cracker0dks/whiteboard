@@ -976,7 +976,8 @@ const whiteboard = {
         top,
         txId,
         isStickyNote,
-        newLocalBox
+        newLocalBox,
+        remote
     ) {
         var _this = this;
         console.log(isStickyNote);
@@ -984,6 +985,8 @@ const whiteboard = {
         if (isStickyNote) {
             cssclass += " stickyNote";
         }
+        left = remote ? left + _this.viewCoords.x : left;
+        top = remote ? top + _this.viewCoords.y : top;
         var textBox = $(
             '<div id="' +
                 txId +
@@ -1307,7 +1310,7 @@ const whiteboard = {
                     );
                 }
             } else if (tool === "addTextBox") {
-                _this.addTextBox(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
+                _this.addTextBox(data[0], data[1], data[2], data[3], data[4], data[5], data[6], true);
             } else if (tool === "setTextboxText") {
                 _this.setTextboxText(data[0], data[1]);
             } else if (tool === "removeTextbox") {

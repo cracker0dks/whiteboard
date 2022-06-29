@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "ajv": "6.12.3",
-    "apidoc": "^0.50.3",
+    "apidoc": "^0.51.1",
     "dompurify": "^2.3.4",
     "express": "^4.17.2",
     "formidable": "^2.0.1",
@@ -41,8 +41,8 @@
     "js-yaml": "3.13.1",
     "jsdom": "^16.5.0",
     "jsprim": "^1.4.2",
-    "socket.io": "^4.4.1",
     "signature_pad": "^4.0.1",
+    "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.0",
     "uuid": "^8.1.0",
     "webdav": "^4.8.0"

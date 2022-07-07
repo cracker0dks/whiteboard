@@ -984,20 +984,13 @@ const whiteboard = {
         remote
     ) {
         var _this = this;
-        console.log(isStickyNote);
         var cssclass = "textBox";
         if (isStickyNote) {
             cssclass += " stickyNote";
         }
 
-        // TODO: Fix canvas shrink on textbox move out of the bounderies
-        // Rect goes out not able to remove from screen with a kind of left > +_this.canvas.width ? -9999 : left + _this.viewCoords.x
-        console.log(_this.viewCoords);
-        console.log(this.canvas);
         left = left + _this.viewCoords.x;
         top = top + _this.viewCoords.y;
-        console.log(left);
-        console.log(+_this.canvas.width);
         let editable = _this.tool == "text" || _this.tool === "stickynote" ? "true" : "false";
         var textBox = $(
             '<div id="' +
@@ -1106,7 +1099,10 @@ const whiteboard = {
         $("#" + txId).remove();
     },
     setTextboxPosition(txId, top, left) {
-        $("#" + txId).css({ top: top + "px", left: left + "px" });
+        $("#" + txId).css({
+            top: top + this.viewCoords.y + "px",
+            left: left + this.viewCoords.x + "px",
+        });
     },
     setTextboxFontSize(txId, fontSize) {
         $("#" + txId)

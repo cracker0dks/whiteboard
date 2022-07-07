@@ -1053,14 +1053,22 @@ const whiteboard = {
                 var textBoxPosition = textBox.position();
                 _this.sendFunction({
                     t: "setTextboxPosition",
-                    d: [txId, textBoxPosition.top, textBoxPosition.left],
+                    d: [
+                        txId,
+                        textBoxPosition.top - _this.viewCoords.y,
+                        textBoxPosition.left - _this.viewCoords.x,
+                    ],
                 });
             },
             drag: function () {
                 var textBoxPosition = textBox.position();
                 _this.sendFunction({
                     t: "setTextboxPosition",
-                    d: [txId, textBoxPosition.top, textBoxPosition.left],
+                    d: [
+                        txId,
+                        textBoxPosition.top - _this.viewCoords.y,
+                        textBoxPosition.left - _this.viewCoords.x,
+                    ],
                 });
             },
         });

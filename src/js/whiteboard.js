@@ -296,7 +296,7 @@ const whiteboard = {
                         currentPos.x - _this.viewCoords.x,
                         currentPos.y - _this.viewCoords.y,
                         _this.startCoords.x - _this.viewCoords.x,
-                        _this.startCoords.y - _this.viewCoords.y
+                        _this.startCoords.y - _this.viewCoords.y,
                     ],
                     c: _this.drawcolor,
                     th: _this.thickness,
@@ -336,7 +336,7 @@ const whiteboard = {
                         _this.startCoords.x - _this.viewCoords.x,
                         _this.startCoords.y - _this.viewCoords.y,
                         currentPos.x - _this.viewCoords.x,
-                        currentPos.y - _this.viewCoords.y
+                        currentPos.y - _this.viewCoords.y,
                     ],
                     c: _this.drawcolor,
                     th: _this.thickness,
@@ -353,7 +353,11 @@ const whiteboard = {
                 );
                 _this.sendFunction({
                     t: _this.tool,
-                    d: [_this.startCoords.x - _this.viewCoords.x, _this.startCoords.y - _this.viewCoords.y, r],
+                    d: [
+                        _this.startCoords.x - _this.viewCoords.x,
+                        _this.startCoords.y - _this.viewCoords.y,
+                        r,
+                    ],
                     c: _this.drawcolor,
                     th: _this.thickness,
                 });
@@ -536,7 +540,7 @@ const whiteboard = {
                             currentPos.x - _this.viewCoords.x,
                             currentPos.y - _this.viewCoords.y,
                             _this.prevPos.x - _this.viewCoords.x,
-                            _this.prevPos.y - _this.viewCoords.y
+                            _this.prevPos.y - _this.viewCoords.y,
                         ],
                         th: _this.thickness,
                     });
@@ -988,13 +992,13 @@ const whiteboard = {
 
         // TODO: Fix canvas shrink on textbox move out of the bounderies
         // Rect goes out not able to remove from screen with a kind of left > +_this.canvas.width ? -9999 : left + _this.viewCoords.x
-        console.log(_this.viewCoords)
-        console.log(this.canvas)
-        left = left + _this.viewCoords.x
+        console.log(_this.viewCoords);
+        console.log(this.canvas);
+        left = left + _this.viewCoords.x;
         top = top + _this.viewCoords.y;
-        console.log(left)
-        console.log(+_this.canvas.width)
-
+        console.log(left);
+        console.log(+_this.canvas.width);
+        let editable = _this.tool == "text" || _this.tool === "stickynote" ? "true" : "false";
         var textBox = $(
             '<div id="' +
                 txId +
@@ -1008,7 +1012,9 @@ const whiteboard = {
                 "background-color:" +
                 textboxBackgroundColor +
                 ';">' +
-                '<div contentEditable="true" spellcheck="false" class="textContent" style="outline: none; font-size:' +
+                '<div contentEditable="' +
+                editable +
+                '" spellcheck="false" class="textContent" style="outline: none; font-size:' +
                 fontsize +
                 "em; color:" +
                 textcolor +
@@ -1216,9 +1222,11 @@ const whiteboard = {
         if (this.tool === "text" || this.tool === "stickynote") {
             $(".textBox").addClass("active");
             this.textContainer.appendTo($(whiteboardContainer)); //Bring textContainer to the front
+            $(".textContent").attr("contenteditable", "true");
         } else {
             $(".textBox").removeClass("active");
             this.mouseOverlay.appendTo($(whiteboardContainer));
+            $(".textContent").attr("contenteditable", "false");
         }
         this.refreshCursorAppearance();
         this.mouseOverlay.find(".xCanvasBtn").click();
@@ -1228,7 +1236,7 @@ const whiteboard = {
         var _this = this;
         _this.drawcolor = color;
         $("#whiteboardColorpicker").css({ background: color });
-        if ((_this.tool == "text" || this.tool === "stickynote") && _this.latestActiveTextBoxId) {
+        if ((_this.tool == "text" || _this.tool === "stickynote") && _this.latestActiveTextBoxId) {
             _this.sendFunction({
                 t: "setTextboxFontColor",
                 d: [_this.latestActiveTextBoxId, color],
@@ -1318,7 +1326,16 @@ const whiteboard = {
                     );
                 }
             } else if (tool === "addTextBox") {
-                _this.addTextBox(data[0], data[1], data[2], data[3], data[4], data[5], data[6], true);
+                _this.addTextBox(
+                    data[0],
+                    data[1],
+                    data[2],
+                    data[3],
+                    data[4],
+                    data[5],
+                    data[6],
+                    true
+                );
             } else if (tool === "setTextboxText") {
                 _this.setTextboxText(data[0], data[1]);
             } else if (tool === "removeTextbox") {

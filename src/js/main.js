@@ -333,7 +333,18 @@ function initWhiteboard() {
             .off("click")
             .click(function () {
                 if (ReadOnlyService.readOnlyActive) return;
-                showBasicAlert("Please drag the image into the browser.");
+                showBasicAlert(`Please drag the image into the browser.<br>
+                Or upload here: <input type="file" id="manualFileUpload" name="myfile" />`);
+                document.getElementById("manualFileUpload").addEventListener(
+                    "change",
+                    function (e) {
+                        $(".basicalert").remove();
+                        if (ReadOnlyService.readOnlyActive) return;
+                        e.originalEvent = { dataTransfer: { files: e.target.files } };
+                        handleFileUploadEvent(e);
+                    },
+                    false
+                );
             });
 
         // save image as imgae
@@ -621,10 +632,8 @@ function initWhiteboard() {
             }
         });
 
-        $("#whiteboardContainer").on("drop", function (e) {
-            //Handle drop
-            if (ReadOnlyService.readOnlyActive) return;
-
+        function handleFileUploadEvent(e) {
+            console.log(e);
             if (e.originalEvent.dataTransfer) {
                 if (e.originalEvent.dataTransfer.files.length) {
                     //File from harddisc
@@ -766,6 +775,13 @@ function initWhiteboard() {
                     });
                 }
             }
+        }
+
+        $("#whiteboardContainer").on("drop", function (e) {
+            //Handle drop
+            if (ReadOnlyService.readOnlyActive) return;
+
+            handleFileUploadEvent(e);
             dragCounter = 0;
             whiteboard.dropIndicator.hide();
         });

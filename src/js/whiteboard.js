@@ -904,7 +904,7 @@ const whiteboard = {
 
                 if (draw == "1") {
                     //draw image to canvas
-                    _this.drawImgToCanvas(finalURL, width, height, left, top, rotationAngle);
+                    _this.drawImgToCanvas(finalURL, width, height, left - _this.viewCoords.x, top - _this.viewCoords.y, rotationAngle);
                 } else {
                     //Add image to background
                     _this.drawImgToBackground(finalURL, width, height, left, top, rotationAngle);
@@ -936,8 +936,8 @@ const whiteboard = {
                 ui.position.top += recoupTop;
             },
             stop: function (event, ui) {
-                left = ui.position.left;
-                top = ui.position.top;
+                left = ui.position.left - _this.viewCoords.x;
+                top = ui.position.top - _this.viewCoords.y;
             },
         });
         imgDiv.resizable();
@@ -1139,10 +1139,10 @@ const whiteboard = {
         img.onload = function () {
             rotationAngle = rotationAngle ? rotationAngle : 0;
             if (rotationAngle === 0) {
-                _this.ctx.drawImage(img, left, top, width, height);
+                _this.ctx.drawImage(img, left + _this.viewCoords.x, top + _this.viewCoords.y, width, height);
             } else {
                 _this.ctx.save();
-                _this.ctx.translate(left + width / 2, top + height / 2);
+                _this.ctx.translate(left + _this.viewCoords.x + width / 2, top + _this.viewCoords.y + height / 2);
                 _this.ctx.rotate(rotationAngle);
                 _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
                 _this.ctx.restore();

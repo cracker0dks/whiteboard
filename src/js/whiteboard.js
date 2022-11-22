@@ -904,7 +904,7 @@ const whiteboard = {
 
                 if (draw == "1") {
                     //draw image to canvas
-                    _this.drawImgToCanvas(finalURL, width, height, left - _this.viewCoords.x, top - _this.viewCoords.y, rotationAngle);
+                    _this.drawImgToCanvas(finalURL, width, height, left, top, rotationAngle);
                 } else {
                     //Add image to background
                     _this.drawImgToBackground(finalURL, width, height, left, top, rotationAngle);
@@ -1139,10 +1139,19 @@ const whiteboard = {
         img.onload = function () {
             rotationAngle = rotationAngle ? rotationAngle : 0;
             if (rotationAngle === 0) {
-                _this.ctx.drawImage(img, left + _this.viewCoords.x, top + _this.viewCoords.y, width, height);
+                _this.ctx.drawImage(
+                    img,
+                    left + _this.viewCoords.x,
+                    top + _this.viewCoords.y,
+                    width,
+                    height
+                );
             } else {
                 _this.ctx.save();
-                _this.ctx.translate(left + _this.viewCoords.x + width / 2, top + _this.viewCoords.y + height / 2);
+                _this.ctx.translate(
+                    left + _this.viewCoords.x + width / 2,
+                    top + _this.viewCoords.y + height / 2
+                );
                 _this.ctx.rotate(rotationAngle);
                 _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
                 _this.ctx.restore();

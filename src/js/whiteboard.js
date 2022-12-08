@@ -231,6 +231,7 @@ const whiteboard = {
         });
 
         _this.mouseOverlay.on("mousemove touchmove", function (e) {
+            //Move hole canvas
             e.preventDefault();
 
             if (_this.tool == "hand" && _this.drawFlag) {
@@ -249,6 +250,7 @@ const whiteboard = {
                 _this.canvas.height = $(window).height(); // Set new canvas height
                 _this.drawBuffer = [];
                 _this.textContainer.empty();
+                _this.imgContainer.empty();
                 _this.loadData(dbCp); // draw old content in
             }
 
@@ -987,13 +989,14 @@ const whiteboard = {
         dom.i2svg();
     },
     drawImgToBackground(url, width, height, left, top, rotationAngle) {
+        var _this = this;
         const px = (v) => Number(v).toString() + "px";
         this.imgContainer.append(
             this.imgWithSrc(url).css({
                 width: px(width),
                 height: px(height),
-                top: px(top),
-                left: px(left),
+                top: px(top + _this.viewCoords.y),
+                left: px(left + _this.viewCoords.x),
                 position: "absolute",
                 transform: "rotate(" + Number(rotationAngle) + "rad)",
             })

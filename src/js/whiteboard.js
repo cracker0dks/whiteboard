@@ -437,8 +437,16 @@ const whiteboard = {
                         _this.drawId++;
                         _this.sendFunction({
                             t: _this.tool,
-                            d: [left, top, leftT, topT, width, height],
+                            d: [
+                                left - _this.viewCoords.x, //left from
+                                top - _this.viewCoords.y,
+                                leftT - _this.viewCoords.x, //Left too
+                                topT - _this.viewCoords.y,
+                                width,
+                                height,
+                            ],
                         });
+
                         _this.dragCanvasRectContent(left, top, leftT, topT, width, height);
                         imgDiv.remove();
                         dragOutOverlay.remove();
@@ -670,7 +678,11 @@ const whiteboard = {
             var left = Math.round(p.left * 100) / 100;
             var top = Math.round(p.top * 100) / 100;
             _this.drawId++;
-            _this.sendFunction({ t: "eraseRec", d: [left, top, width, height] });
+            _this.sendFunction({
+                t: "eraseRec",
+                d: [left - _this.viewCoords.x, top - _this.viewCoords.y, width, height],
+            });
+
             _this.eraseRec(left, top, width, height);
         });
         _this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
@@ -718,19 +730,34 @@ const whiteboard = {
             });
         }
     },
-    dragCanvasRectContent: function (xf, yf, xt, yt, width, height) {
+    dragCanvasRectContent: function (xf, yf, xt, yt, width, height, remote) {
+        var _this = this;
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
         var tempCanvas = document.createElement("canvas");
         tempCanvas.width = width;
         tempCanvas.height = height;
         var tempCanvasContext = tempCanvas.getContext("2d");
-        tempCanvasContext.drawImage(this.canvas, xf, yf, width, height, 0, 0, width, height);
-        this.eraseRec(xf, yf, width, height);
-        this.ctx.drawImage(tempCanvas, xt, yt);
+        tempCanvasContext.drawImage(
+            this.canvas,
+            xf + xOffset,
+            yf + yOffset,
+            width,
+            height,
+            0,
+            0,
+            width,
+            height
+        );
+        this.eraseRec(xf + xOffset, yf + yOffset, width, height);
+        this.ctx.drawImage(tempCanvas, xt + xOffset, yt + yOffset);
     },
-    eraseRec: function (fromX, fromY, width, height) {
+    eraseRec: function (fromX, fromY, width, height, remote) {
         var _this = this;
+        let xOffset = remote ? _this.viewCoords.x : 0;
+        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.rect(fromX, fromY, width, height);
+        _this.ctx.rect(fromX + xOffset, fromY + yOffset, width, height);
         _this.ctx.fillStyle = "rgba(0,0,0,1)";
         _this.ctx.globalCompositeOperation = "destination-out";
         _this.ctx.fill();
@@ -1314,9 +1341,17 @@ const whiteboard = {
             } else if (tool === "eraser") {
                 _this.drawEraserLine(data[0], data[1], data[2], data[3], thickness, true);
             } else if (tool === "eraseRec") {
-                _this.eraseRec(data[0], data[1], data[2], data[3]);
+                _this.eraseRec(data[0], data[1], data[2], data[3], true);
             } else if (tool === "recSelect") {
-                _this.dragCanvasRectContent(data[0], data[1], data[2], data[3], data[4], data[5]);
+                _this.dragCanvasRectContent(
+                    data[0],
+                    data[1],
+                    data[2],
+                    data[3],
+                    data[4],
+                    data[5],
+                    true
+                );
             } else if (tool === "addImgBG") {
                 if (content["draw"] == "1") {
                     _this.drawImgToCanvas(

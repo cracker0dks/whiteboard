@@ -35,6 +35,19 @@ function startBackendServer(port) {
     app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));
 
     /**
+     * @api {get} /api/health Health Check
+     * @apiDescription This returns nothing but a status code of 200
+     * @apiName health
+     * @apiGroup WhiteboardAPI
+     *
+     * @apiSuccess {Number} 200 OK
+     */
+    app.get("/api/health", function (req, res) {
+        res.status(200); //OK
+        res.end();
+    });
+
+    /**
      * @api {get} /api/loadwhiteboard Get Whiteboard Data
      * @apiDescription This returns all the Available Data ever drawn to this Whiteboard
      * @apiName loadwhiteboard

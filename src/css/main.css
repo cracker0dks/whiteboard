@@ -34,13 +34,13 @@ body {
 
 @media (max-device-width: 1024px) {
     .btn-group button {
-        font-size: 3em;
-        height: 135px;
-        width: 150px;
+        font-size: 2.4em;
+        height: 88px;
+        width: 88px;
     }
 
     .minGroup {
-        width: 80px;
+        width: 50px;
     }
 }
 

@@ -1,3 +1,5 @@
+# DEPRECATED: Repo will no longer be maintained and all work has ceased. We are already working on a new version and will release it soon. Please Look at the original repo here: [https://github.com/cracker0dks/whiteboard](https://github.com/cracker0dks/whiteboard)
+
 # whiteboard
 
 This is a lightweight NodeJS collaborative Whiteboard/Sketchboard which can easily be customized...

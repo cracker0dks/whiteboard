@@ -407,45 +407,41 @@ function initWhiteboard() {
                 var webdavusername = localStorage.getItem("webdavusername") || "";
                 var webdavpassword = localStorage.getItem("webdavpassword") || "";
                 var webDavHtml = $(
-                    "<div>" +
-                        "<table>" +
-                        "<tr>" +
-                        "<td>Server URL:</td>" +
-                        '<td><input class="webdavserver" type="text" value="' +
-                        webdavserver +
-                        '" placeholder="https://yourserver.com/remote.php/webdav/"></td>' +
-                        "<td></td>" +
-                        "</tr>" +
-                        "<tr>" +
-                        "<td>Path:</td>" +
-                        '<td><input class="webdavpath" type="text" placeholder="folder" value="' +
-                        webdavpath +
-                        '"></td>' +
-                        '<td style="font-size: 0.7em;"><i>path always have to start & end with "/"</i></td>' +
-                        "</tr>" +
-                        "<tr>" +
-                        "<td>Username:</td>" +
-                        '<td><input class="webdavusername" type="text" value="' +
-                        webdavusername +
-                        '" placeholder="username"></td>' +
-                        '<td style="font-size: 0.7em;"></td>' +
-                        "</tr>" +
-                        "<tr>" +
-                        "<td>Password:</td>" +
-                        '<td><input class="webdavpassword" type="password" value="' +
-                        webdavpassword +
-                        '" placeholder="password"></td>' +
-                        '<td style="font-size: 0.7em;"></td>' +
-                        "</tr>" +
-                        "<tr>" +
-                        '<td style="font-size: 0.7em;" colspan="3">Note: You have to generate and use app credentials if you have 2 Factor Auth activated on your dav/nextcloud server!</td>' +
-                        "</tr>" +
-                        "<tr>" +
-                        "<td></td>" +
-                        '<td colspan="2"><span class="loadingWebdavText" style="display:none;">Saving to webdav, please wait...</span><button class="modalBtn webdavUploadBtn"><i class="fas fa-upload"></i> Start Upload</button></td>' +
-                        "</tr>" +
-                        "</table>" +
-                        "</div>"
+                    `<div>
+                        <table>
+                            <tr>
+                                <td>Server URL:</td>
+                                <td><input class="webdavserver" type="text" value="${webdavserver}" placeholder="https://yourserver.com/remote.php/webdav/"></td>
+                                <td></td>
+                            </tr>
+                        <tr>
+                            <td>Path:</td>
+                            <td><input class="webdavpath" type="text" placeholder="folder" value="${webdavpath}"></td>
+                            <td style="font-size: 0.7em;"><i>path always have to start & end with "/"</i></td>
+                        </tr>
+                        <tr>
+                            <td>Username:</td>
+                            <td><input class="webdavusername" type="text" value="${webdavusername}" placeholder="username"></td>
+                            <td style="font-size: 0.7em;"></td>
+                        </tr>
+                        <tr>
+                            <td>Password:</td>
+                            <td><input class="webdavpassword" type="password" value="${webdavpassword}" placeholder="password"></td>
+                            <td style="font-size: 0.7em;"></td>
+                        </tr>
+                        <tr>
+                            <td style="font-size: 0.7em;" colspan="3">
+                                Note: You have to generate and use app credentials if you have 2 Factor Auth activated on your dav/nextcloud server!
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">
+                                <span class="loadingWebdavText" style="display:none;">Saving to webdav, please wait...</span><button class="modalBtn webdavUploadBtn"><i class="fas fa-upload"></i> Start Upload</button>
+                            </td>
+                        </tr>
+                        </table>
+                    </div>`
                 );
                 webDavHtml
                     .find(".webdavUploadBtn")

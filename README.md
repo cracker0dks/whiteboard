@@ -49,7 +49,7 @@ You can run this app with and without docker
 
 ## Development
 
-After you have installed the app, run `npm run start:dev` to start the backend and a frontend development server. The website will be accessible on http://locahost:8080.
+After you have installed the app, run `npm run start:dev` to start the backend and a frontend development server. The website will be accessible on http://localhost:8080.
 
 ## Default keyboard shortcuts
 

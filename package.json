@@ -44,7 +44,7 @@
     "signature_pad": "^4.0.1",
     "socket.io-client": "^4.4.0",
     "uuid": "^8.1.0",
-    "webdav": "^5.3.0"
+    "webdav": "^4.8.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.8",

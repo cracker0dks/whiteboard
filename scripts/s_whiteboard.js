@@ -186,4 +186,3 @@ const s_whiteboard = {
 };
 
 export { s_whiteboard as default };
-

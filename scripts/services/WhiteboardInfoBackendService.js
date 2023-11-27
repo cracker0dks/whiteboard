@@ -1,6 +1,6 @@
 import config from "../config/config.js";
 import ROnlyBackendService from "./ReadOnlyBackendService.js";
-const ReadOnlyBackendService = new ROnlyBackendService()
+const ReadOnlyBackendService = new ROnlyBackendService();
 
 /**
  * Class to hold information related to a whiteboard

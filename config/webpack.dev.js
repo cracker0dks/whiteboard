@@ -1,4 +1,3 @@
-
 import baseConfig from "./webpack.base.js";
 import { merge } from "webpack-merge";
 import webpack from "webpack";

@@ -1,4 +1,3 @@
-
 import { getArgs } from "./utils.js";
 import startFrontendDevServer from "./server-frontend-dev.js";
 import startBackendServer from "./server-backend.js";

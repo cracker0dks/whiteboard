@@ -1,6 +1,6 @@
 import path from "path";
 
-export function getArgs  () {
+export function getArgs() {
     const args = {};
     process.argv.slice(2, process.argv.length).forEach((arg) => {
         // long arg
@@ -17,7 +17,7 @@ export function getArgs  () {
         }
     });
     return args;
-};
+}
 
 /**
  * Creates a safe filepath given a trusted rootPath and untrusted singleFileSegment.
@@ -28,7 +28,7 @@ export function getArgs  () {
  * @return {string} A safe to use path combined of rootPath and singleFileSegment
  * @throws {Error} If singleFileSegment contains potentially unsafe directory characters or path information
  */
-export function getSafeFilePath (rootPath, singleFileSegment) {
+export function getSafeFilePath(rootPath, singleFileSegment) {
     var filePath = path.join(rootPath, singleFileSegment);
     if (
         (path.dirname(filePath) !== rootPath &&
@@ -44,4 +44,4 @@ export function getSafeFilePath (rootPath, singleFileSegment) {
         throw new Error(errorMessage + singleFileSegment);
     }
     return filePath;
-};
+}

@@ -21,13 +21,12 @@ import s_whiteboard from "./s_whiteboard.js";
 import http from "http";
 import { Server } from "socket.io";
 
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default function startBackendServer(port) {
-
     const window = new JSDOM("").window;
     const DOMPurify = createDOMPurify(window);
 

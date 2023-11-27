@@ -7,7 +7,7 @@ const ajv = new Ajv({ allErrors: true });
 
 import configSchema from "./config-schema.json" assert { type: "json" };
 
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,7 +49,7 @@ export function isConfigValid(config, warn = true) {
     if (!structureIsValid && warn)
         console.warn(
             "At least one item under frontend.performance.pointerEventsThrottling" +
-            "must have fromUserCount set to 0"
+                "must have fromUserCount set to 0"
         );
 
     return isValidAgainstSchema && structureIsValid;

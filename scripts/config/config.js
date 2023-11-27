@@ -1,8 +1,8 @@
-import util  from "util";
+import util from "util";
 
-import { getDefaultConfig, getConfig, deepMergeConfigs, isConfigValid } from "./utils.js"
+import { getDefaultConfig, getConfig, deepMergeConfigs, isConfigValid } from "./utils.js";
 
-import { getArgs } from "./../utils.js"
+import { getArgs } from "./../utils.js";
 
 const defaultConfig = getDefaultConfig();
 

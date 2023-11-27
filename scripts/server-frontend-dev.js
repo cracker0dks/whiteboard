@@ -1,6 +1,14 @@
 import webpack from "webpack";
 import WebpackDevServer from "webpack-dev-server";
 import config from "../config/webpack.dev.js";
+import { getArgs } from "./utils.js";
+
+const args = getArgs();
+
+if (typeof args.mode === "undefined") {
+    // default to production mode
+    args.mode = "production";
+}
 
 const devServerConfig = {
     hot: true,
@@ -15,12 +23,21 @@ const devServerConfig = {
     },
 };
 
-export default function startFrontendDevServer(port) {
-    new WebpackDevServer(webpack(config), devServerConfig).start(port, (err) => {
-        if (err) {
-            console.log(err);
-        }
+let startFrontendDevServer = function() {}
 
-        console.log("Listening on port " + port);
-    });
+if (args.mode === "production") {
+    console.log("Not loading webpack-dev-server because of production mode!");
+} else {
+    startFrontendDevServer = function(port) {
+        new WebpackDevServer(webpack(config), devServerConfig).start(port, (err) => {
+            if (err) {
+                console.log(err);
+            }
+    
+            console.log("Listening on port " + port);
+        });
+    }
 }
+
+
+export default startFrontendDevServer;

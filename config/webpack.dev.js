@@ -1,6 +1,7 @@
-const { merge } = require("webpack-merge");
-const baseConfig = require("./webpack.base");
-const webpack = require("webpack");
+
+import baseConfig from "./webpack.base.js";
+import { merge } from "webpack-merge";
+import webpack from "webpack";
 
 const devConfig = merge(baseConfig, {
     mode: "development",
@@ -11,4 +12,4 @@ const devConfig = merge(baseConfig, {
     plugins: [new webpack.NoEmitOnErrorsPlugin()].concat(baseConfig.plugins),
 });
 
-module.exports = devConfig;
+export { devConfig as default };

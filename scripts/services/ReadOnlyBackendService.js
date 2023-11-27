@@ -1,6 +1,6 @@
-const { v4: uuidv4 } = require("uuid");
+import { v4 as uuidv4 } from "uuid";
 
-class ReadOnlyBackendService {
+export default class ReadOnlyBackendService {
     /**
      * Mapping from an editable whiteboard id to the matching read-only whiteboard id
      * @type {Map<string, string>}
@@ -69,5 +69,3 @@ class ReadOnlyBackendService {
         return this._readOnlyIdToId.has(whiteboardId);
     }
 }
-
-module.exports = new ReadOnlyBackendService();

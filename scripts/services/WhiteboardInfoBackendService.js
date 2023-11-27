@@ -1,10 +1,11 @@
-const config = require("../config/config");
-const ReadOnlyBackendService = require("./ReadOnlyBackendService");
+import config from "../config/config.js";
+import ROnlyBackendService from "./ReadOnlyBackendService.js";
+const ReadOnlyBackendService = new ROnlyBackendService()
 
 /**
  * Class to hold information related to a whiteboard
  */
-class WhiteboardInfo {
+export class WhiteboardInfo {
     static defaultScreenResolution = { w: 1000, h: 1000 };
 
     /**
@@ -107,7 +108,7 @@ class WhiteboardInfo {
 /**
  * Wrapper class around map to treat both the editable whiteboard and its read-only version the same
  */
-class InfoByWhiteBoardMap extends Map {
+export class InfoByWhiteBoardMap extends Map {
     get(wid) {
         const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
         return super.get(readOnlyId);
@@ -129,7 +130,7 @@ class InfoByWhiteBoardMap extends Map {
     }
 }
 
-class WhiteboardInfoBackendService {
+export default class WhiteboardInfoBackendService {
     /**
      * @type {Map<string, WhiteboardInfo>}
      */
@@ -239,5 +240,3 @@ class WhiteboardInfoBackendService {
         else return null;
     }
 }
-
-module.exports = new WhiteboardInfoBackendService();

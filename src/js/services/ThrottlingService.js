@@ -1,6 +1,6 @@
-import Point from "../classes/Point";
-import { getCurrentTimeMs } from "../utils";
-import ConfigService from "./ConfigService";
+import Point from "../classes/Point.js";
+import { getCurrentTimeMs } from "../utils.js";
+import ConfigService from "./ConfigService.js";
 
 /**
  * Class to handle all the throttling logic

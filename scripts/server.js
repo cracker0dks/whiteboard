@@ -1,6 +1,7 @@
-const { getArgs } = require("./utils");
-const startFrontendDevServer = require("./server-frontend-dev");
-const startBackendServer = require("./server-backend");
+
+import { getArgs } from "./utils.js";
+import startFrontendDevServer from "./server-frontend-dev.js";
+import startBackendServer from "./server-backend.js";
 
 const SERVER_MODES = {
     PRODUCTION: 1,

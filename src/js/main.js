@@ -1,17 +1,17 @@
 import keymage from "keymage";
 import { io } from "socket.io-client";
-import whiteboard from "./whiteboard";
-import keybinds from "./keybinds";
+import whiteboard from "./whiteboard.js";
+import keybinds from "./keybinds.js";
 import Picker from "vanilla-picker";
 import { dom } from "@fortawesome/fontawesome-svg-core";
-import shortcutFunctions from "./shortcutFunctions";
-import ReadOnlyService from "./services/ReadOnlyService";
-import InfoService from "./services/InfoService";
-import { getSubDir } from "./utils";
-import ConfigService from "./services/ConfigService";
+import shortcutFunctions from "./shortcutFunctions.js";
+import ReadOnlyService from "./services/ReadOnlyService.js";
+import InfoService from "./services/InfoService.js";
+import { getSubDir } from "./utils.js";
+import ConfigService from "./services/ConfigService.js";
 import { v4 as uuidv4 } from "uuid";
 
-const pdfjsLib = require("pdfjs-dist");
+import pdfjsLib from "pdfjs-dist"
 
 const urlParams = new URLSearchParams(window.location.search);
 let whiteboardId = urlParams.get("whiteboardid");
@@ -171,7 +171,7 @@ function initWhiteboard() {
         // request whiteboard from server
         $.get(subdir + "/api/loadwhiteboard", { wid: whiteboardId, at: accessToken }).done(
             function (data) {
-                console.log(data);
+                //console.log(data);
                 whiteboard.loadData(data);
                 if (copyfromwid && data.length == 0) {
                     //Copy from witheboard if current is empty and get parameter is given

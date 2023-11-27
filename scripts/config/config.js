@@ -1,8 +1,8 @@
-const util = require("util");
+import util  from "util";
 
-const { getDefaultConfig, getConfig, deepMergeConfigs, isConfigValid } = require("./utils");
+import { getDefaultConfig, getConfig, deepMergeConfigs, isConfigValid } from "./utils.js"
 
-const { getArgs } = require("./../utils");
+import { getArgs } from "./../utils.js"
 
 const defaultConfig = getDefaultConfig();
 
@@ -80,4 +80,4 @@ if (!process.env.JEST_WORKER_ID) {
     console.info(util.inspect(config, { showHidden: false, depth: null, colors: true }));
 }
 
-module.exports = config;
+export { config as default };

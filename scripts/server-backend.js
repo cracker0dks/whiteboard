@@ -1,29 +1,41 @@
-const path = require("path");
+import path from "path";
 
-const config = require("./config/config");
-const ReadOnlyBackendService = require("./services/ReadOnlyBackendService");
-const WhiteboardInfoBackendService = require("./services/WhiteboardInfoBackendService");
-const { getSafeFilePath } = require("./utils");
+import config from "./config/config.js";
+import ROBackendService from "./services/ReadOnlyBackendService.js";
+const ReadOnlyBackendService = new ROBackendService();
+import WBInfoBackendService from "./services/WhiteboardInfoBackendService.js";
+const WhiteboardInfoBackendService = new WBInfoBackendService();
 
-function startBackendServer(port) {
-    var fs = require("fs-extra");
-    var express = require("express");
-    var formidable = require("formidable"); //form upload processing
+import { getSafeFilePath } from "./utils.js";
 
-    const createDOMPurify = require("dompurify"); //Prevent xss
-    const { JSDOM } = require("jsdom");
+import fs from "fs-extra";
+import express from "express";
+import formidable from "formidable"; //form upload processing
+
+import createDOMPurify from "dompurify"; //Prevent xss
+import { JSDOM } from "jsdom";
+
+import { createClient } from "webdav";
+import s_whiteboard from "./s_whiteboard.js";
+
+import http from "http";
+import { Server } from "socket.io";
+
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default function startBackendServer(port) {
+
     const window = new JSDOM("").window;
     const DOMPurify = createDOMPurify(window);
 
-    const { createClient } = require("webdav");
-
-    var s_whiteboard = require("./s_whiteboard.js");
-
     var app = express();
 
-    var server = require("http").Server(app);
+    var server = http.Server(app);
     server.listen(port);
-    var io = require("socket.io")(server, { path: "/ws-api" });
+    var io = new Server(server, { path: "/ws-api" });
     WhiteboardInfoBackendService.start(io);
 
     console.log("socketserver running on port:" + port);
@@ -442,5 +454,3 @@ function startBackendServer(port) {
         console.log("unhandledRejection", error.message);
     });
 }
-
-module.exports = startBackendServer;

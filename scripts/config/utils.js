@@ -1,11 +1,16 @@
-const path = require("path");
-const fs = require("fs");
-const yaml = require("js-yaml");
+import path from "path";
+import fs from "fs";
+import yaml from "js-yaml";
 
-const Ajv = require("ajv");
+import Ajv from "ajv";
 const ajv = new Ajv({ allErrors: true });
 
-const configSchema = require("./config-schema.json");
+import configSchema from "./config-schema.json" assert { type: "json" };
+
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Load a yaml config file from a given path.
@@ -13,7 +18,7 @@ const configSchema = require("./config-schema.json");
  * @param path
  * @return {Object}
  */
-function getConfig(path) {
+export function getConfig(path) {
     return yaml.safeLoad(fs.readFileSync(path, "utf8"));
 }
 
@@ -24,7 +29,7 @@ function getConfig(path) {
  * @param {boolean} warn Should we warn in console for errors
  * @return {boolean}
  */
-function isConfigValid(config, warn = true) {
+export function isConfigValid(config, warn = true) {
     const validate = ajv.compile(configSchema);
     const isValidAgainstSchema = validate(config);
 
@@ -44,7 +49,7 @@ function isConfigValid(config, warn = true) {
     if (!structureIsValid && warn)
         console.warn(
             "At least one item under frontend.performance.pointerEventsThrottling" +
-                "must have fromUserCount set to 0"
+            "must have fromUserCount set to 0"
         );
 
     return isValidAgainstSchema && structureIsValid;
@@ -54,7 +59,7 @@ function isConfigValid(config, warn = true) {
  * Load the default project config
  * @return {Object}
  */
-function getDefaultConfig() {
+export function getDefaultConfig() {
     const defaultConfigPath = path.join(__dirname, "..", "..", "config.default.yml");
     return getConfig(defaultConfigPath);
 }
@@ -68,7 +73,7 @@ function getDefaultConfig() {
  * @param overrideConfig
  * @return {Object}
  */
-function deepMergeConfigs(baseConfig, overrideConfig) {
+export function deepMergeConfigs(baseConfig, overrideConfig) {
     const out = {};
 
     Object.entries(baseConfig).forEach(([key, val]) => {
@@ -85,8 +90,3 @@ function deepMergeConfigs(baseConfig, overrideConfig) {
 
     return out;
 }
-
-module.exports.getConfig = getConfig;
-module.exports.getDefaultConfig = getDefaultConfig;
-module.exports.deepMergeConfigs = deepMergeConfigs;
-module.exports.isConfigValid = isConfigValid;

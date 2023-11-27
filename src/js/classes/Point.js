@@ -1,4 +1,4 @@
-import { computeDist } from "../utils";
+import { computeDist } from "../utils.js";
 
 class Point {
     /**

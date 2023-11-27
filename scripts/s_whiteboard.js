@@ -1,7 +1,7 @@
 //This file is only for saving the whiteboard.
-const fs = require("fs");
-const config = require("./config/config");
-const { getSafeFilePath } = require("./utils");
+import fs from "fs";
+import config from "./config/config.js";
+import { getSafeFilePath } from "./utils.js";
 const FILE_DATABASE_FOLDER = "savedBoards";
 
 var savedBoards = {};
@@ -26,7 +26,7 @@ function fileDatabasePath(wid) {
     return getSafeFilePath(FILE_DATABASE_FOLDER, wid + ".json");
 }
 
-module.exports = {
+const s_whiteboard = {
     handleEventsAndData: function (content) {
         var tool = content["t"]; //Tool witch is used
         var wid = content["wid"]; //whiteboard ID
@@ -184,3 +184,6 @@ module.exports = {
         this.saveToDB(wid);
     },
 };
+
+export { s_whiteboard as default };
+

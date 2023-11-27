@@ -1,5 +1,5 @@
-import whiteboard from "./whiteboard";
-import ReadOnlyService from "./services/ReadOnlyService";
+import whiteboard from "./whiteboard.js";
+import ReadOnlyService from "./services/ReadOnlyService.js";
 
 /**
  * @param {function} callback

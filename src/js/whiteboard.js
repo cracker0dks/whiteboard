@@ -1,9 +1,9 @@
 import { dom } from "@fortawesome/fontawesome-svg-core";
-import Point from "./classes/Point";
-import ReadOnlyService from "./services/ReadOnlyService";
-import InfoService from "./services/InfoService";
-import ThrottlingService from "./services/ThrottlingService";
-import ConfigService from "./services/ConfigService";
+import Point from "./classes/Point.js";
+import ReadOnlyService from "./services/ReadOnlyService.js";
+import InfoService from "./services/InfoService.js";
+import ThrottlingService from "./services/ThrottlingService.js";
+import ConfigService from "./services/ConfigService.js";
 import html2canvas from "html2canvas";
 import DOMPurify from "dompurify";
 

@@ -1,21 +1,17 @@
-import "jquery-ui/ui/core";
-import "jquery-ui/ui/widgets/draggable";
-import "jquery-ui/ui/widgets/resizable";
-import "jquery-ui-rotatable/jquery.ui.rotatable";
+import "jquery-ui/ui/core.js";
+import "jquery-ui/ui/widgets/draggable.js";
+import "jquery-ui/ui/widgets/resizable.js";
+import "jquery-ui-rotatable/jquery.ui.rotatable.js";
 import "jquery-ui/themes/base/resizable.css";
 import "../css/main.css";
 
-import "./icons";
-import main from "./main";
+import "./icons.js";
+import main from "./main.js";
 
-$(document).ready(function () {
+$(function () {
     $("head").append(
         '<meta name="viewport" content="width=device-width, initial-scale=0.52, maximum-scale=1" />'
     );
 
     main();
 });
-
-if (module.hot) {
-    module.hot.accept();
-}

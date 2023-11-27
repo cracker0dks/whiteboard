@@ -1,4 +1,4 @@
-import { getThrottling } from "./ConfigService.utils";
+import { getThrottling } from "./ConfigService.utils.js";
 
 /**
  * Class to hold the configuration sent by the backend

@@ -1,6 +1,6 @@
-const path = require("path");
+import path from "path";
 
-const getArgs = function () {
+export function getArgs  () {
     const args = {};
     process.argv.slice(2, process.argv.length).forEach((arg) => {
         // long arg
@@ -28,7 +28,7 @@ const getArgs = function () {
  * @return {string} A safe to use path combined of rootPath and singleFileSegment
  * @throws {Error} If singleFileSegment contains potentially unsafe directory characters or path information
  */
-const getSafeFilePath = function (rootPath, singleFileSegment) {
+export function getSafeFilePath (rootPath, singleFileSegment) {
     var filePath = path.join(rootPath, singleFileSegment);
     if (
         (path.dirname(filePath) !== rootPath &&
@@ -44,9 +44,4 @@ const getSafeFilePath = function (rootPath, singleFileSegment) {
         throw new Error(errorMessage + singleFileSegment);
     }
     return filePath;
-};
-
-module.exports = {
-    getArgs,
-    getSafeFilePath,
 };

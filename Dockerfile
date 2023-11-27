@@ -1,4 +1,4 @@
-FROM node:16 as base
+FROM node:18 as base
 
 # Create app directory
 RUN mkdir -p /opt/app
@@ -18,7 +18,7 @@ RUN npm run build
 # Final image
 #####################
 
-FROM node:16-alpine
+FROM node:18-alpine
 ENV NODE_ENV=prod
 
 MAINTAINER cracker0dks
@@ -28,7 +28,7 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
 COPY ./package.json ./package-lock.json config.default.yml ./
-RUN npm ci --only=prod
+RUN npm ci --only=prod --save-dev webpack-dev-server
 
 COPY scripts ./scripts
 COPY --from=base /opt/app/dist ./dist

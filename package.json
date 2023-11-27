@@ -45,7 +45,11 @@
     "signature_pad": "^4.0.1",
     "socket.io-client": "^4.4.0",
     "uuid": "^8.1.0",
-    "webdav": "^5.3.0"
+    "webdav": "^5.3.0",
+    "webpack-dev-server": "^4.7.3",
+    "webpack": "^5.76.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-merge": "^5.8.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.8",
@@ -72,11 +76,7 @@
     "prettier": "^2.5.1",
     "pretty-quick": "^2.0.1",
     "style-loader": "^1.1.4",
-    "vanilla-picker": "^2.12.1",
-    "webpack": "^5.76.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.3",
-    "webpack-merge": "^5.8.0"
+    "vanilla-picker": "^2.12.1"
   },
   "author": "Cracker0dks",
   "license": "MIT",

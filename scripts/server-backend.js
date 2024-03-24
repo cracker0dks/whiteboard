@@ -208,6 +208,9 @@ export default function startBackendServer(port) {
      *
      * @apiSuccess {String} body returns "done" as text
      * @apiError {Number} 401 Unauthorized
+     * 
+     * @apiExample {curl} Example usage to draw a circle:
+     * curl -i http://[rootUrl]/api/drawToWhiteboard?wid=[MyWhiteboardId]&t=circle&d=[388,201,100]&th=4
      */
     app.get("/api/drawToWhiteboard", function (req, res) {
         let query = escapeAllContentStrings(req["query"]);

@@ -225,6 +225,17 @@ export default function startBackendServer(port) {
             // broadcast the same query to the associated read-only whiteboard
             const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
             broadcastTo(readOnlyId);
+            try {
+                query.th = parseFloat(query.th);
+            } catch(e) {
+                //Dont do a thing
+            }
+
+            try {
+                query.d = JSON.parse(query.d)
+            } catch(e) {
+                //Dont do a thing
+            }
             s_whiteboard.handleEventsAndData(query); //save whiteboardchanges on the server
             res.send("done");
         } else {

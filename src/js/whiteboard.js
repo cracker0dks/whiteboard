@@ -137,7 +137,7 @@ const whiteboard = {
             if (_this.imgDragActive || _this.drawFlag) {
                 return;
             }
-            if (ReadOnlyService.readOnlyActive) return;
+            if (ReadOnlyService.readOnlyActive && _this.tool !== "hand") return;
 
             _this.drawFlag = true;
 
@@ -266,7 +266,7 @@ const whiteboard = {
             if (_this.imgDragActive) {
                 return;
             }
-            if (ReadOnlyService.readOnlyActive) return;
+            if (ReadOnlyService.readOnlyActive && _this.tool !== "hand") return;
             _this.drawFlag = false;
             _this.ctx.globalCompositeOperation = _this.oldGCO;
 

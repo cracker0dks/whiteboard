@@ -32,6 +32,8 @@ class ReadOnlyService {
         // other tools
         $(".whiteboard-tool[tool=mouse]").click();
         $(".whiteboard-tool").prop("disabled", true);
+        $(".whiteboard-tool[tool='hand']").prop("disabled", false);
+
         $(".whiteboard-edit-group > button").prop("disabled", true);
         $(".whiteboard-edit-group").addClass("group-disabled");
         $("#whiteboardUnlockBtn").hide();

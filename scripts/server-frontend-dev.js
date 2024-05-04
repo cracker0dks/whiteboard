@@ -15,12 +15,11 @@ const devServerConfig = {
     },
 };
 
-export default function then(port, resolve) {
+export default function startFrontendDevServer(port, resolve) {
     new WebpackDevServer(webpack(config), devServerConfig).start(port, (err) => {
         if (err) {
             console.log(err);
         }
-
         console.log("Listening on port " + port);
     });
     resolve(1);

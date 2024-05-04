@@ -1,5 +1,6 @@
 import { getArgs } from "./utils.js";
 import startBackendServer from "./server-backend.js";
+import startFrontendDevServer from "./server-frontend-dev.js";
 
 const SERVER_MODES = {
     PRODUCTION: 1,
@@ -21,7 +22,7 @@ const server_mode = args.mode === "production" ? SERVER_MODES.PRODUCTION : SERVE
 
 if (server_mode === SERVER_MODES.DEVELOPMENT) {
     console.info("Starting server in development mode.");
-    import("./server-frontend-dev.js").then(function () {        
+    startFrontendDevServer(8080, function () {
         // this time, it's the frontend server that is on port 8080
         // requests for the backend will be proxied to prevent cross origins errors
         startBackendServer(3000);

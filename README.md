@@ -67,6 +67,7 @@ The following are predefined shortcuts that you can override in the file [./src/
 | Select an area                                                   | Ctrl + X             | Command + X             |
 | Take the mouse                                                   | Ctrl + M             | Command + M             |
 | Take the pen                                                     | Ctrl + P             | Command + P             |
+| Take the pan tool (hand)                                         | Ctrl + Space         | Command + Space         |
 | Draw a line                                                      | Ctrl + L             | Command + L             |
 | Draw a rectangle                                                 | Ctrl + R             | Command + R             |
 | Draw a circle                                                    | Ctrl + C             | Command + C             |

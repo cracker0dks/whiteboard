@@ -16,6 +16,7 @@ const keybinds = {
     "defmod-l": "setTool_line",
     "defmod-r": "setTool_rect",
     "defmod-c": "setTool_circle",
+    "defmod-space": "setTool_hand",
     "defmod-shift-f": "toggleLineRecCircle",
     "defmod-shift-x": "togglePenEraser",
     "defmod-shift-r": "toggleMainColors",

@@ -135,7 +135,7 @@ export default function startBackendServer(port) {
      */
     app.post("/api/upload", function (req, res) {
         //File upload
-        var form = new formidable.IncomingForm(); //Receive form
+        var form = formidable({}); //Receive form
         var formData = {
             files: {},
             fields: {},

@@ -1,5 +1,6 @@
 import webpack from "webpack";
 import config from "../config/webpack.dev.js";
+import WebpackDevServer from "webpack-dev-server";
 
 const devServerConfig = {
     proxy: {
@@ -13,8 +14,7 @@ const devServerConfig = {
     },
 };
 
-export default async function startFrontendDevServer(port, resolve) {
-    let WebpackDevServer = (await import("webpack-dev-server")).WebpackDevServer;
+export async function startFrontendDevServer(port, resolve) {
     resolve(1);
     await new WebpackDevServer(webpack(config), devServerConfig).start(port, (err) => {
         if (err) {

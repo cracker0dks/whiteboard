@@ -11,7 +11,7 @@ import { getSubDir } from "./utils.js";
 import ConfigService from "./services/ConfigService.js";
 import { v4 as uuidv4 } from "uuid";
 
-import pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 
 const urlParams = new URLSearchParams(window.location.search);
 let whiteboardId = urlParams.get("whiteboardid");

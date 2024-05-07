@@ -10,8 +10,7 @@ const __dirname = path.dirname(__filename);
 
 const config = {
     entry: {
-        main: ["./src/js/index.js"],
-        "pdf.worker": "pdfjs-dist/build/pdf.worker.entry",
+        main: ["./src/js/index.js"]
     },
     output: {
         path: path.join(__dirname, "..", "dist"),

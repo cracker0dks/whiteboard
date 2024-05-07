@@ -1,5 +1,4 @@
 import webpack from "webpack";
-import WebpackDevServer from "webpack-dev-server";
 import config from "../config/webpack.dev.js";
 
 const devServerConfig = {
@@ -15,6 +14,7 @@ const devServerConfig = {
 };
 
 export default async function startFrontendDevServer(port, resolve) {
+    let WebpackDevServer = (await import("webpack-dev-server")).WebpackDevServer;
     resolve(1);
     await new WebpackDevServer(webpack(config), devServerConfig).start(port, (err) => {
         if (err) {

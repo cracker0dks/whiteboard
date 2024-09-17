@@ -17,7 +17,7 @@ const config = {
         filename: "[name]-[fullhash].js",
     },
     resolve: {
-        extensions: ["*", ".json", ".js"],
+        extensions: [".*", ".json", ".js"],
     },
     module: {
         rules: [

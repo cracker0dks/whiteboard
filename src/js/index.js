@@ -1,4 +1,3 @@
-import "jquery-ui/ui/core.js";
 import "jquery-ui/ui/widgets/draggable.js";
 import "jquery-ui/ui/widgets/resizable.js";
 import "jquery-ui-rotatable/jquery.ui.rotatable.js";

@@ -190,25 +190,6 @@
                     ></i>
                 </button>
 
-                <button
-                    style="position: relative"
-                    id="uploadJsonBtn"
-                    title="Load saved JSON to whiteboard"
-                    type="button"
-                >
-                    <i class="far fa-file-alt"></i>
-                    <i
-                        style="
-                            position: absolute;
-                            top: 3px;
-                            left: 2px;
-                            color: #000000;
-                            font-size: 0.5em;
-                        "
-                        class="fas fa-upload"
-                    ></i>
-                </button>
-
                 <input style="display: none" id="myFile" type="file" />
             </div>
 
@@ -225,46 +206,6 @@
                         "
                         class="fas fa-save"
                     ></i>
-                </button>
-                <button
-                    style="position: relative; display: none"
-                    id="uploadWebDavBtn"
-                    title="Save whiteboard to webdav"
-                    type="button"
-                >
-                    <i class="fas fa-globe"></i>
-                    <i
-                        style="
-                            position: absolute;
-                            top: 3px;
-                            left: 2px;
-                            color: #000000;
-                            font-size: 0.5em;
-                        "
-                        class="fas fa-save"
-                    ></i>
-                </button>
-                <button
-                    style="position: relative"
-                    id="saveAsJSONBtn"
-                    title="Save whiteboard as JSON"
-                    type="button"
-                >
-                    <i class="far fa-file-alt"></i>
-                    <i
-                        style="
-                            position: absolute;
-                            top: 3px;
-                            left: 2px;
-                            color: #000000;
-                            font-size: 0.5em;
-                        "
-                        class="fas fa-save"
-                    ></i>
-                </button>
-
-                <button id="shareWhiteboardBtn" title="share whiteboard" type="button">
-                    <i class="fas fa-share-square"></i>
                 </button>
 
                 <button id="displayWhiteboardInfoBtn" title="Show whiteboard info" type="button">
@@ -299,30 +240,6 @@
             <p>Smallest screen resolution: <i id="smallestScreenResolution">Unknown.</i></p>
             <p># msg. sent to server: <i id="messageSentCount">0</i></p>
             <p># msg. received from server: <i id="messageReceivedCount">0</i></p>
-        </div>
-
-        <div id="shareWhiteboardDialog" class="displayNone">
-            <div class="shareWhiteboardDialogContent">
-                <button
-                    class="shareWhiteboardDialogItem"
-                    id="shareWhiteboardDialogCopyReadOnlyLink"
-                >
-                    <i class="fa fa-lock"></i>&nbsp;Share read-only link
-                </button>
-                <button
-                    class="shareWhiteboardDialogItem displayNone"
-                    id="shareWhiteboardDialogCopyReadWriteLink"
-                >
-                    <i class="fa fa-lock-open"></i>&nbsp;Share read/write link
-                </button>
-                <button class="shareWhiteboardDialogItem" id="shareWhiteboardDialogGoBack">
-                    <b>Go back to the whiteboard</b>
-                </button>
-                <p
-                    class="shareWhiteboardDialogItem displayNone"
-                    id="shareWhiteboardDialogMessage"
-                ></p>
-            </div>
         </div>
     </body>
 </html>

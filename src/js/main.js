@@ -496,64 +496,6 @@ function initWhiteboard() {
                 $("#myFile").click();
             });
 
-        $("#shareWhiteboardBtn")
-            .off("click")
-            .click(() => {
-                function urlToClipboard(whiteboardId = null) {
-                    const { protocol, host, pathname, search } = window.location;
-                    const basePath = `${protocol}//${host}${pathname}`;
-                    const getParams = new URLSearchParams(search);
-
-                    // Clear ursername from get parameters
-                    getParams.delete("username");
-
-                    if (whiteboardId) {
-                        // override whiteboardId value in URL
-                        getParams.set("whiteboardid", whiteboardId);
-                    }
-
-                    const url = `${basePath}?${getParams.toString()}`;
-                    $("<textarea/>")
-                        .appendTo("body")
-                        .val(url)
-                        .select()
-                        .each(() => {
-                            document.execCommand("copy");
-                        })
-                        .remove();
-                }
-
-                // UI related
-                // clear message
-                $("#shareWhiteboardDialogMessage").toggleClass("displayNone", true);
-
-                $("#shareWhiteboardDialog").toggleClass("displayNone", false);
-                $("#shareWhiteboardDialogGoBack")
-                    .off("click")
-                    .click(() => {
-                        $("#shareWhiteboardDialog").toggleClass("displayNone", true);
-                    });
-
-                $("#shareWhiteboardDialogCopyReadOnlyLink")
-                    .off("click")
-                    .click(() => {
-                        urlToClipboard(ConfigService.correspondingReadOnlyWid);
-
-                        $("#shareWhiteboardDialogMessage")
-                            .toggleClass("displayNone", false)
-                            .text("Read-only link copied to clipboard ✓");
-                    });
-
-                $("#shareWhiteboardDialogCopyReadWriteLink")
-                    .toggleClass("displayNone", ConfigService.isReadOnly)
-                    .click(() => {
-                        $("#shareWhiteboardDialogMessage")
-                            .toggleClass("displayNone", false)
-                            .text("Read/write link copied to clipboard ✓");
-                        urlToClipboard();
-                    });
-            });
-
         $("#displayWhiteboardInfoBtn")
             .off("click")
             .click(() => {

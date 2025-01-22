@@ -1316,7 +1316,7 @@ const whiteboard = {
                 this.backgroundGrid.append(
                     '<div style="position:absolute; left:' +
                         (width + 5) +
-                        'px; top:0px;">smallest screen participating</div>'
+                        'px; top:100px;">smallest screen participating</div>'
                 );
             }
         }

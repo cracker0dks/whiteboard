@@ -801,6 +801,7 @@ function initWhiteboard() {
                 colorPicker.destroy();
             }
             colorPicker = new Picker({
+                popup: 'bottom',
                 parent: $("#whiteboardColorpicker")[0],
                 color: initColor || "#000000",
                 onChange: function (color) {
@@ -826,6 +827,7 @@ function initWhiteboard() {
                 bgColorPicker.destroy();
             }
             bgColorPicker = new Picker({
+                popup: 'bottom',
                 parent: $("#textboxBackgroundColorPicker")[0],
                 color: initColor || "#f5f587",
                 bgcolor: initColor || "#f5f587",

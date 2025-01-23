@@ -11,7 +11,7 @@ import { getSafeFilePath } from "./utils.js";
 import fs from "fs-extra";
 import express from "express";
 import formidable from "formidable"; //form upload processing
-
+import * as jose from "jose";
 import createDOMPurify from "dompurify"; //Prevent xss
 import { JSDOM } from "jsdom";
 
@@ -37,10 +37,10 @@ export default function startBackendServer(port) {
     var io = new Server(server, { path: "/ws-api" });
     WhiteboardInfoBackendService.start(io);
 
-    console.log("socketserver running on port:" + port);
+    console.log("Socket server running on port:" + port);
 
     const { accessToken, enableWebdav } = config.backend;
-
+    const secret = new TextEncoder().encode(accessToken)
     //Expose static folders
     app.use(express.static(path.join(__dirname, "..", "dist")));
     app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));
@@ -75,19 +75,22 @@ export default function startBackendServer(port) {
      */
     app.get("/api/loadwhiteboard", function (req, res) {
         let query = escapeAllContentStrings(req["query"]);
-        const wid = query["wid"];
-        const at = query["at"]; //accesstoken
-        if (accessToken === "" || accessToken == at) {
-            const widForData = ReadOnlyBackendService.isReadOnly(wid)
-                ? ReadOnlyBackendService.getIdFromReadOnlyId(wid)
-                : wid;
-            const ret = s_whiteboard.loadStoredData(widForData);
-            res.send(ret);
-            res.end();
-        } else {
-            res.status(401); //Unauthorized
-            res.end();
-        }
+        const jwt = query["at"]; //accesstoken
+
+        jose.jwtVerify(jwt, secret, { })
+            .then(({ payload }) => {
+                const wid = payload["wid"]
+                const widForData = ReadOnlyBackendService.isReadOnly(wid)
+                    ? ReadOnlyBackendService.getIdFromReadOnlyId(wid)
+                    : wid;
+                const ret = s_whiteboard.loadStoredData(widForData);
+                res.send(ret);
+                res.end();
+            })
+            .catch((error) => {
+                res.status(401); //Unauthorized
+                res.end();
+            })
     });
 
     /**
@@ -107,15 +110,18 @@ export default function startBackendServer(port) {
      */
     app.get("/api/getReadOnlyWid", function (req, res) {
         let query = escapeAllContentStrings(req["query"]);
-        const wid = query["wid"];
-        const at = query["at"]; //accesstoken
-        if (accessToken === "" || accessToken == at) {
-            res.send(ReadOnlyBackendService.getReadOnlyId(wid));
-            res.end();
-        } else {
-            res.status(401); //Unauthorized
-            res.end();
-        }
+        const jwt = query["at"]; //accesstoken
+
+        jose.jwtVerify(jwt, secret, { })
+            .then(({ payload }) => {
+                const wid = payload["wid"]
+                res.send(ReadOnlyBackendService.getReadOnlyId(wid));
+                res.end();
+            })
+            .catch((error) => {
+                res.status(401); //Unauthorized
+                res.end();
+            })
     });
 
     /**
@@ -154,23 +160,26 @@ export default function startBackendServer(port) {
         });
 
         form.on("end", function () {
-            if (accessToken === "" || accessToken == formData["fields"]["at"]) {
-                progressUploadFormData(formData, function (err) {
-                    if (err) {
-                        if (err == "403") {
-                            res.status(403);
+            const jwt = formData["fields"]["at"]
+            jose.jwtVerify(jwt, secret, { })
+                .then(({ payload }) => {
+                    progressUploadFormData(formData, function (err) {
+                        if (err) {
+                            if (err == "403") {
+                                res.status(403);
+                            } else {
+                                res.status(500);
+                            }
+                            res.end();
                         } else {
-                            res.status(500);
+                            res.send("done");
                         }
-                        res.end();
-                    } else {
-                        res.send("done");
-                    }
-                });
-            } else {
-                res.status(401); //Unauthorized
-                res.end();
-            }
+                    });
+                })
+                .catch((error) => {
+                    res.status(401); //Unauthorized
+                    res.end();
+                })
             //End file upload
         });
         form.parse(req);
@@ -214,37 +223,41 @@ export default function startBackendServer(port) {
      */
     app.get("/api/drawToWhiteboard", function (req, res) {
         let query = escapeAllContentStrings(req["query"]);
-        const wid = query["wid"];
-        const at = query["at"]; //accesstoken
-        if (!wid || ReadOnlyBackendService.isReadOnly(wid)) {
-            res.status(401); //Unauthorized
-            res.end();
-        }
 
-        if (accessToken === "" || accessToken == at) {
-            const broadcastTo = (wid) => io.compress(false).to(wid).emit("drawToWhiteboard", query);
-            // broadcast to current whiteboard
-            broadcastTo(wid);
-            // broadcast the same query to the associated read-only whiteboard
-            const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
-            broadcastTo(readOnlyId);
-            try {
-                query.th = parseFloat(query.th);
-            } catch (e) {
-                //Dont do a thing
-            }
+        const jwt = query["at"]
+        jose.jwtVerify(jwt, secret, { })
+            .then(({ payload }) => {
+                wid = payload["wid"];
 
-            try {
-                query.d = JSON.parse(query.d);
-            } catch (e) {
-                //Dont do a thing
-            }
-            s_whiteboard.handleEventsAndData(query); //save whiteboardchanges on the server
-            res.send("done");
-        } else {
-            res.status(401); //Unauthorized
-            res.end();
-        }
+                if (!wid || ReadOnlyBackendService.isReadOnly(wid)) {
+                    res.status(401); //Unauthorized
+                    res.end();
+                }
+
+                const broadcastTo = (wid) => io.compress(false).to(wid).emit("drawToWhiteboard", query);
+                // broadcast to current whiteboard
+                broadcastTo(wid);
+                // broadcast the same query to the associated read-only whiteboard
+                const readOnlyId = ReadOnlyBackendService.getReadOnlyId(wid);
+                broadcastTo(readOnlyId);
+                try {
+                    query.th = parseFloat(query.th);
+                } catch (e) {
+                    //Dont do a thing
+                }
+
+                try {
+                    query.d = JSON.parse(query.d);
+                } catch (e) {
+                    //Dont do a thing
+                }
+                s_whiteboard.handleEventsAndData(query); //save whiteboardchanges on the server
+                res.send("done");
+            })
+            .catch((error) => {
+                res.status(401); //Unauthorized
+                res.end();
+            })
     });
 
     function progressUploadFormData(formData, callback) {
@@ -354,53 +367,66 @@ export default function startBackendServer(port) {
 
             content = escapeAllContentStrings(content);
             content = purifyEncodedStrings(content);
-
-            if (accessToken === "" || accessToken == content["at"]) {
-                const broadcastTo = (wid) =>
-                    socket.compress(false).broadcast.to(wid).emit("drawToWhiteboard", content);
-                // broadcast to current whiteboard
-                broadcastTo(whiteboardId);
-                // broadcast the same content to the associated read-only whiteboard
-                const readOnlyId = ReadOnlyBackendService.getReadOnlyId(whiteboardId);
-                broadcastTo(readOnlyId);
-                s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
-            } else {
-                socket.emit("wrongAccessToken", true);
-            }
+            const jwt = content["at"]
+            jose.jwtVerify(jwt, secret, { })
+                .then(({ payload }) => {
+                    const broadcastTo = (wid) =>
+                        socket.compress(false).broadcast.to(wid).emit("drawToWhiteboard", content);
+                    // broadcast to current whiteboard
+                    broadcastTo(whiteboardId);
+                    // broadcast the same content to the associated read-only whiteboard
+                    const readOnlyId = ReadOnlyBackendService.getReadOnlyId(whiteboardId);
+                    broadcastTo(readOnlyId);
+                    s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
+                })
+                .catch((error) => {
+                    socket.emit("wrongAccessToken", true);
+                })
         });
 
         socket.on("joinWhiteboard", function (content) {
             content = escapeAllContentStrings(content);
-            if (accessToken === "" || accessToken == content["at"]) {
-                whiteboardId = content["wid"];
+            const jwt = content["at"]
+            jose.jwtVerify(jwt, secret, { })
+                .then(({ payload }) => {
+                    console.log(payload)
 
-                socket.emit("whiteboardConfig", {
-                    common: config.frontend,
-                    whiteboardSpecific: {
-                        correspondingReadOnlyWid:
-                            ReadOnlyBackendService.getReadOnlyId(whiteboardId),
-                        isReadOnly: ReadOnlyBackendService.isReadOnly(whiteboardId),
-                    },
-                });
+                    whiteboardId = payload["wid"];
+                    console.log(whiteboardId)
 
-                socket.join(whiteboardId); //Joins room name=wid
-                const screenResolution = content["windowWidthHeight"];
-                WhiteboardInfoBackendService.join(socket.id, whiteboardId, screenResolution);
-            } else {
-                socket.emit("wrongAccessToken", true);
-            }
+                    socket.emit("whiteboardConfig", {
+                        common: config.frontend,
+                        whiteboardSpecific: {
+                            correspondingReadOnlyWid:
+                                ReadOnlyBackendService.getReadOnlyId(whiteboardId),
+                            isReadOnly: ReadOnlyBackendService.isReadOnly(whiteboardId),
+                        },
+                    });
+
+                    socket.join(whiteboardId); //Joins room name=wid
+                    const screenResolution = content["windowWidthHeight"];
+                    WhiteboardInfoBackendService.join(socket.id, whiteboardId, screenResolution);
+                })
+                .catch((error) => {
+                    socket.emit("wrongAccessToken", true);
+                })
         });
 
         socket.on("updateScreenResolution", function (content) {
             content = escapeAllContentStrings(content);
-            if (accessToken === "" || accessToken == content["at"]) {
-                const screenResolution = content["windowWidthHeight"];
-                WhiteboardInfoBackendService.setScreenResolution(
-                    socket.id,
-                    whiteboardId,
-                    screenResolution
-                );
-            }
+            const jwt = content["at"]
+            jose.jwtVerify(jwt, secret, { })
+                .then(({ payload }) => {
+                    const screenResolution = content["windowWidthHeight"];
+                    WhiteboardInfoBackendService.setScreenResolution(
+                        socket.id,
+                        whiteboardId,
+                        screenResolution
+                    );
+                })
+                .catch((error) => {
+                    socket.emit("wrongAccessToken", true);
+                })
         });
     });
 

@@ -37,6 +37,7 @@
     "formidable": "^3.2.4",
     "fs-extra": "^11.1.1",
     "html2canvas": "^1.4.1",
+    "jose": "^5.9.6",
     "jquery-ui-rotatable": "^1.1.0",
     "js-yaml": "3.13.1",
     "jsdom": "^16.5.0",

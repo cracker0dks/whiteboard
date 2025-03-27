@@ -6,7 +6,7 @@ WORKDIR /opt/app
 
 # Install app dependencies
 COPY ./package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 # Bundle frontend
 COPY src ./src
@@ -28,7 +28,7 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
 COPY ./package.json ./package-lock.json config.default.yml ./
-RUN npm install --only=prod
+RUN npm ci --only=prod
 
 COPY scripts ./scripts
 COPY --from=base /opt/app/dist ./dist

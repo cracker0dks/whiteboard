@@ -20,7 +20,7 @@ jobs:
 
       - name: build the image
         run: |
-          docker buildx build \
+          docker buildx build --no-cache \
           --file Dockerfile \
           --tag rofl256/whiteboard:$(date +%s) \
           --platform linux/amd64,linux/arm64 .

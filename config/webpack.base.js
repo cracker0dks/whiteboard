@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 const config = {
     entry: {
-        main: ["./src/js/index.js"]
+        main: ["./src/js/index.js"],
     },
     output: {
         path: path.join(__dirname, "..", "dist"),

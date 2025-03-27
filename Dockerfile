@@ -1,4 +1,4 @@
-FROM node:18 as base
+FROM node:18 AS base
 
 # Create app directory
 RUN mkdir -p /opt/app
@@ -21,7 +21,7 @@ RUN npm run build
 FROM node:18-alpine
 ENV NODE_ENV=prod
 
-MAINTAINER cracker0dks
+LABEL maintainer="cracker0dks"
 
 # Create app directory
 RUN mkdir -p /opt/app

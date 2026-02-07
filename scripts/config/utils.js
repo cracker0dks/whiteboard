@@ -5,7 +5,7 @@ import yaml from "js-yaml";
 import Ajv from "ajv";
 const ajv = new Ajv({ allErrors: true });
 
-import configSchema from "./config-schema.json" assert { type: "json" };
+import configSchema from "./config-schema.json" with { type: "json" };
 
 import { fileURLToPath } from "url";
 

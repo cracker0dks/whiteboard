@@ -38,10 +38,10 @@ export function isConfigValid(config, warn = true) {
     let structureIsValid = false;
     try {
         structureIsValid = config.frontend.performance.pointerEventsThrottling.some(
-            (item) => item.fromUserCount === 0
+            (item) => item.fromUserCount === 0,
         );
     } catch (e) {
-        if (!e instanceof TypeError) {
+        if ((!e) instanceof TypeError) {
             throw e;
         }
     }
@@ -49,7 +49,7 @@ export function isConfigValid(config, warn = true) {
     if (!structureIsValid && warn)
         console.warn(
             "At least one item under frontend.performance.pointerEventsThrottling" +
-                "must have fromUserCount set to 0"
+                "must have fromUserCount set to 0",
         );
 
     return isValidAgainstSchema && structureIsValid;

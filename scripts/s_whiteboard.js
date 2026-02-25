@@ -138,7 +138,7 @@ const s_whiteboard = {
                                 if (err) {
                                     return console.log(err);
                                 }
-                            }
+                            },
                         );
                     }
                 }, 1000 * 10); //Save after 10 sec

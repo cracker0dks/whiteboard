@@ -23,7 +23,10 @@ test("Simple deep config override", () => {
 
 test("Complex object config override", () => {
     expect(
-        deepMergeConfigs({ stage1: { stage2: true, stage2b: true } }, { stage1: { stage2: false } })
+        deepMergeConfigs(
+            { stage1: { stage2: true, stage2b: true } },
+            { stage1: { stage2: false } },
+        ),
     ).toEqual({
         stage1: { stage2: false, stage2b: true },
     });
@@ -34,7 +37,7 @@ test("Override default config", () => {
     const overrideConfig1 = { frontend: { onWhiteboardLoad: { setReadOnly: true } } };
 
     expect(
-        deepMergeConfigs(defaultConfig, overrideConfig1).frontend.onWhiteboardLoad.setReadOnly
+        deepMergeConfigs(defaultConfig, overrideConfig1).frontend.onWhiteboardLoad.setReadOnly,
     ).toBe(true);
 });
 

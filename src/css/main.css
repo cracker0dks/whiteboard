@@ -8,8 +8,9 @@ body {
     height: calc(var(--vh, 1vh) * 100);
     width: 100%;
     overflow: hidden;
-    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica,
-        Arial, sans-serif;
+    font-family:
+        "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial,
+        sans-serif;
 }
 
 #whiteboardContainer {

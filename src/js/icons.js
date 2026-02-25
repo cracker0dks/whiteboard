@@ -58,7 +58,7 @@ library.add(
     faInfoCircle,
     faGlobe,
     faStickyNote,
-    faHandPaper
+    faHandPaper,
 );
 
 dom.i2svg();

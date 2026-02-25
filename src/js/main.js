@@ -115,7 +115,7 @@ function showBasicAlert(html, newOptions) {
             options["okBtnText"] +
             "</button></div>" +
             "</div>" +
-            "</div>"
+            "</div>",
     );
     alertHtml.find(".htmlcontent").append(html);
     $("body").append(alertHtml);
@@ -182,7 +182,7 @@ function initWhiteboard() {
                         whiteboard.loadData(data);
                     });
                 }
-            }
+            },
         );
 
         $(window).resize(function () {
@@ -248,7 +248,7 @@ function initWhiteboard() {
                     key,
                     "named:",
                     functionName,
-                    "is not available!"
+                    "is not available!",
                 );
             }
         });
@@ -343,7 +343,7 @@ function initWhiteboard() {
                         e.originalEvent = { dataTransfer: { files: e.target.files } };
                         handleFileUploadEvent(e);
                     },
-                    false
+                    false,
                 );
             });
 
@@ -370,7 +370,7 @@ function initWhiteboard() {
                                 w.close();
                             }, 100);
                         }, 0);
-                    }
+                    },
                 );
             });
 
@@ -441,7 +441,7 @@ function initWhiteboard() {
                             </td>
                         </tr>
                         </table>
-                    </div>`
+                    </div>`,
                 );
                 webDavHtml
                     .find(".webdavUploadBtn")
@@ -477,7 +477,7 @@ function initWhiteboard() {
                                         webDavHtml.parents(".basicalert").remove();
                                     }
                                 });
-                            }
+                            },
                         );
                     });
                 showBasicAlert(webDavHtml, {
@@ -663,7 +663,7 @@ function initWhiteboard() {
                                             "Page: <select></select> " +
                                             '<button style="margin-bottom: 3px;" class="modalBtn"><i class="fas fa-upload"></i> Upload to Whiteboard</button>' +
                                             '<img style="width:100%;" src=""/>' +
-                                            "</div>"
+                                            "</div>",
                                     );
 
                                     modalDiv.find("select").change(function () {
@@ -729,10 +729,10 @@ function initWhiteboard() {
                                     // PDF loading error
 
                                     showBasicAlert(
-                                        "Error loading pdf as image! Check that this is a vaild pdf file!"
+                                        "Error loading pdf as image! Check that this is a vaild pdf file!",
                                     );
                                     console.error(reason);
-                                }
+                                },
                             );
                         };
                         reader.readAsArrayBuffer(blob);
@@ -793,7 +793,7 @@ function initWhiteboard() {
                     "rgba(0, 0, 255, 1)",
                     "rgba(255, 255, 0, 1)",
                     "rgba(255, 0, 255, 1)",
-                ])
+                ]),
             );
         }
 
@@ -806,7 +806,7 @@ function initWhiteboard() {
                     let splotch_div = $(
                         '<div style="position:relative;"><span position="' +
                             i +
-                            '" class="removeColor" style="position:absolute; cursor:pointer; right:-1px; top:-4px;">x</span></div>'
+                            '" class="removeColor" style="position:absolute; cursor:pointer; right:-1px; top:-4px;">x</span></div>',
                     )
                         .addClass("picker_splotch")
                         .attr({
@@ -934,7 +934,7 @@ function initWhiteboard() {
             e = e || event;
             e.preventDefault();
         },
-        false
+        false,
     );
     window.addEventListener(
         "drop",
@@ -942,7 +942,7 @@ function initWhiteboard() {
             e = e || event;
             e.preventDefault();
         },
-        false
+        false,
     );
 
     function uploadImgAndAddToWhiteboard(base64data) {
@@ -961,7 +961,7 @@ function initWhiteboard() {
                 const filename = `${correspondingReadOnlyWid}_${date}.png`;
                 const rootUrl = document.URL.substr(0, document.URL.lastIndexOf("/"));
                 whiteboard.addImgToCanvasByUrl(
-                    `${rootUrl}/uploads/${correspondingReadOnlyWid}/${filename}`
+                    `${rootUrl}/uploads/${correspondingReadOnlyWid}/${filename}`,
                 ); //Add image to canvas
                 console.log("Image uploaded!");
             },
@@ -994,7 +994,7 @@ function initWhiteboard() {
                 console.error(err);
                 if (err.status == 403) {
                     showBasicAlert(
-                        "Could not connect to Webdav folder! Please check the credentials and paths and try again!"
+                        "Could not connect to Webdav folder! Please check the credentials and paths and try again!",
                     );
                 } else {
                     showBasicAlert("Unknown Webdav error! ", err);
@@ -1065,7 +1065,7 @@ function initWhiteboard() {
 
             if (!imgItemFound && whiteboard.tool != "text" && whiteboard.tool != "stickynote") {
                 showBasicAlert(
-                    "Please Drag&Drop the image or pdf into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)"
+                    "Please Drag&Drop the image or pdf into the Whiteboard. (Browsers don't allow copy+past from the filesystem directly)",
                 );
             }
         }

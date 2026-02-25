@@ -9,7 +9,7 @@ import main from "./main.js";
 
 $(function () {
     $("head").append(
-        '<meta name="viewport" content="width=device-width, initial-scale=0.52, maximum-scale=1" />'
+        '<meta name="viewport" content="width=device-width, initial-scale=0.52, maximum-scale=1" />',
     );
 
     main();

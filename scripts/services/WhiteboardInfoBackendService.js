@@ -143,26 +143,30 @@ export default class WhiteboardInfoBackendService {
      */
     start(io) {
         // auto clean infoByWhiteboard
-        setInterval(() => {
-            this.#infoByWhiteboard.forEach((info, readOnlyWhiteboardId) => {
-                if (info.shouldSendInfo()) {
-                    // broadcast to editable whiteboard
-                    const wid = ReadOnlyBackendService.getIdFromReadOnlyId(readOnlyWhiteboardId);
-                    io.sockets
-                        .in(wid)
-                        .compress(false)
-                        .emit("whiteboardInfoUpdate", info.asObject());
+        setInterval(
+            () => {
+                this.#infoByWhiteboard.forEach((info, readOnlyWhiteboardId) => {
+                    if (info.shouldSendInfo()) {
+                        // broadcast to editable whiteboard
+                        const wid =
+                            ReadOnlyBackendService.getIdFromReadOnlyId(readOnlyWhiteboardId);
+                        io.sockets
+                            .in(wid)
+                            .compress(false)
+                            .emit("whiteboardInfoUpdate", info.asObject());
 
-                    // also send to readonly whiteboard
-                    io.sockets
-                        .in(readOnlyWhiteboardId)
-                        .compress(false)
-                        .emit("whiteboardInfoUpdate", info.asObject());
+                        // also send to readonly whiteboard
+                        io.sockets
+                            .in(readOnlyWhiteboardId)
+                            .compress(false)
+                            .emit("whiteboardInfoUpdate", info.asObject());
 
-                    info.infoWasSent();
-                }
-            });
-        }, (1 / config.backend.performance.whiteboardInfoBroadcastFreq) * 1000);
+                        info.infoWasSent();
+                    }
+                });
+            },
+            (1 / config.backend.performance.whiteboardInfoBroadcastFreq) * 1000,
+        );
     }
 
     /**
@@ -197,7 +201,7 @@ export default class WhiteboardInfoBackendService {
         if (whiteboardServerSideInfo) {
             whiteboardServerSideInfo.setScreenResolutionForClient(
                 clientId,
-                screenResolution || WhiteboardInfo.defaultScreenResolution
+                screenResolution || WhiteboardInfo.defaultScreenResolution,
             );
         }
     }

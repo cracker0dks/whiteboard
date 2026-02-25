@@ -297,7 +297,7 @@ export default function startBackendServer(port) {
                                         } else {
                                             callback();
                                         }
-                                    }
+                                    },
                                 );
                             } else {
                                 callback("Webdav is not enabled on the server!");
@@ -398,7 +398,7 @@ export default function startBackendServer(port) {
                 WhiteboardInfoBackendService.setScreenResolution(
                     socket.id,
                     whiteboardId,
-                    screenResolution
+                    screenResolution,
                 );
             }
         });

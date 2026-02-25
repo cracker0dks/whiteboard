@@ -27,7 +27,7 @@ function updateConfigFromStartArgs(startArgs) {
                 "\x1b[33m\x1b[1m",
                 `Setting config values (${key}) from the CLI is deprecated. ` +
                     "This ability will be removed in the next major version. " +
-                    "You should use the config file. "
+                    "You should use the config file. ",
             );
             callback(val);
         }
@@ -36,7 +36,7 @@ function updateConfigFromStartArgs(startArgs) {
     deprecateCliArg("accesstoken", (val) => (config.backend.accessToken = val));
     deprecateCliArg(
         "disablesmallestscreen",
-        () => (config.backend.showSmallestScreenIndicator = false)
+        () => (config.backend.showSmallestScreenIndicator = false),
     );
     deprecateCliArg("webdav", () => (config.backend.enableWebdav = true));
 }
@@ -52,7 +52,7 @@ function updateConfigFromEnv() {
                 "\x1b[33m\x1b[1m",
                 `Setting config values (${key}) from the environment is deprecated. ` +
                     "This ability will be removed in the next major version. " +
-                    "You should use the config file. "
+                    "You should use the config file. ",
             );
             callback(val);
         }
@@ -61,7 +61,7 @@ function updateConfigFromEnv() {
     deprecateEnv("accesstoken", (val) => (config.backend.accessToken = val));
     deprecateEnv(
         "disablesmallestscreen",
-        () => (config.backend.showSmallestScreenIndicator = false)
+        () => (config.backend.showSmallestScreenIndicator = false),
     );
     deprecateEnv("webdav", () => (config.backend.enableWebdav = true));
 }

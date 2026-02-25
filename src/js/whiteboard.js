@@ -69,35 +69,35 @@ const whiteboard = {
 
         //background grid (repeating image) and smallest screen indication
         _this.backgroundGrid = $(
-            `<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url('${_this.settings["backgroundGridUrl"]}'); height: 100%; width: 100%;"></div>`
+            `<div style="position: absolute; left:0px; top:0; opacity: 0.2; background-image:url('${_this.settings["backgroundGridUrl"]}'); height: 100%; width: 100%;"></div>`,
         );
         // container for background images
         _this.imgContainer = $(
-            '<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>'
+            '<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>',
         );
         // whiteboard canvas
         _this.canvasElement = $(
-            '<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0; cursor:crosshair;"></canvas>'
+            '<canvas id="whiteboardCanvas" style="position: absolute; left:0px; top:0; cursor:crosshair;"></canvas>',
         );
         // SVG container holding drawing or moving previews
         _this.svgContainer = $(
-            '<svg style="position: absolute; top:0px; left:0px;" width="100%" height="100%"></svg>'
+            '<svg style="position: absolute; top:0px; left:0px;" width="100%" height="100%"></svg>',
         );
         // drag and drop indicator, hidden by default
         _this.dropIndicator = $(
-            '<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="far fa-plus-square" aria-hidden="true"></i></div>'
+            '<div style="position:absolute; height: 100%; width: 100%; border: 7px dashed gray; text-align: center; top: 0px; left: 0px; color: gray; font-size: 23em; display: none;"><i class="far fa-plus-square" aria-hidden="true"></i></div>',
         );
         // container for other users cursors
         _this.cursorContainer = $(
-            '<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>'
+            '<div style="position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>',
         );
         // container for texts by users
         _this.textContainer = $(
-            '<div class="textcontainer" style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>'
+            '<div class="textcontainer" style="position: absolute; left:0px; top:0; height: 100%; width: 100%; cursor:text;"></div>',
         );
         // mouse overlay for draw callbacks
         _this.mouseOverlay = $(
-            '<div id="mouseOverlay" style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>'
+            '<div id="mouseOverlay" style="cursor:none; position: absolute; left:0px; top:0; height: 100%; width: 100%;"></div>',
         );
 
         $(whiteboardContainer)
@@ -160,7 +160,7 @@ const whiteboard = {
                     currentPos.y,
                     currentPos.x,
                     currentPos.y,
-                    _this.thickness
+                    _this.thickness,
                 );
                 _this.sendFunction({
                     t: _this.tool,
@@ -290,7 +290,7 @@ const whiteboard = {
                     _this.startCoords.x,
                     _this.startCoords.y,
                     _this.drawcolor,
-                    _this.thickness
+                    _this.thickness,
                 );
                 _this.sendFunction({
                     t: _this.tool,
@@ -315,12 +315,12 @@ const whiteboard = {
                     ) {
                         currentPos = new Point(
                             currentPos.x,
-                            _this.startCoords.y + (currentPos.x - _this.startCoords.x)
+                            _this.startCoords.y + (currentPos.x - _this.startCoords.x),
                         );
                     } else {
                         currentPos = new Point(
                             currentPos.x,
-                            _this.startCoords.y - (currentPos.x - _this.startCoords.x)
+                            _this.startCoords.y - (currentPos.x - _this.startCoords.x),
                         );
                     }
                 }
@@ -330,7 +330,7 @@ const whiteboard = {
                     currentPos.x,
                     currentPos.y,
                     _this.drawcolor,
-                    _this.thickness
+                    _this.thickness,
                 );
                 _this.sendFunction({
                     t: _this.tool,
@@ -351,7 +351,7 @@ const whiteboard = {
                     _this.startCoords.y,
                     r,
                     _this.drawcolor,
-                    _this.thickness
+                    _this.thickness,
                 );
                 _this.sendFunction({
                     t: _this.tool,
@@ -374,12 +374,12 @@ const whiteboard = {
                     ) {
                         currentPos = new Point(
                             currentPos.x,
-                            _this.startCoords.y + (currentPos.x - _this.startCoords.x)
+                            _this.startCoords.y + (currentPos.x - _this.startCoords.x),
                         );
                     } else {
                         currentPos = new Point(
                             currentPos.x,
-                            _this.startCoords.y - (currentPos.x - _this.startCoords.x)
+                            _this.startCoords.y - (currentPos.x - _this.startCoords.x),
                         );
                     }
                 }
@@ -397,11 +397,11 @@ const whiteboard = {
                     <button draw="1" style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="addToCanvasBtn btn btn-default">Drop</button>
                     <button style="margin: 0px 0px; background: #03a9f4; padding: 5px; margin-top: 3px; color: white;" class="xCanvasBtn btn btn-default">x</button>
                     </div>
-                    </div>`
+                    </div>`,
                 );
                 const dragCanvas = $(imgDiv).find("canvas");
                 const dragOutOverlay = $(
-                    `<div class="dragOutOverlay" style="position:absolute; left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px; background:white;"></div>`
+                    `<div class="dragOutOverlay" style="position:absolute; left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px; background:white;"></div>`,
                 );
                 _this.mouseOverlay.append(dragOutOverlay);
                 _this.mouseOverlay.append(imgDiv);
@@ -416,7 +416,7 @@ const whiteboard = {
                     0,
                     0,
                     width,
-                    height
+                    height,
                 );
                 imgDiv
                     .find(".xCanvasBtn")
@@ -495,7 +495,7 @@ const whiteboard = {
                 currentPos.y - _this.viewCoords.y,
                 txId,
                 isStickyNote,
-                true
+                true,
             );
         });
     },
@@ -542,7 +542,7 @@ const whiteboard = {
                         currentPos.y,
                         _this.prevPos.x,
                         _this.prevPos.y,
-                        _this.thickness
+                        _this.thickness,
                     );
                     _this.sendFunction({
                         t: _this.tool,
@@ -644,7 +644,7 @@ const whiteboard = {
                         widthHeight +
                         "px; height:" +
                         widthHeight +
-                        'px; border-radius:50%;"></div>'
+                        'px; border-radius:50%;"></div>',
                 );
                 _this.cursorContainer.append(_this.ownCursor);
             }
@@ -749,7 +749,7 @@ const whiteboard = {
             0,
             0,
             width,
-            height
+            height,
         );
         this.eraseRec(xf + xOffset, yf + yOffset, width, height);
         this.ctx.drawImage(tempCanvas, xt + xOffset, yt + yOffset);
@@ -875,7 +875,7 @@ const whiteboard = {
             DOMPurify.sanitize('<img src="' + url + '">', {
                 ALLOWED_TAGS: ["img"],
                 ALLOWED_ATTR: ["src"], // kill any attributes malicious url introduced
-            })
+            }),
         );
     },
     addImgToCanvasByUrl: function (url) {
@@ -903,7 +903,7 @@ const whiteboard = {
                 "</div>" +
                 '<i style="position:absolute; bottom: -4px; right: 2px; font-size: 2em; color: gray; transform: rotate(-45deg);" class="fas fa-sort-down" aria-hidden="true"></i>' +
                 '<div class="rotationHandle" style="position:absolute; bottom: -30px; left: 0px; width:100%; text-align:center; cursor:ew-resize;"><i class="fa fa-undo"></i></div>' +
-                "</div>"
+                "</div>",
         );
         imgDiv.prepend(img);
         imgDiv
@@ -999,7 +999,7 @@ const whiteboard = {
                 left: px(left + _this.viewCoords.x),
                 position: "absolute",
                 transform: "rotate(" + Number(rotationAngle) + "rad)",
-            })
+            }),
         );
     },
     addTextBox(
@@ -1011,7 +1011,7 @@ const whiteboard = {
         txId,
         isStickyNote,
         newLocalBox,
-        remote
+        remote,
     ) {
         var _this = this;
         var cssclass = "textBox";
@@ -1044,7 +1044,7 @@ const whiteboard = {
                 '; min-width:50px; min-height:100%;"></div>' +
                 '<div title="remove textbox" class="removeIcon" style="position:absolute; cursor:pointer; top:-3px; right:2px;"><b>🗑</b></div>' +
                 '<div title="move textbox" class="moveIcon" style="position:absolute; cursor:move; top:1px; left:2px; font-size: 0.5em;"><i class="fas fa-expand-arrows-alt"></i></div>' +
-                "</div>"
+                "</div>",
         );
         _this.latestActiveTextBoxId = txId;
         textBox.click(function (e) {
@@ -1174,13 +1174,13 @@ const whiteboard = {
                     left + _this.viewCoords.x,
                     top + _this.viewCoords.y,
                     width,
-                    height
+                    height,
                 );
             } else {
                 _this.ctx.save();
                 _this.ctx.translate(
                     left + _this.viewCoords.x + width / 2,
-                    top + _this.viewCoords.y + height / 2
+                    top + _this.viewCoords.y + height / 2,
                 );
                 _this.ctx.rotate(rotationAngle);
                 _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
@@ -1311,12 +1311,12 @@ const whiteboard = {
                         width +
                         "px; height:" +
                         height +
-                        'px;"></div>'
+                        'px;"></div>',
                 );
                 this.backgroundGrid.append(
                     '<div style="position:absolute; left:' +
                         (width + 5) +
-                        'px; top:0px;">smallest screen participating</div>'
+                        'px; top:0px;">smallest screen participating</div>',
                 );
             }
         }
@@ -1353,7 +1353,7 @@ const whiteboard = {
                     data[3],
                     data[4],
                     data[5],
-                    true
+                    true,
                 );
             } else if (tool === "addImgBG") {
                 if (content["draw"] == "1") {
@@ -1364,7 +1364,7 @@ const whiteboard = {
                         data[2],
                         data[3],
                         data[4],
-                        doneCallback
+                        doneCallback,
                     );
                 } else {
                     _this.drawImgToBackground(
@@ -1373,7 +1373,7 @@ const whiteboard = {
                         data[1],
                         data[2],
                         data[3],
-                        data[4]
+                        data[4],
                     );
                 }
             } else if (tool === "addTextBox") {
@@ -1385,7 +1385,7 @@ const whiteboard = {
                     data[4],
                     data[5],
                     data[6],
-                    true
+                    true,
                 );
             } else if (tool === "setTextboxText") {
                 _this.setTextboxText(data[0], data[1]);
@@ -1424,7 +1424,7 @@ const whiteboard = {
                                 '">' +
                                 '<div style="width:4px; height:4px; background:gray; position:absolute; top:13px; left:-2px; border-radius:50%;"></div>' +
                                 decodeURIComponent(atob(content["username"])) +
-                                "</div>"
+                                "</div>",
                         );
                     }
                 } else {

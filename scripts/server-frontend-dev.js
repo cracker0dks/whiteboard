@@ -22,6 +22,6 @@ export async function startFrontendDevServer(port, resolve) {
         }
     });
     console.log(
-        "\n\n-------Successfully started dev server on http://localhost:8080-----------\n\n"
+        "\n\n-------Successfully started dev server on http://localhost:8080-----------\n\n",
     );
 }

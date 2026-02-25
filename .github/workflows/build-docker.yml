@@ -24,3 +24,5 @@ jobs:
           --file Dockerfile \
           --tag rofl256/whiteboard:$(date +%s) \
           --platform linux/amd64,linux/arm64 .
+        env:
+          NODE_OPTIONS: "--experimental-vm-modules"

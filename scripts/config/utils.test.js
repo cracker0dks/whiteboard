@@ -1,4 +1,4 @@
-const { getDefaultConfig, deepMergeConfigs, isConfigValid } = require("./utils");
+import { getDefaultConfig, deepMergeConfigs, isConfigValid } from "./utils.js";
 
 test("Load default config", () => {
     const defaultConfig = getDefaultConfig();

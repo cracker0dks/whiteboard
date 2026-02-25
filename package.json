@@ -14,8 +14,11 @@
     "pretty-quick": "pretty-quick",
     "format": "prettier --write .",
     "style": "prettier --check .",
-    "precommit": "pretty-quick --staged",
+    "precommit": "npx lint-staged",
     "prepare": "husky install"
+  },
+  "lint-staged": {
+    "**/*.{js,json,yml,md}": "prettier --write"
   },
   "repository": {
     "type": "git",
@@ -65,9 +68,9 @@
     "jquery": "^3.6.0",
     "jquery-ui": "^1.13.2",
     "keymage": "^1.1.3",
+    "lint-staged": "^16.2.7",
     "pdfjs-dist": "^4.2.67",
     "prettier": "^3.8.1",
-    "pretty-quick": "^2.0.1",
     "style-loader": "^1.1.4",
     "vanilla-picker": "^2.12.1",
     "webpack": "^5.94.0",

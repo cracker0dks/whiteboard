@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
  * @return {Object}
  */
 export function getConfig(path) {
-    return yaml.safeLoad(fs.readFileSync(path, "utf8"));
+    return yaml.load(fs.readFileSync(path, "utf8"));
 }
 
 /**

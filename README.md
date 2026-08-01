@@ -216,4 +216,4 @@ Note: You might have to serve the app with https (If your nextcloud server runs 
 
 Upload both icons present at /doc/nextcloud_icons/ to your nextcloud at the "external sites" admin section. Then set it as symbol on your link.
 
-**_ MIT License _**
+**\_ MIT License _**

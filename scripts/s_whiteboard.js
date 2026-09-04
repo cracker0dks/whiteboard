@@ -46,42 +46,40 @@ const s_whiteboard = {
             if (!savedUndos[wid]) {
                 savedUndos[wid] = [];
             }
-            let savedBoard = this.loadStoredData(wid);
-            if (savedBoard) {
-                for (var i = savedBoards[wid].length - 1; i >= 0; i--) {
-                    if (savedBoards[wid][i]["username"] == username) {
-                        var drawId = savedBoards[wid][i]["drawId"];
-                        for (var i = savedBoards[wid].length - 1; i >= 0; i--) {
-                            if (
-                                savedBoards[wid][i]["drawId"] == drawId &&
-                                savedBoards[wid][i]["username"] == username
-                            ) {
-                                savedUndos[wid].push(savedBoards[wid][i]);
-                                savedBoards[wid].splice(i, 1);
-                            }
+            const savedBoard = this.loadStoredData(wid);
+            for (let i = savedBoard.length - 1; i >= 0; i--) {
+                if (savedBoard[i]["username"] == username) {
+                    const drawId = savedBoard[i]["drawId"];
+                    for (let j = savedBoard.length - 1; j >= 0; j--) {
+                        if (
+                            savedBoard[j]["drawId"] == drawId &&
+                            savedBoard[j]["username"] == username
+                        ) {
+                            savedUndos[wid].push(savedBoard[j]);
+                            savedBoard.splice(j, 1);
                         }
-                        break;
                     }
+                    break;
                 }
-                if (savedUndos[wid].length > 1000) {
-                    savedUndos[wid].splice(0, savedUndos[wid].length - 1000);
-                }
+            }
+            if (savedUndos[wid].length > 1000) {
+                savedUndos[wid].splice(0, savedUndos[wid].length - 1000);
             }
         } else if (tool === "redo") {
             if (!savedUndos[wid]) {
                 savedUndos[wid] = [];
             }
-            let savedBoard = this.loadStoredData(wid);
-            for (var i = savedUndos[wid].length - 1; i >= 0; i--) {
+            const savedBoard = this.loadStoredData(wid);
+            for (let i = savedUndos[wid].length - 1; i >= 0; i--) {
                 if (savedUndos[wid][i]["username"] == username) {
-                    var drawId = savedUndos[wid][i]["drawId"];
-                    for (var i = savedUndos[wid].length - 1; i >= 0; i--) {
+                    const drawId = savedUndos[wid][i]["drawId"];
+                    for (let j = savedUndos[wid].length - 1; j >= 0; j--) {
                         if (
-                            savedUndos[wid][i]["drawId"] == drawId &&
-                            savedUndos[wid][i]["username"] == username
+                            savedUndos[wid][j]["drawId"] == drawId &&
+                            savedUndos[wid][j]["username"] == username
                         ) {
-                            savedBoard.push(savedUndos[wid][i]);
-                            savedUndos[wid].splice(i, 1);
+                            savedBoard.push(savedUndos[wid][j]);
+                            savedUndos[wid].splice(j, 1);
                         }
                     }
                     break;
@@ -166,22 +164,6 @@ const s_whiteboard = {
         }
 
         return savedBoards[wid];
-    },
-    copyStoredData: function (sourceWid, targetWid) {
-        const sourceData = this.loadStoredData(sourceWid);
-        if (sourceData.length === 0 || this.loadStoredData(targetWid).lenght > 0) {
-            return;
-        }
-        savedBoards[targetWid] = sourceData.slice();
-        this.saveToDB(targetWid);
-    },
-    saveData: function (wid, data) {
-        const existingData = this.loadStoredData(wid);
-        if (existingData.length > 0 || !data) {
-            return;
-        }
-        savedBoards[wid] = JSON.parse(data);
-        this.saveToDB(wid);
     },
 };
 

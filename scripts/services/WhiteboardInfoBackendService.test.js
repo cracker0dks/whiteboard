@@ -1,4 +1,4 @@
-import InfoByWhiteBoardMap from "./ReadOnlyBackendService.js";
+import ReadOnlyBackendService from "./ReadOnlyBackendService.js";
 import WhiteboardInfoBackendService from "./WhiteboardInfoBackendService.js";
 
 test("Clients lifetime same wid", () => {
@@ -23,27 +23,26 @@ test("Clients lifetime same wid", () => {
 test("Clients lifetime both wid and readonly wid", () => {
     const wid = "1";
     const service = new WhiteboardInfoBackendService();
-    const rOservice = new InfoByWhiteBoardMap();
-    const readOnlyWid = rOservice.getReadOnlyId(wid);
-    const widBack = rOservice.getIdFromReadOnlyId(readOnlyWid);
+    // the service must share the same ReadOnlyBackendService instance as the server
+    const readOnlyWid = ReadOnlyBackendService.getReadOnlyId(wid);
 
     expect(service.getNbClientOnWhiteboard(wid)).toBe(null);
-    expect(service.getNbClientOnWhiteboard(widBack)).toBe(null);
+    expect(service.getNbClientOnWhiteboard(readOnlyWid)).toBe(null);
 
     service.join("toto", wid, null);
     expect(service.getNbClientOnWhiteboard(wid)).toBe(1);
-    expect(service.getNbClientOnWhiteboard(widBack)).toBe(1);
+    expect(service.getNbClientOnWhiteboard(readOnlyWid)).toBe(1);
 
     service.join("tata", wid, null);
     expect(service.getNbClientOnWhiteboard(wid)).toBe(2);
-    expect(service.getNbClientOnWhiteboard(widBack)).toBe(2);
+    expect(service.getNbClientOnWhiteboard(readOnlyWid)).toBe(2);
 
     service.leave("tata", wid, null);
     expect(service.getNbClientOnWhiteboard(wid)).toBe(1);
-    expect(service.getNbClientOnWhiteboard(widBack)).toBe(1);
+    expect(service.getNbClientOnWhiteboard(readOnlyWid)).toBe(1);
 
     service.leave("toto", wid, null);
     // no more user on whiteboard
     expect(service.getNbClientOnWhiteboard(wid)).toBe(null);
-    expect(service.getNbClientOnWhiteboard(widBack)).toBe(null);
+    expect(service.getNbClientOnWhiteboard(readOnlyWid)).toBe(null);
 });

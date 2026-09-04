@@ -17,7 +17,7 @@ const config = {
         filename: "[name]-[fullhash].js",
     },
     resolve: {
-        extensions: [".*", ".json", ".js"],
+        extensions: [".js", ".json"],
     },
     module: {
         rules: [
@@ -39,11 +39,7 @@ const config = {
             },
             {
                 test: /\.(png|jpe?g|gif|otf|pdf)$/i,
-                use: [
-                    {
-                        loader: "file-loader",
-                    },
-                ],
+                type: "asset/resource",
             },
         ],
     },

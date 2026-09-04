@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-export default class ReadOnlyBackendService {
+export class ReadOnlyBackendService {
     /**
      * Mapping from an editable whiteboard id to the matching read-only whiteboard id
      * @type {Map<string, string>}
@@ -41,10 +41,8 @@ export default class ReadOnlyBackendService {
      * @return {string}
      */
     getReadOnlyId(whiteboardId) {
-        // make sure it's inited
+        this.init(whiteboardId);
         if (this.isReadOnly(whiteboardId)) return whiteboardId;
-        // run in isReadOnly
-        // this.init(whiteboardId);
         return this._idToReadOnlyId.get(whiteboardId);
     }
 
@@ -52,7 +50,7 @@ export default class ReadOnlyBackendService {
      * Get the id corresponding to readonly id
      *
      * @param {string} readOnlyId
-     * @return {string}
+     * @return {string|undefined}
      */
     getIdFromReadOnlyId(readOnlyId) {
         return this._readOnlyIdToId.get(readOnlyId);
@@ -69,3 +67,5 @@ export default class ReadOnlyBackendService {
         return this._readOnlyIdToId.has(whiteboardId);
     }
 }
+
+export default new ReadOnlyBackendService();

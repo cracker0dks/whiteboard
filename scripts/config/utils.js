@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import yaml from "js-yaml";
+import { load as yamlLoad } from "js-yaml";
 
 import Ajv from "ajv";
 const ajv = new Ajv({ allErrors: true });
@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
  * @return {Object}
  */
 export function getConfig(path) {
-    return yaml.load(fs.readFileSync(path, "utf8"));
+    return yamlLoad(fs.readFileSync(path, "utf8"));
 }
 
 /**
@@ -41,7 +41,7 @@ export function isConfigValid(config, warn = true) {
             (item) => item.fromUserCount === 0,
         );
     } catch (e) {
-        if ((!e) instanceof TypeError) {
+        if (!(e instanceof TypeError)) {
             throw e;
         }
     }

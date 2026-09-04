@@ -73,3 +73,5 @@ typings/
 
 # pnpm
 pnpm-lock.yaml
+
+graphify-out

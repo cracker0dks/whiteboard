@@ -1,6 +1,5 @@
 import config from "../config/config.js";
-import ROnlyBackendService from "./ReadOnlyBackendService.js";
-const ReadOnlyBackendService = new ROnlyBackendService();
+import ReadOnlyBackendService from "./ReadOnlyBackendService.js";
 
 /**
  * Class to hold information related to a whiteboard
@@ -78,9 +77,13 @@ export class WhiteboardInfo {
      */
     getSmallestScreenResolution() {
         const { screenResolutionByClients: resolutions } = this;
+        const values = Array.from(resolutions.values());
+        if (values.length === 0) {
+            return WhiteboardInfo.defaultScreenResolution;
+        }
         return {
-            w: Math.min(...Array.from(resolutions.values()).map((res) => res.w)),
-            h: Math.min(...Array.from(resolutions.values()).map((res) => res.h)),
+            w: Math.min(...values.map((res) => res.w)),
+            h: Math.min(...values.map((res) => res.h)),
         };
     }
 
@@ -212,6 +215,7 @@ export default class WhiteboardInfoBackendService {
      * @param {string} whiteboardId
      */
     leave(clientId, whiteboardId) {
+        if (!whiteboardId) return;
         const infoByWhiteboard = this.#infoByWhiteboard;
 
         if (infoByWhiteboard.has(whiteboardId)) {
@@ -223,8 +227,7 @@ export default class WhiteboardInfoBackendService {
 
             whiteboardServerSideInfo.decrementNbConnectedUsers();
 
-            if (whiteboardServerSideInfo.hasConnectedUser()) {
-            } else {
+            if (!whiteboardServerSideInfo.hasConnectedUser()) {
                 infoByWhiteboard.delete(whiteboardId);
             }
         }

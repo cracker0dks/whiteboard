@@ -50,37 +50,45 @@ let signaling_socket;
 function main() {
     signaling_socket = io("", { path: subdir + "/ws-api" }); // Connect even if we are in a subdir behind a reverse proxy
 
+    // Listeners are registered once; the socket.io client reuses the same
+    // socket object across reconnects, so registering them inside "connect"
+    // would accumulate duplicates on every reconnect.
+    let whiteboardInitialized = false;
+
+    signaling_socket.on("whiteboardConfig", (serverResponse) => {
+        ConfigService.initFromServer(serverResponse);
+        // Init the whiteboard only the first time we get the config; on
+        // reconnect the whiteboard is already built.
+        if (!whiteboardInitialized) {
+            whiteboardInitialized = true;
+            initWhiteboard();
+        }
+    });
+
+    signaling_socket.on("whiteboardInfoUpdate", (info) => {
+        InfoService.updateInfoFromServer(info);
+        whiteboard.updateSmallestScreenResolution();
+    });
+
+    signaling_socket.on("drawToWhiteboard", function (content) {
+        whiteboard.handleEventsAndData(content, true);
+        InfoService.incrementNbMessagesReceived();
+    });
+
+    signaling_socket.on("refreshUserBadges", function () {
+        whiteboard.refreshUserBadges();
+    });
+
+    let accessDenied = false;
+    signaling_socket.on("wrongAccessToken", function () {
+        if (!accessDenied) {
+            accessDenied = true;
+            showBasicAlert("Access denied! Wrong accessToken!");
+        }
+    });
+
     signaling_socket.on("connect", function () {
         console.log("Websocket connected!");
-
-        signaling_socket.on("whiteboardConfig", (serverResponse) => {
-            ConfigService.initFromServer(serverResponse);
-            // Inti whiteboard only when we have the config from the server
-            initWhiteboard();
-        });
-
-        signaling_socket.on("whiteboardInfoUpdate", (info) => {
-            InfoService.updateInfoFromServer(info);
-            whiteboard.updateSmallestScreenResolution();
-        });
-
-        signaling_socket.on("drawToWhiteboard", function (content) {
-            whiteboard.handleEventsAndData(content, true);
-            InfoService.incrementNbMessagesReceived();
-        });
-
-        signaling_socket.on("refreshUserBadges", function () {
-            whiteboard.refreshUserBadges();
-        });
-
-        let accessDenied = false;
-        signaling_socket.on("wrongAccessToken", function () {
-            if (!accessDenied) {
-                accessDenied = true;
-                showBasicAlert("Access denied! Wrong accessToken!");
-            }
-        });
-
         signaling_socket.emit("joinWhiteboard", {
             wid: whiteboardId,
             at: accessToken,
@@ -706,13 +714,12 @@ function initWhiteboard() {
 
                                             // Prepare canvas using PDF page dimensions
                                             var canvas = $("<canvas></canvas>")[0];
-                                            var context = canvas.getContext("2d");
                                             canvas.height = viewport.height;
                                             canvas.width = viewport.width;
 
-                                            // Render PDF page into canvas context
+                                            // Render PDF page into canvas
                                             var renderContext = {
-                                                canvasContext: context,
+                                                canvas: canvas,
                                                 viewport: viewport,
                                             };
                                             var renderTask = page.render(renderContext);
@@ -796,36 +803,42 @@ function initWhiteboard() {
                 ]),
             );
         }
+        if (!localStorage.getItem("savedBgColors")) {
+            localStorage.setItem("savedBgColors", JSON.stringify(["rgba(245, 245, 135, 1)"]));
+        }
 
-        let colorPickerOnOpen = function (current_color) {
-            this._domPalette = $(".picker_palette", this.domElement);
-            const palette = JSON.parse(localStorage.getItem("savedColors"));
-            if ($(".picker_splotch", this._domPalette).length === 0) {
-                for (let i = 0; i < palette.length; i++) {
-                    let palette_Color_obj = new this.color.constructor(palette[i]);
-                    let splotch_div = $(
-                        '<div style="position:relative;"><span position="' +
-                            i +
-                            '" class="removeColor" style="position:absolute; cursor:pointer; right:-1px; top:-4px;">x</span></div>',
-                    )
-                        .addClass("picker_splotch")
-                        .attr({
-                            id: "s" + i,
-                        })
-                        .css("background-color", palette_Color_obj.hslaString)
-                        .on("click", { that: this, obj: palette_Color_obj }, function (e) {
-                            e.data.that._setColor(e.data.obj.hslaString);
+        const makePaletteOnOpen = (storageKey) =>
+            function (current_color) {
+                this._domPalette = $(".picker_palette", this.domElement);
+                const palette = JSON.parse(localStorage.getItem(storageKey));
+                if ($(".picker_splotch", this._domPalette).length === 0) {
+                    for (let i = 0; i < palette.length; i++) {
+                        let palette_Color_obj = new this.color.constructor(palette[i]);
+                        let splotch_div = $(
+                            '<div style="position:relative;"><span position="' +
+                                i +
+                                '" class="removeColor" style="position:absolute; cursor:pointer; right:-1px; top:-4px;">x</span></div>',
+                        )
+                            .addClass("picker_splotch")
+                            .attr({
+                                id: "s" + i,
+                            })
+                            .css("background-color", palette_Color_obj.hslaString)
+                            .on("click", { that: this, obj: palette_Color_obj }, function (e) {
+                                e.data.that._setColor(e.data.obj.hslaString);
+                            });
+                        splotch_div.find(".removeColor").on("click", function (e) {
+                            e.preventDefault();
+                            $(this).parent("div").remove();
+                            palette.splice(i, 1);
+                            localStorage.setItem(storageKey, JSON.stringify(palette));
                         });
-                    splotch_div.find(".removeColor").on("click", function (e) {
-                        e.preventDefault();
-                        $(this).parent("div").remove();
-                        palette.splice(i, 1);
-                        localStorage.setItem("savedColors", JSON.stringify(palette));
-                    });
-                    this._domPalette.append(splotch_div);
+                        this._domPalette.append(splotch_div);
+                    }
                 }
-            }
-        };
+            };
+        let colorPickerOnOpen = makePaletteOnOpen("savedColors");
+        let bgColorPickerOnOpen = makePaletteOnOpen("savedBgColors");
 
         const colorPickerTemplate = `
         <div class="picker_wrapper" tabindex="-1">
@@ -891,14 +904,14 @@ function initWhiteboard() {
                     whiteboard.setTextBackgroundColor(bgcolor.rgbaString);
                 },
                 onDone: function (bgcolor) {
-                    let palette = JSON.parse(localStorage.getItem("savedColors"));
-                    if (!palette.includes(color.rgbaString)) {
-                        palette.push(color.rgbaString);
-                        localStorage.setItem("savedColors", JSON.stringify(palette));
+                    let palette = JSON.parse(localStorage.getItem("savedBgColors"));
+                    if (!palette.includes(bgcolor.rgbaString)) {
+                        palette.push(bgcolor.rgbaString);
+                        localStorage.setItem("savedBgColors", JSON.stringify(palette));
                     }
-                    intBgColorPicker(color.rgbaString);
+                    intBgColorPicker(bgcolor.rgbaString);
                 },
-                onOpen: colorPickerOnOpen,
+                onOpen: bgColorPickerOnOpen,
                 template: colorPickerTemplate,
             });
         }

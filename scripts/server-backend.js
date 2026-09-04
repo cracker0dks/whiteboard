@@ -1,8 +1,7 @@
 import path from "path";
 
 import config from "./config/config.js";
-import ROBackendService from "./services/ReadOnlyBackendService.js";
-const ReadOnlyBackendService = new ROBackendService();
+import ReadOnlyBackendService from "./services/ReadOnlyBackendService.js";
 import WBInfoBackendService from "./services/WhiteboardInfoBackendService.js";
 const WhiteboardInfoBackendService = new WBInfoBackendService();
 
@@ -149,27 +148,35 @@ export default function startBackendServer(port) {
             formData["fields"][name] = value;
         });
 
+        let responded = false;
+        function respond(status, body) {
+            if (responded || res.headersSent) return;
+            responded = true;
+            if (body) {
+                res.status(status).send(body);
+            } else {
+                res.status(status).end();
+            }
+        }
+
         form.on("error", function (err) {
-            console.log("File uplaod Error!");
+            console.log("File upload Error!", err);
+            respond(500);
         });
 
         form.on("end", function () {
             if (accessToken === "" || accessToken == formData["fields"]["at"]) {
                 progressUploadFormData(formData, function (err) {
-                    if (err) {
-                        if (err == "403") {
-                            res.status(403);
-                        } else {
-                            res.status(500);
-                        }
-                        res.end();
+                    if (err == "403") {
+                        respond(403);
+                    } else if (err) {
+                        respond(500);
                     } else {
-                        res.send("done");
+                        respond(200, "done");
                     }
                 });
             } else {
-                res.status(401); //Unauthorized
-                res.end();
+                respond(401); //Unauthorized
             }
             //End file upload
         });
@@ -219,6 +226,7 @@ export default function startBackendServer(port) {
         if (!wid || ReadOnlyBackendService.isReadOnly(wid)) {
             res.status(401); //Unauthorized
             res.end();
+            return;
         }
 
         if (accessToken === "" || accessToken == at) {
@@ -251,7 +259,10 @@ export default function startBackendServer(port) {
         console.log("Progress new Form Data");
         const fields = escapeAllContentStrings(formData.fields);
         const wid = fields["wid"];
-        if (ReadOnlyBackendService.isReadOnly(wid)) return;
+        if (ReadOnlyBackendService.isReadOnly(wid)) {
+            callback("403");
+            return;
+        }
 
         const readOnlyWid = ReadOnlyBackendService.getReadOnlyId(wid);
 
@@ -325,17 +336,34 @@ export default function startBackendServer(port) {
                 username: webdavusername,
                 password: webdavpassword,
             });
+            let finished = false;
+            const finish = (err) => {
+                if (finished) return;
+                finished = true;
+                callback(err);
+            };
             client
                 .getDirectoryContents(webdavpath)
-                .then((items) => {
-                    const cloudpath = webdavpath + "" + filename;
+                .then(() => {
+                    const basePath = webdavpath.endsWith("/") ? webdavpath : webdavpath + "/";
+                    const cloudpath = basePath + filename;
                     console.log("webdav saving to:", cloudpath);
-                    fs.createReadStream(imagepath).pipe(client.createWriteStream(cloudpath));
-                    callback();
+                    const readStream = fs.createReadStream(imagepath);
+                    const writeStream = client.createWriteStream(cloudpath);
+                    readStream.on("error", (error) => {
+                        console.log("webdav upload failed (read):", error);
+                        finish(error);
+                    });
+                    writeStream.on("error", (error) => {
+                        console.log("webdav upload failed (write):", error);
+                        finish("403");
+                    });
+                    writeStream.on("finish", () => finish());
+                    readStream.pipe(writeStream);
                 })
                 .catch((error) => {
-                    callback("403");
-                    console.log("Could not connect to webdav!");
+                    console.log("Could not connect to webdav!", error);
+                    finish("403");
                 });
         } else {
             callback("Error: no access data!");
@@ -405,18 +433,22 @@ export default function startBackendServer(port) {
     });
 
     //Prevent cross site scripting (xss)
-    function escapeAllContentStrings(content, cnt) {
-        if (!cnt) cnt = 0;
-
+    function escapeAllContentStrings(content, cnt = 0) {
         if (typeof content === "string") {
             return DOMPurify.sanitize(content);
         }
-        for (var i in content) {
-            if (typeof content[i] === "string") {
-                content[i] = DOMPurify.sanitize(content[i]);
-            }
-            if (typeof content[i] === "object" && cnt < 10) {
-                content[i] = escapeAllContentStrings(content[i], ++cnt);
+        if (content === null || typeof content !== "object") {
+            return content;
+        }
+        if (cnt >= 10) {
+            return content;
+        }
+        for (const key of Object.keys(content)) {
+            const value = content[key];
+            if (typeof value === "string") {
+                content[key] = DOMPurify.sanitize(value);
+            } else if (typeof value === "object" && value !== null) {
+                content[key] = escapeAllContentStrings(value, cnt + 1);
             }
         }
         return content;
@@ -431,7 +463,10 @@ export default function startBackendServer(port) {
     }
 
     function purifyTextboxTextInContent(content) {
-        const raw = content["d"][1];
+        const raw = content["d"] && content["d"][1];
+        if (typeof raw !== "string" || raw === "") {
+            return content;
+        }
         const decoded = base64decode(raw);
         const purified = DOMPurify.sanitize(decoded, {
             ALLOWED_TAGS: ["div", "br"],

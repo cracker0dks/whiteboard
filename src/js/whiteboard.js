@@ -14,6 +14,7 @@ const _45_DEG_IN_RAD = 45 * DEG_TO_RAD;
 const whiteboard = {
     canvas: null,
     ctx: null,
+    container: null,
     drawcolor: "black",
     previousToolHtmlElem: null, // useful for handling read-only mode
     tool: "mouse",
@@ -62,10 +63,17 @@ const whiteboard = {
     loadWhiteboard: function (whiteboardContainer, newSettings) {
         const svgns = "http://www.w3.org/2000/svg";
         const _this = this;
+        this.container = $(whiteboardContainer);
         for (const i in newSettings) {
             this.settings[i] = newSettings[i];
         }
-        this.settings["username"] = this.settings["username"].replace(/[^0-9a-z]/gi, "");
+        // the username is base64 encoded (see main.js); keep only base64url-safe
+        // characters so it stays decodable and safe to use as a CSS class name
+        this.settings["username"] = this.settings["username"]
+            .replace(/[^0-9a-zA-Z+/=]/g, "")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=/g, "");
 
         //background grid (repeating image) and smallest screen indication
         _this.backgroundGrid = $(
@@ -1264,11 +1272,11 @@ const whiteboard = {
         this.tool = tool;
         if (this.tool === "text" || this.tool === "stickynote") {
             $(".textBox").addClass("active");
-            this.textContainer.appendTo($(whiteboardContainer)); //Bring textContainer to the front
+            this.textContainer.appendTo(this.container); //Bring textContainer to the front
             $(".textContent").attr("contenteditable", "true");
         } else {
             $(".textBox").removeClass("active");
-            this.mouseOverlay.appendTo($(whiteboardContainer));
+            this.mouseOverlay.appendTo(this.container);
             $(".textContent").attr("contenteditable", "false");
         }
         this.refreshCursorAppearance();
@@ -1408,8 +1416,9 @@ const whiteboard = {
                 _this.drawId = 0;
             } else if (tool === "cursor" && _this.settings) {
                 if (content["event"] === "move") {
-                    if (_this.cursorContainer.find("." + content["username"]).length >= 1) {
-                        _this.cursorContainer.find("." + content["username"]).css({
+                    const badgeSelector = "." + usernameClass(content["username"]);
+                    if (_this.cursorContainer.find(badgeSelector).length >= 1) {
+                        _this.cursorContainer.find(badgeSelector).css({
                             left: data[0] + _this.viewCoords.x + "px",
                             top: data[1] + _this.viewCoords.y - 15 + "px",
                         });
@@ -1420,15 +1429,15 @@ const whiteboard = {
                                 "px; top:" +
                                 (data[1] + _this.viewCoords.y - 151) +
                                 'px;" class="userbadge ' +
-                                content["username"] +
+                                usernameClass(content["username"]) +
                                 '">' +
                                 '<div style="width:4px; height:4px; background:gray; position:absolute; top:13px; left:-2px; border-radius:50%;"></div>' +
-                                decodeURIComponent(atob(content["username"])) +
+                                decodeUsername(content["username"]) +
                                 "</div>",
                         );
                     }
                 } else {
-                    _this.cursorContainer.find("." + content["username"]).remove();
+                    _this.cursorContainer.find("." + usernameClass(content["username"])).remove();
                 }
             } else if (tool === "undo") {
                 _this.undoWhiteboard(username);
@@ -1465,7 +1474,7 @@ const whiteboard = {
         }
     },
     userLeftWhiteboard(username) {
-        this.cursorContainer.find("." + username).remove();
+        this.cursorContainer.find("." + usernameClass(username)).remove();
     },
     refreshUserBadges() {
         this.cursorContainer.find(".userbadge").remove();
@@ -1663,6 +1672,31 @@ function lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, a) {
     c1 -= delta;
     c2 -= delta;
     return [cm1 * xm1 + c0 * x0 + c1 * x1 + c2 * x2, cm1 * ym1 + c0 * y0 + c1 * y1 + c2 * y2];
+}
+
+/**
+ * Decode a username that was sanitized to a base64url-safe string (see loadWhiteboard).
+ * Falls back to the raw value if decoding fails.
+ * @param {string} encoded
+ * @returns {string}
+ */
+function decodeUsername(encoded) {
+    try {
+        let base64 = String(encoded).replace(/-/g, "+").replace(/_/g, "/");
+        base64 += "=".repeat((4 - (base64.length % 4)) % 4);
+        return decodeURIComponent(atob(base64));
+    } catch (e) {
+        return String(encoded);
+    }
+}
+
+/**
+ * Build a CSS class name that is safe to use in selectors for a given username.
+ * @param {string} username
+ * @returns {string}
+ */
+function usernameClass(username) {
+    return "userbadge-" + username;
 }
 
 function testImage(url, callback, timeout) {

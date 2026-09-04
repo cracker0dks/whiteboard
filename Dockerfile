@@ -19,7 +19,7 @@ RUN npm run build
 #####################
 
 FROM node:24-alpine
-ENV NODE_ENV=prod
+ENV NODE_ENV=production
 
 LABEL maintainer="cracker0dks"
 
@@ -28,7 +28,7 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
 COPY ./package.json ./package-lock.json config.default.yml ./
-RUN npm install --only=prod --ignore-scripts
+RUN npm install --omit=dev --ignore-scripts
 
 COPY scripts ./scripts
 COPY --from=base /opt/app/dist ./dist

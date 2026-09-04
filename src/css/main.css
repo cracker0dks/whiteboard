@@ -97,6 +97,14 @@ button {
     outline-width: 0;
 }
 
+/* Optically center the big toolbar icons: nudge them up and to the left.
+   Matches only the main button icons (direct child <svg> without an inline
+   style); the small absolutely-positioned badge icons and the active-tool
+   indicator are left untouched. */
+.btn-group button > svg:not([style]) {
+    transform: translate(-2px, -2px);
+}
+
 .btn-group {
     background-color: #808080ab;
     margin-left: 5px;

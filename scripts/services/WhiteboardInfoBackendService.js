@@ -169,7 +169,7 @@ export default class WhiteboardInfoBackendService {
                 });
             },
             (1 / config.backend.performance.whiteboardInfoBroadcastFreq) * 1000,
-        );
+        ).unref(); // must not keep the process alive on its own (e.g. in tests)
     }
 
     /**

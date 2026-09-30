@@ -291,8 +291,10 @@ const s_whiteboard = {
         const idleMs = idleMinutes * 60 * 1000;
         const now = Date.now();
         const expired = [];
-        for (const wid of Object.keys(savedBoards)) {
-            if (now - (lastActivity[wid] || 0) > idleMs) {
+        // key on lastActivity: boards that were only joined (never drawn on)
+        // are not in savedBoards yet would leak otherwise
+        for (const wid of Object.keys(lastActivity)) {
+            if (now - lastActivity[wid] > idleMs) {
                 expired.push(wid);
             }
         }

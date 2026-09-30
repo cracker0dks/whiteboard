@@ -37,12 +37,13 @@ export default function startBackendServer(port) {
     WhiteboardInfoBackendService.start(io);
 
     // periodically auto-delete idle whiteboards (see issue #53)
+    // unref: must not keep the process alive on its own (e.g. in tests)
     setInterval(
         function () {
             s_whiteboard.cleanupExpiredBoards();
         },
         5 * 60 * 1000,
-    );
+    ).unref();
 
     console.log("socketserver running on port:" + port);
 
@@ -510,4 +511,6 @@ export default function startBackendServer(port) {
         // Will print "unhandledRejection err is not defined"
         console.log("unhandledRejection", error.message);
     });
+
+    return { server, io };
 }

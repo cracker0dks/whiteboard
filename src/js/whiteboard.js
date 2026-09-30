@@ -6,6 +6,7 @@ import ThrottlingService from "./services/ThrottlingService.js";
 import ConfigService from "./services/ConfigService.js";
 import html2canvas from "html2canvas";
 import DOMPurify from "dompurify";
+import { distToSegment, distToRectBorder } from "./utils.js";
 
 const RAD_TO_DEG = 180.0 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180.0;
@@ -29,6 +30,8 @@ const whiteboard = {
     startCoords: new Point(0, 0),
     viewCoords: { x: 0, y: 0 },
     drawFlag: false,
+    zoom: 1, // board zoom factor (1 = 100%)
+    dragGroup: null, // stroke group being moved with the mouse tool
     oldGCO: null,
     mouseover: false,
     lineCap: "round", //butt, square
@@ -129,12 +132,7 @@ const whiteboard = {
 
         window.addEventListener("resize", function () {
             // Handle resize
-            const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
-            _this.canvas.width = $(window).width();
-            _this.canvas.height = $(window).height(); // Set new canvas height
-            _this.drawBuffer = [];
-            _this.textContainer.empty();
-            _this.loadData(dbCp); // draw old content in
+            _this.applyViewTransform();
         });
 
         $(_this.mouseOverlay).on("mousedown touchstart", function (e) {
@@ -162,6 +160,40 @@ const whiteboard = {
                 ];
             } else if (_this.tool === "hand") {
                 _this.startCoords = currentPos;
+            } else if (_this.tool === "mouse") {
+                // start moving a whole stroke/object with the mouse tool (see issue #24)
+                const box = _this.findTextBoxAt(currentPos);
+                if (box) {
+                    _this.latestActiveTextBoxId = box.attr("id");
+                    return;
+                }
+                const boardPos = new Point(
+                    _this.toBoardX(currentPos.x),
+                    _this.toBoardY(currentPos.y),
+                );
+                const hit = _this.findStrokeAt(boardPos.x, boardPos.y);
+                if (hit) {
+                    _this.dragGroup = {
+                        drawId: hit["drawId"],
+                        username: hit["username"],
+                        startScreen: currentPos,
+                        origIdx: [],
+                        orig: [],
+                    };
+                    _this.drawBuffer.forEach(function (item, i) {
+                        if (
+                            item["drawId"] === hit["drawId"] &&
+                            item["username"] === hit["username"]
+                        ) {
+                            _this.dragGroup.origIdx.push(i);
+                            _this.dragGroup.orig.push(JSON.parse(JSON.stringify(item)));
+                        }
+                    });
+                    _this.mouseOverlay.css({ cursor: "move" });
+                }
+            } else if (_this.tool === "objEraser") {
+                _this.objEraserClick(currentPos);
+                return;
             } else if (_this.tool === "eraser") {
                 _this.drawEraserLine(
                     currentPos.x,
@@ -173,10 +205,10 @@ const whiteboard = {
                 _this.sendFunction({
                     t: _this.tool,
                     d: [
-                        currentPos.x - _this.viewCoords.x,
-                        currentPos.y - _this.viewCoords.y,
-                        currentPos.x - _this.viewCoords.x,
-                        currentPos.y - _this.viewCoords.y,
+                        _this.toBoardX(currentPos.x),
+                        _this.toBoardY(currentPos.y),
+                        _this.toBoardX(currentPos.x),
+                        _this.toBoardY(currentPos.y),
                     ],
                     th: _this.thickness,
                 });
@@ -228,11 +260,15 @@ const whiteboard = {
             const currentPos = Point.fromEvent(e);
 
             ThrottlingService.throttle(currentPos, () => {
-                _this.lastPointerPosition = currentPos;
+                const boardPos = new Point(
+                    _this.toBoardX(currentPos.x),
+                    _this.toBoardY(currentPos.y),
+                );
+                _this.lastPointerPosition = boardPos;
                 _this.sendFunction({
                     t: "cursor",
                     event: "move",
-                    d: [currentPos.x, currentPos.y],
+                    d: [boardPos.x, boardPos.y],
                     username: _this.settings.username,
                 });
             });
@@ -253,13 +289,7 @@ const whiteboard = {
                 _this.startCoords.x = currentPos.x;
                 _this.startCoords.y = currentPos.y;
 
-                const dbCp = JSON.parse(JSON.stringify(_this.drawBuffer)); // Copy the buffer
-                _this.canvas.width = $(window).width();
-                _this.canvas.height = $(window).height(); // Set new canvas height
-                _this.drawBuffer = [];
-                _this.textContainer.empty();
-                _this.imgContainer.empty();
-                _this.loadData(dbCp); // draw old content in
+                _this.applyViewTransform();
             }
 
             if (ReadOnlyService.readOnlyActive) return;
@@ -280,6 +310,33 @@ const whiteboard = {
 
             let currentPos = Point.fromEvent(e);
 
+            // drop a stroke that was moved with the mouse tool (see issue #24)
+            if (_this.tool === "mouse" && _this.dragGroup) {
+                const g = _this.dragGroup;
+                const dx = _this.toBoardX(currentPos.x) - _this.toBoardX(g.startScreen.x);
+                const dy = _this.toBoardY(currentPos.y) - _this.toBoardY(g.startScreen.y);
+                _this.dragGroup = null;
+                _this.mouseOverlay.css({ cursor: "default" });
+                if (dx !== 0 || dy !== 0) {
+                    // make sure the buffer holds the final position (the last
+                    // mousemove frame may not have run before this mouseup)
+                    g.orig.forEach(function (o, k) {
+                        const item = _this.drawBuffer[g.origIdx[k]];
+                        if (item) {
+                            item["d"] = JSON.parse(JSON.stringify(o["d"]));
+                            _this.translateItem(item, dx, dy);
+                        }
+                    });
+                    _this.drawId++;
+                    _this.sendFunction({
+                        t: "moveDraw",
+                        d: [dx, dy, g.drawId, g.username],
+                    });
+                }
+                _this.applyViewTransform();
+                return;
+            }
+
             if (currentPos.isZeroZero) {
                 _this.sendFunction({
                     t: "cursor",
@@ -293,27 +350,30 @@ const whiteboard = {
                     currentPos = _this.getRoundedAngles(currentPos);
                 }
                 _this.drawPenLine(
-                    currentPos.x,
-                    currentPos.y,
-                    _this.startCoords.x,
-                    _this.startCoords.y,
+                    _this.toBoardX(currentPos.x),
+                    _this.toBoardY(currentPos.y),
+                    _this.toBoardX(_this.startCoords.x),
+                    _this.toBoardY(_this.startCoords.y),
                     _this.drawcolor,
                     _this.thickness,
                 );
                 _this.sendFunction({
                     t: _this.tool,
                     d: [
-                        currentPos.x - _this.viewCoords.x,
-                        currentPos.y - _this.viewCoords.y,
-                        _this.startCoords.x - _this.viewCoords.x,
-                        _this.startCoords.y - _this.viewCoords.y,
+                        _this.toBoardX(currentPos.x),
+                        _this.toBoardY(currentPos.y),
+                        _this.toBoardX(_this.startCoords.x),
+                        _this.toBoardY(_this.startCoords.y),
                     ],
                     c: _this.drawcolor,
                     th: _this.thickness,
                 });
                 _this.svgContainer.find("line").remove();
             } else if (_this.tool === "pen") {
-                _this.pushPointSmoothPen(currentPos.x, currentPos.y);
+                _this.pushPointSmoothPen(
+                    _this.toBoardX(currentPos.x),
+                    _this.toBoardY(currentPos.y),
+                );
             } else if (_this.tool === "rect") {
                 if (_this.pressedKeys.shift) {
                     if (
@@ -333,30 +393,30 @@ const whiteboard = {
                     }
                 }
                 _this.drawRec(
-                    _this.startCoords.x,
-                    _this.startCoords.y,
-                    currentPos.x,
-                    currentPos.y,
+                    _this.toBoardX(_this.startCoords.x),
+                    _this.toBoardY(_this.startCoords.y),
+                    _this.toBoardX(currentPos.x),
+                    _this.toBoardY(currentPos.y),
                     _this.drawcolor,
                     _this.thickness,
                 );
                 _this.sendFunction({
                     t: _this.tool,
                     d: [
-                        _this.startCoords.x - _this.viewCoords.x,
-                        _this.startCoords.y - _this.viewCoords.y,
-                        currentPos.x - _this.viewCoords.x,
-                        currentPos.y - _this.viewCoords.y,
+                        _this.toBoardX(_this.startCoords.x),
+                        _this.toBoardY(_this.startCoords.y),
+                        _this.toBoardX(currentPos.x),
+                        _this.toBoardY(currentPos.y),
                     ],
                     c: _this.drawcolor,
                     th: _this.thickness,
                 });
                 _this.svgContainer.find("rect").remove();
             } else if (_this.tool === "circle") {
-                const r = currentPos.distTo(_this.startCoords);
+                const r = currentPos.distTo(_this.startCoords) / _this.zoom;
                 _this.drawCircle(
-                    _this.startCoords.x,
-                    _this.startCoords.y,
+                    _this.toBoardX(_this.startCoords.x),
+                    _this.toBoardY(_this.startCoords.y),
                     r,
                     _this.drawcolor,
                     _this.thickness,
@@ -364,8 +424,8 @@ const whiteboard = {
                 _this.sendFunction({
                     t: _this.tool,
                     d: [
-                        _this.startCoords.x - _this.viewCoords.x,
-                        _this.startCoords.y - _this.viewCoords.y,
+                        _this.toBoardX(_this.startCoords.x),
+                        _this.toBoardY(_this.startCoords.y),
                         r,
                     ],
                     c: _this.drawcolor,
@@ -442,26 +502,31 @@ const whiteboard = {
                         _this.imgDragActive = false;
                         _this.refreshCursorAppearance();
                         const p = imgDiv.position();
-                        const leftT = Math.round(p.left * 100) / 100;
-                        const topT = Math.round(p.top * 100) / 100;
+                        // convert the screen space selection to board space
+                        const bfLeft = _this.toBoardX(left);
+                        const bfTop = _this.toBoardY(top);
+                        const bfLeftT = _this.toBoardX(p.left);
+                        const bfTopT = _this.toBoardY(p.top);
+                        const bfWidth = width / _this.zoom;
+                        const bfHeight = height / _this.zoom;
                         _this.drawId++;
                         _this.sendFunction({
                             t: _this.tool,
-                            d: [
-                                left - _this.viewCoords.x, //left from
-                                top - _this.viewCoords.y,
-                                leftT - _this.viewCoords.x, //Left too
-                                topT - _this.viewCoords.y,
-                                width,
-                                height,
-                            ],
+                            d: [bfLeft, bfTop, bfLeftT, bfTopT, bfWidth, bfHeight],
                         });
 
-                        _this.dragCanvasRectContent(left, top, leftT, topT, width, height);
+                        _this.dragCanvasRectContent(
+                            bfLeft,
+                            bfTop,
+                            bfLeftT,
+                            bfTopT,
+                            bfWidth,
+                            bfHeight,
+                        );
                         imgDiv.remove();
                         dragOutOverlay.remove();
                     });
-                imgDiv.draggable();
+                enablePointerDrag(imgDiv);
                 _this.svgContainer.find("rect").remove();
             }
             _this.drawId++;
@@ -480,6 +545,8 @@ const whiteboard = {
         // On text container click (Add a new textbox)
         _this.textContainer.on("click", function (e) {
             const currentPos = Point.fromEvent(e);
+            const boardX = _this.toBoardX(currentPos.x);
+            const boardY = _this.toBoardY(currentPos.y);
             const fontsize = _this.thickness * 0.5;
             const txId = "tx" + +new Date();
             const isStickyNote = _this.tool === "stickynote";
@@ -489,8 +556,8 @@ const whiteboard = {
                     _this.drawcolor,
                     _this.textboxBackgroundColor,
                     fontsize,
-                    currentPos.x - _this.viewCoords.x,
-                    currentPos.y - _this.viewCoords.y,
+                    boardX,
+                    boardY,
                     txId,
                     isStickyNote,
                 ],
@@ -499,13 +566,202 @@ const whiteboard = {
                 _this.drawcolor,
                 _this.textboxBackgroundColor,
                 fontsize,
-                currentPos.x - _this.viewCoords.x,
-                currentPos.y - _this.viewCoords.y,
+                boardX,
+                boardY,
                 txId,
                 isStickyNote,
                 true,
             );
         });
+
+        // Zoom with ctrl + mouse wheel (see issue #205)
+        _this.mouseOverlay.on("wheel", function (e) {
+            if (!e.ctrlKey) return;
+            e.preventDefault();
+            if (ReadOnlyService.readOnlyActive) return;
+            const pos = Point.fromEvent(e);
+            _this.zoomBy(e.deltaY < 0 ? 1.1 : 1 / 1.1, pos);
+        });
+    },
+    /**
+     * Board coords -> screen coords
+     */
+    toScreenX: function (boardX) {
+        return boardX * this.zoom + this.viewCoords.x;
+    },
+    toScreenY: function (boardY) {
+        return boardY * this.zoom + this.viewCoords.y;
+    },
+    /**
+     * Screen coords -> board coords
+     */
+    toBoardX: function (screenX) {
+        return (screenX - this.viewCoords.x) / this.zoom;
+    },
+    toBoardY: function (screenY) {
+        return (screenY - this.viewCoords.y) / this.zoom;
+    },
+    /**
+     * Redraw the whole board (canvas + background images + text boxes)
+     * from the draw buffer with the current view transform.
+     */
+    applyViewTransform: function () {
+        const dbCp = JSON.parse(JSON.stringify(this.drawBuffer)); // Copy the buffer
+        this.canvas.width = $(window).width();
+        this.canvas.height = $(window).height(); // Set new canvas height
+        this.textContainer.empty();
+        this.imgContainer.empty();
+        // re-render from the copy; isNewData=false so nothing is pushed back
+        // into the buffer (avoids re-entry when called from handleEventsAndData)
+        this.loadDataInSteps(dbCp, false, function (stepData) {
+            //Nothing to do
+        });
+        this.drawBuffer = dbCp;
+    },
+    /**
+     * Zoom in/out relative to a screen point (the point stays under the cursor)
+     * @param {number} factor multiplier applied to the current zoom
+     * @param {Point} [centerScreen] screen point to zoom towards (defaults to window center)
+     */
+    zoomBy: function (factor, centerScreen) {
+        const newZoom = Math.min(5, Math.max(0.2, this.zoom * factor));
+        if (newZoom === this.zoom) return;
+        if (!centerScreen) {
+            centerScreen = new Point($(window).width() / 2, $(window).height() / 2);
+        }
+        // keep the board point under centerScreen fixed while zooming
+        const boardX = this.toBoardX(centerScreen.x);
+        const boardY = this.toBoardY(centerScreen.y);
+        this.zoom = newZoom;
+        this.viewCoords.x = centerScreen.x - boardX * this.zoom;
+        this.viewCoords.y = centerScreen.y - boardY * this.zoom;
+        this.applyViewTransform();
+    },
+    /**
+     * Set an absolute zoom level
+     * @param {number} zoom e.g. 1 for 100%
+     */
+    zoomTo: function (zoom, centerScreen) {
+        this.zoomBy(zoom / this.zoom, centerScreen);
+    },
+    /**
+     * Translate a single draw buffer item by (dx, dy) in board coords
+     */
+    translateItem: function (item, dx, dy) {
+        const d = item["d"];
+        if (!d) return;
+        const t = item["t"];
+        if (t === "pen" || t === "line" || t === "eraser") {
+            // flat list of [x1, y1, x2, y2, ...]
+            for (let i = 0; i + 1 < d.length; i += 2) {
+                d[i] += dx;
+                d[i + 1] += dy;
+            }
+        } else if (t === "rect") {
+            d[0] += dx;
+            d[1] += dy;
+            d[2] += dx;
+            d[3] += dy;
+        } else if (t === "circle") {
+            d[0] += dx;
+            d[1] += dy;
+        } else if (t === "addImgBG") {
+            d[2] += dx;
+            d[3] += dy;
+        }
+    },
+    /**
+     * Find the topmost draw buffer item at a board coord (see issues #109, #24)
+     * @returns {object|null} the buffer item (or null)
+     */
+    findStrokeAt: function (boardX, boardY) {
+        const threshold = Math.max(5, this.thickness);
+        for (let i = this.drawBuffer.length - 1; i >= 0; i--) {
+            if (this.strokeContainsPoint(this.drawBuffer[i], boardX, boardY, threshold)) {
+                return this.drawBuffer[i];
+            }
+        }
+        return null;
+    },
+    strokeContainsPoint: function (item, x, y, threshold) {
+        const d = item["d"];
+        if (!d) return false;
+        const t = item["t"];
+        if (t === "pen") {
+            for (let i = 0; i + 3 < d.length; i += 2) {
+                if (distToSegment(x, y, d[i], d[i + 1], d[i + 2], d[i + 3]) <= threshold) {
+                    return true;
+                }
+            }
+            return d.length >= 2 && Math.hypot(d[0] - x, d[1] - y) <= threshold;
+        }
+        if (t === "line") {
+            return distToSegment(x, y, d[0], d[1], d[2], d[3]) <= threshold;
+        }
+        if (t === "rect") {
+            // stored as start/end coords, order can be reversed
+            const x1 = Math.min(d[0], d[2]);
+            const y1 = Math.min(d[1], d[3]);
+            const x2 = Math.max(d[0], d[2]);
+            const y2 = Math.max(d[1], d[3]);
+            return distToRectBorder(x, y, x1, y1, x2, y2) <= threshold;
+        }
+        if (t === "circle") {
+            const dist = Math.hypot(x - d[0], y - d[1]);
+            return Math.abs(dist - d[2]) <= threshold;
+        }
+        if (t === "addImgBG" && item["draw"] == "1") {
+            return x >= d[2] && x <= d[2] + d[0] && y >= d[3] && y <= d[3] + d[1];
+        }
+        return false;
+    },
+    /**
+     * Find a text box under a screen coord
+     * @returns {jQuery|null}
+     */
+    findTextBoxAt: function (screenPos) {
+        const els = document.elementsFromPoint(screenPos.x, screenPos.y);
+        for (const el of els) {
+            const box = el.closest ? el.closest(".textBox") : null;
+            if (box) return $(box);
+        }
+        return null;
+    },
+    /**
+     * Erase the whole stroke (or text box) at the given screen coord (see issue #109)
+     */
+    objEraserClick: function (screenPos) {
+        var _this = this;
+        if (ReadOnlyService.readOnlyActive) return;
+        const box = _this.findTextBoxAt(screenPos);
+        if (box) {
+            const txId = box.attr("id");
+            _this.removeTextbox(txId);
+            _this.sendFunction({ t: "removeTextbox", d: [txId] });
+            return;
+        }
+        const boardPos = new Point(_this.toBoardX(screenPos.x), _this.toBoardY(screenPos.y));
+        const hit = _this.findStrokeAt(boardPos.x, boardPos.y);
+        if (!hit) return;
+        // collect the whole stroke group (multi segment pens share drawId+username)
+        const groupIdx = [];
+        _this.drawBuffer.forEach(function (item, i) {
+            if (item["drawId"] === hit["drawId"] && item["username"] === hit["username"]) {
+                groupIdx.push(i);
+            }
+        });
+        _this.drawId++;
+        // splice in descending index order so earlier indices stay valid
+        for (let k = groupIdx.length - 1; k >= 0; k--) {
+            const i = groupIdx[k];
+            const removed = JSON.parse(JSON.stringify(_this.drawBuffer[i]));
+            _this.sendFunction({
+                t: "removeDraw",
+                d: [i, removed],
+            });
+            _this.drawBuffer.splice(i, 1);
+        }
+        _this.applyViewTransform();
     },
     /**
      * For drawing lines at 0,45,90° ....
@@ -541,24 +797,42 @@ const whiteboard = {
             // update position
             currentPos = Point.fromEvent(e);
 
+            // live update of a stroke being moved with the mouse tool
+            if (_this.tool === "mouse" && _this.dragGroup) {
+                const g = _this.dragGroup;
+                const dx = _this.toBoardX(currentPos.x) - _this.toBoardX(g.startScreen.x);
+                const dy = _this.toBoardY(currentPos.y) - _this.toBoardY(g.startScreen.y);
+                g.orig.forEach(function (o, k) {
+                    const item = _this.drawBuffer[g.origIdx[k]];
+                    if (item) {
+                        item["d"] = JSON.parse(JSON.stringify(o["d"]));
+                        _this.translateItem(item, dx, dy);
+                    }
+                });
+                _this.applyViewTransform();
+            }
+
             if (_this.drawFlag) {
                 if (_this.tool === "pen") {
-                    _this.pushPointSmoothPen(currentPos.x, currentPos.y);
+                    _this.pushPointSmoothPen(
+                        _this.toBoardX(currentPos.x),
+                        _this.toBoardY(currentPos.y),
+                    );
                 } else if (_this.tool === "eraser") {
                     _this.drawEraserLine(
-                        currentPos.x,
-                        currentPos.y,
-                        _this.prevPos.x,
-                        _this.prevPos.y,
+                        _this.toBoardX(currentPos.x),
+                        _this.toBoardY(currentPos.y),
+                        _this.toBoardX(_this.prevPos.x),
+                        _this.toBoardY(_this.prevPos.y),
                         _this.thickness,
                     );
                     _this.sendFunction({
                         t: _this.tool,
                         d: [
-                            currentPos.x - _this.viewCoords.x,
-                            currentPos.y - _this.viewCoords.y,
-                            _this.prevPos.x - _this.viewCoords.x,
-                            _this.prevPos.y - _this.viewCoords.y,
+                            _this.toBoardX(currentPos.x),
+                            _this.toBoardY(currentPos.y),
+                            _this.toBoardX(_this.prevPos.x),
+                            _this.toBoardY(_this.prevPos.y),
                         ],
                         th: _this.thickness,
                     });
@@ -617,17 +891,30 @@ const whiteboard = {
                 }
             }
 
+            // show a move cursor when hovering a stroke with the mouse tool
+            if (_this.tool === "mouse" && !_this.drawFlag && !_this.imgDragActive) {
+                const overBox = _this.findTextBoxAt(currentPos);
+                const overStroke = overBox
+                    ? false
+                    : _this.findStrokeAt(
+                          _this.toBoardX(currentPos.x),
+                          _this.toBoardY(currentPos.y),
+                      );
+                if (_this.mouseOverlay) {
+                    _this.mouseOverlay.css({ cursor: overStroke ? "move" : "default" });
+                }
+            }
+
             _this.prevPos = currentPos;
         });
 
         ThrottlingService.throttle(currentPos, () => {
-            currentPos.x -= _this.viewCoords.x;
-            currentPos.y -= _this.viewCoords.y;
-            _this.lastPointerPosition = currentPos;
+            const boardPos = new Point(_this.toBoardX(currentPos.x), _this.toBoardY(currentPos.y));
+            _this.lastPointerPosition = boardPos;
             _this.sendFunction({
                 t: "cursor",
                 event: "move",
-                d: [currentPos.x, currentPos.y],
+                d: [boardPos.x, boardPos.y],
                 username: _this.settings.username,
             });
         });
@@ -685,15 +972,18 @@ const whiteboard = {
             var width = $(this).width();
             var height = $(this).height();
             var p = $(this).position();
-            var left = Math.round(p.left * 100) / 100;
-            var top = Math.round(p.top * 100) / 100;
+            // convert the screen space selection to board space
+            var left = _this.toBoardX(p.left);
+            var top = _this.toBoardY(p.top);
+            var bw = width / _this.zoom;
+            var bh = height / _this.zoom;
             _this.drawId++;
             _this.sendFunction({
                 t: "eraseRec",
-                d: [left - _this.viewCoords.x, top - _this.viewCoords.y, width, height],
+                d: [left, top, bw, bh],
             });
 
-            _this.eraseRec(left, top, width, height);
+            _this.eraseRec(left, top, bw, bh);
         });
         _this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
         _this.textContainer
@@ -709,6 +999,7 @@ const whiteboard = {
         _this.mouseOverlay.find(".xCanvasBtn").click(); //Remove all current drops
     },
     pushPointSmoothPen: function (X, Y) {
+        // X, Y are in board space
         var _this = this;
         if (_this.penSmoothLastCoords.length >= 8) {
             _this.penSmoothLastCoords = [
@@ -723,70 +1014,64 @@ const whiteboard = {
         _this.penSmoothLastCoords.push(X, Y);
         if (_this.penSmoothLastCoords.length >= 8) {
             _this.drawPenSmoothLine(_this.penSmoothLastCoords, _this.drawcolor, _this.thickness);
-            let sendArray = [];
-            for (let i = 0; i < _this.penSmoothLastCoords.length; i++) {
-                sendArray.push(_this.penSmoothLastCoords[i]);
-                if (i % 2 == 0) {
-                    sendArray[i] -= this.viewCoords.x;
-                } else {
-                    sendArray[i] -= this.viewCoords.y;
-                }
-            }
             _this.sendFunction({
                 t: _this.tool,
-                d: sendArray,
+                d: _this.penSmoothLastCoords.slice(),
                 c: _this.drawcolor,
                 th: _this.thickness,
             });
         }
     },
+    // xf, yf, xt, yt, width, height are in board space
     dragCanvasRectContent: function (xf, yf, xt, yt, width, height, remote) {
         var _this = this;
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
         var tempCanvas = document.createElement("canvas");
-        tempCanvas.width = width;
-        tempCanvas.height = height;
+        tempCanvas.width = Math.max(1, Math.round(width * _this.zoom));
+        tempCanvas.height = Math.max(1, Math.round(height * _this.zoom));
         var tempCanvasContext = tempCanvas.getContext("2d");
         tempCanvasContext.drawImage(
             this.canvas,
-            xf + xOffset,
-            yf + yOffset,
-            width,
-            height,
+            _this.toScreenX(xf),
+            _this.toScreenY(yf),
+            tempCanvas.width,
+            tempCanvas.height,
             0,
             0,
-            width,
-            height,
+            tempCanvas.width,
+            tempCanvas.height,
         );
-        this.eraseRec(xf + xOffset, yf + yOffset, width, height);
-        this.ctx.drawImage(tempCanvas, xt + xOffset, yt + yOffset);
+        this.eraseRec(xf, yf, width, height);
+        this.ctx.drawImage(tempCanvas, _this.toScreenX(xt), _this.toScreenY(yt));
     },
+    // fromX, fromY, width, height are in board space
     eraseRec: function (fromX, fromY, width, height, remote) {
         var _this = this;
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.rect(fromX + xOffset, fromY + yOffset, width, height);
+        _this.ctx.rect(
+            _this.toScreenX(fromX),
+            _this.toScreenY(fromY),
+            width * _this.zoom,
+            height * _this.zoom,
+        );
         _this.ctx.fillStyle = "rgba(0,0,0,1)";
         _this.ctx.globalCompositeOperation = "destination-out";
         _this.ctx.fill();
         _this.ctx.closePath();
         _this.ctx.globalCompositeOperation = _this.oldGCO;
     },
+    // fromX, fromY, toX, toY are in board space
     drawPenLine: function (fromX, fromY, toX, toY, color, thickness, remote) {
         var _this = this;
         _this.ctx.beginPath();
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
-        _this.ctx.moveTo(fromX + xOffset, fromY + yOffset);
-        _this.ctx.lineTo(toX + xOffset, toY + yOffset);
+        _this.ctx.moveTo(_this.toScreenX(fromX), _this.toScreenY(fromY));
+        _this.ctx.lineTo(_this.toScreenX(toX), _this.toScreenY(toY));
         _this.ctx.strokeStyle = color;
-        _this.ctx.lineWidth = thickness;
+        _this.ctx.lineWidth = thickness * _this.zoom;
         _this.ctx.lineCap = _this.lineCap;
         _this.ctx.stroke();
         _this.ctx.closePath();
     },
+    // coords are in board space
     drawPenSmoothLine: function (coords, color, thickness, remote) {
         var _this = this;
         var xm1 = coords[0];
@@ -800,58 +1085,63 @@ const whiteboard = {
         var length = Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
         var steps = Math.ceil(length / 5);
         _this.ctx.beginPath();
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
-        _this.ctx.moveTo(x0 + xOffset, y0 + yOffset);
+        _this.ctx.moveTo(_this.toScreenX(x0), _this.toScreenY(y0));
         if (steps == 0) {
-            _this.ctx.lineTo(x0 + xOffset, y0 + yOffset);
+            _this.ctx.lineTo(_this.toScreenX(x0), _this.toScreenY(y0));
         }
         for (var i = 0; i < steps; i++) {
             var point = lanczosInterpolate(xm1, ym1, x0, y0, x1, y1, x2, y2, (i + 1) / steps);
-            _this.ctx.lineTo(point[0] + xOffset, point[1] + yOffset);
+            _this.ctx.lineTo(_this.toScreenX(point[0]), _this.toScreenY(point[1]));
         }
         _this.ctx.strokeStyle = color;
-        _this.ctx.lineWidth = thickness;
+        _this.ctx.lineWidth = thickness * _this.zoom;
         _this.ctx.lineCap = _this.lineCap;
         _this.ctx.stroke();
         _this.ctx.closePath();
     },
+    // fromX, fromY, toX, toY are in board space
     drawEraserLine: function (fromX, fromY, toX, toY, thickness, remote) {
         var _this = this;
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.moveTo(fromX + xOffset, fromY + yOffset);
-        _this.ctx.lineTo(toX + xOffset, toY + yOffset);
+        _this.ctx.moveTo(_this.toScreenX(fromX), _this.toScreenY(fromY));
+        _this.ctx.lineTo(_this.toScreenX(toX), _this.toScreenY(toY));
         _this.ctx.strokeStyle = "rgba(0,0,0,1)";
-        _this.ctx.lineWidth = thickness * 2;
+        _this.ctx.lineWidth = thickness * 2 * _this.zoom;
         _this.ctx.lineCap = _this.lineCap;
         _this.ctx.globalCompositeOperation = "destination-out";
         _this.ctx.stroke();
         _this.ctx.closePath();
         _this.ctx.globalCompositeOperation = _this.oldGCO;
     },
+    // fromX, fromY, toX, toY are in board space
     drawRec: function (fromX, fromY, toX, toY, color, thickness, remote) {
         var _this = this;
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
-        toX = toX - fromX - xOffset;
-        toY = toY - fromY - yOffset;
         _this.ctx.beginPath();
-        _this.ctx.rect(fromX + xOffset, fromY + yOffset, toX + xOffset, toY + yOffset);
+        _this.ctx.rect(
+            _this.toScreenX(fromX),
+            _this.toScreenY(fromY),
+            (toX - fromX) * _this.zoom,
+            (toY - fromY) * _this.zoom,
+        );
         _this.ctx.strokeStyle = color;
-        _this.ctx.lineWidth = thickness;
+        _this.ctx.lineWidth = thickness * _this.zoom;
         _this.ctx.lineCap = _this.lineCap;
         _this.ctx.stroke();
         _this.ctx.closePath();
     },
+    // fromX, fromY, radius are in board space
     drawCircle: function (fromX, fromY, radius, color, thickness, remote) {
         var _this = this;
-        let xOffset = remote ? _this.viewCoords.x : 0;
-        let yOffset = remote ? _this.viewCoords.y : 0;
         _this.ctx.beginPath();
-        _this.ctx.arc(fromX + xOffset, fromY + yOffset, radius, 0, 2 * Math.PI, false);
-        _this.ctx.lineWidth = thickness;
+        _this.ctx.arc(
+            _this.toScreenX(fromX),
+            _this.toScreenY(fromY),
+            radius * _this.zoom,
+            0,
+            2 * Math.PI,
+            false,
+        );
+        _this.ctx.lineWidth = thickness * _this.zoom;
         _this.ctx.strokeStyle = color;
         _this.ctx.stroke();
     },
@@ -880,11 +1170,11 @@ const whiteboard = {
     },
     imgWithSrc(url) {
         return $(
-            DOMPurify.sanitize('<img src="' + url + '">', {
+            DOMPurify.sanitize('<img src="' + url + '" draggable="false">', {
                 ALLOWED_TAGS: ["img"],
-                ALLOWED_ATTR: ["src"], // kill any attributes malicious url introduced
+                ALLOWED_ATTR: ["src", "draggable"], // kill any attributes malicious url introduced
             }),
-        );
+        ).css({ "-webkit-user-drag": "none" });
     },
     addImgToCanvasByUrl: function (url) {
         var _this = this;
@@ -924,11 +1214,9 @@ const whiteboard = {
                 _this.setTool(oldTool);
             });
         var rotationAngle = 0;
-        var recoupLeft = 0;
-        var recoupTop = 0;
-        var p = imgDiv.position();
-        var left = 200;
-        var top = 200;
+        // position and size of the image in board space
+        var left = _this.toBoardX(200);
+        var top = _this.toBoardY(200);
         imgDiv
             .find(".addToCanvasBtn,.addToBackgroundBtn")
             .off("click")
@@ -936,8 +1224,9 @@ const whiteboard = {
                 var draw = $(this).attr("draw");
                 _this.imgDragActive = false;
 
-                var width = imgDiv.width();
-                var height = imgDiv.height();
+                // convert the screen space size to board space
+                var width = imgDiv.width() / _this.zoom;
+                var height = imgDiv.height() / _this.zoom;
 
                 if (draw == "1") {
                     //draw image to canvas
@@ -959,22 +1248,12 @@ const whiteboard = {
             });
         _this.mouseOverlay.append(imgDiv);
 
-        imgDiv.draggable({
-            start: function (event, ui) {
-                var left = parseInt($(this).css("left"), 10);
-                left = isNaN(left) ? 0 : left;
-                var top = parseInt($(this).css("top"), 10);
-                top = isNaN(top) ? 0 : top;
-                recoupLeft = left - ui.position.left;
-                recoupTop = top - ui.position.top;
-            },
-            drag: function (event, ui) {
-                ui.position.left += recoupLeft;
-                ui.position.top += recoupTop;
-            },
-            stop: function (event, ui) {
-                left = ui.position.left - _this.viewCoords.x;
-                top = ui.position.top - _this.viewCoords.y;
+        // pointer events based drag: works with mouse AND touch (see issue #152)
+        enablePointerDrag(imgDiv, {
+            onStop: function () {
+                const p = imgDiv.position();
+                left = _this.toBoardX(p.left);
+                top = _this.toBoardY(p.top);
             },
         });
         imgDiv.resizable();
@@ -1001,10 +1280,10 @@ const whiteboard = {
         const px = (v) => Number(v).toString() + "px";
         this.imgContainer.append(
             this.imgWithSrc(url).css({
-                width: px(width),
-                height: px(height),
-                top: px(top + _this.viewCoords.y),
-                left: px(left + _this.viewCoords.x),
+                width: px(width * _this.zoom),
+                height: px(height * _this.zoom),
+                top: px(_this.toScreenY(top)),
+                left: px(_this.toScreenX(left)),
                 position: "absolute",
                 transform: "rotate(" + Number(rotationAngle) + "rad)",
             }),
@@ -1027,8 +1306,8 @@ const whiteboard = {
             cssclass += " stickyNote";
         }
 
-        left = left + _this.viewCoords.x;
-        top = top + _this.viewCoords.y;
+        left = _this.toScreenX(left);
+        top = _this.toScreenY(top);
         let editable = _this.tool == "text" || _this.tool === "stickynote" ? "true" : "false";
         var textBox = $(
             '<div id="' +
@@ -1039,7 +1318,9 @@ const whiteboard = {
                 top +
                 "px; left:" +
                 left +
-                "px;" +
+                "px; transform: scale(" +
+                _this.zoom +
+                "); transform-origin: 0 0;" +
                 "background-color:" +
                 textboxBackgroundColor +
                 ';">' +
@@ -1050,8 +1331,9 @@ const whiteboard = {
                 "em; color:" +
                 textcolor +
                 '; min-width:50px; min-height:100%;"></div>' +
-                '<div title="remove textbox" class="removeIcon" style="position:absolute; cursor:pointer; top:-3px; right:2px;"><b>🗑</b></div>' +
-                '<div title="move textbox" class="moveIcon" style="position:absolute; cursor:move; top:1px; left:2px; font-size: 0.5em;"><i class="fas fa-maximize"></i></div>' +
+                '<div title="remove textbox" class="removeIcon"><b>&#10005;</b></div>' +
+                '<div title="move textbox" class="moveIcon"><i class="fas fa-up-down-left-right"></i></div>' +
+                '<div title="resize textbox" class="resizeIcon"><i class="fas fa-up-right-and-down-left-from-center"></i></div>' +
                 "</div>",
         );
         _this.latestActiveTextBoxId = txId;
@@ -1072,7 +1354,7 @@ const whiteboard = {
                 currX += textBox.width() - 4;
             }
 
-            const newPointerPosition = new Point(currX, currY);
+            const newPointerPosition = new Point(_this.toBoardX(currX), _this.toBoardY(currY));
 
             ThrottlingService.throttle(newPointerPosition, () => {
                 _this.lastPointerPosition = newPointerPosition;
@@ -1085,27 +1367,44 @@ const whiteboard = {
             });
         });
         this.textContainer.append(textBox);
-        textBox.draggable({
+        // pointer events based drag: works with mouse AND touch (see issue #152)
+        const sendPosition = function () {
+            const textBoxPosition = textBox.position();
+            _this.sendFunction({
+                t: "setTextboxPosition",
+                d: [
+                    txId,
+                    _this.toBoardY(textBoxPosition.top),
+                    _this.toBoardX(textBoxPosition.left),
+                ],
+            });
+        };
+        enablePointerDrag(textBox, {
             handle: ".moveIcon",
-            stop: function () {
-                var textBoxPosition = textBox.position();
-                _this.sendFunction({
-                    t: "setTextboxPosition",
-                    d: [
-                        txId,
-                        textBoxPosition.top - _this.viewCoords.y,
-                        textBoxPosition.left - _this.viewCoords.x,
-                    ],
-                });
+            onDrag: sendPosition,
+            onStop: sendPosition,
+        });
+        // resize handle at the bottom-right corner (see issue #103)
+        const applySize = function (dx, dy, base) {
+            // screen pixel deltas -> board units
+            const w = Math.max(60, base.width + dx / _this.zoom);
+            const h = Math.max(40, base.height + dy / _this.zoom);
+            _this.setTextboxSize(txId, w, h);
+        };
+        enablePointerDrag(textBox, {
+            handle: ".resizeIcon",
+            move: false,
+            onDrag: function (dx, dy, base) {
+                applySize(dx, dy, base);
             },
-            drag: function () {
-                var textBoxPosition = textBox.position();
+            onStop: function (dx, dy, base) {
+                applySize(dx, dy, base);
                 _this.sendFunction({
-                    t: "setTextboxPosition",
+                    t: "setTextboxSize",
                     d: [
                         txId,
-                        textBoxPosition.top - _this.viewCoords.y,
-                        textBoxPosition.left - _this.viewCoords.x,
+                        Math.round(textBox.width() * 100) / 100,
+                        Math.round(textBox.height() * 100) / 100,
                     ],
                 });
             },
@@ -1146,9 +1445,14 @@ const whiteboard = {
     },
     setTextboxPosition(txId, top, left) {
         $("#" + txId).css({
-            top: top + this.viewCoords.y + "px",
-            left: left + this.viewCoords.x + "px",
+            top: this.toScreenY(top) + "px",
+            left: this.toScreenX(left) + "px",
         });
+    },
+    setTextboxSize(txId, width, height) {
+        const textBox = $("#" + txId);
+        textBox.css({ width: width + "px", height: height + "px" });
+        textBox.find(".textContent").css({ width: "100%", height: "100%" });
     },
     setTextboxFontSize(txId, fontSize) {
         $("#" + txId)
@@ -1173,23 +1477,19 @@ const whiteboard = {
         rotationAngle = Number(rotationAngle);
 
         var _this = this;
+        // convert board space to screen space
+        left = _this.toScreenX(left);
+        top = _this.toScreenY(top);
+        width *= _this.zoom;
+        height *= _this.zoom;
         var img = document.createElement("img");
         img.onload = function () {
             rotationAngle = rotationAngle ? rotationAngle : 0;
             if (rotationAngle === 0) {
-                _this.ctx.drawImage(
-                    img,
-                    left + _this.viewCoords.x,
-                    top + _this.viewCoords.y,
-                    width,
-                    height,
-                );
+                _this.ctx.drawImage(img, left, top, width, height);
             } else {
                 _this.ctx.save();
-                _this.ctx.translate(
-                    left + _this.viewCoords.x + width / 2,
-                    top + _this.viewCoords.y + height / 2,
-                );
+                _this.ctx.translate(left + width / 2, top + height / 2);
                 _this.ctx.rotate(rotationAngle);
                 _this.ctx.drawImage(img, -(width / 2), -(height / 2), width, height);
                 _this.ctx.restore();
@@ -1215,8 +1515,26 @@ const whiteboard = {
                         _this.drawBuffer[i]["drawId"] == drawId &&
                         _this.drawBuffer[i]["username"] == username
                     ) {
-                        _this.undoBuffer.push(_this.drawBuffer[i]);
+                        var item = _this.drawBuffer[i];
                         _this.drawBuffer.splice(i, 1);
+                        if (item["t"] === "removeDraw" && item["d"] && item["d"][1]) {
+                            // undo of a stroke removal: put the removed stroke back
+                            const removed = JSON.parse(JSON.stringify(item["d"][1]));
+                            const idx = Math.min(item["d"][0] || 0, _this.drawBuffer.length);
+                            _this.drawBuffer.splice(idx, 0, removed);
+                        }
+                        if (item["t"] === "moveDraw" && item["d"]) {
+                            // undo of a stroke move: move the group back
+                            _this.drawBuffer.forEach(function (other) {
+                                if (
+                                    other["drawId"] === item["d"][2] &&
+                                    other["username"] === item["d"][3]
+                                ) {
+                                    _this.translateItem(other, -item["d"][0], -item["d"][1]);
+                                }
+                            });
+                        }
+                        _this.undoBuffer.push(item);
                     }
                 }
                 break;
@@ -1245,7 +1563,31 @@ const whiteboard = {
                         _this.undoBuffer[i]["drawId"] == drawId &&
                         _this.undoBuffer[i]["username"] == username
                     ) {
-                        _this.drawBuffer.push(_this.undoBuffer[i]);
+                        var item = _this.undoBuffer[i];
+                        if (item["t"] === "removeDraw" && item["d"] && item["d"][1]) {
+                            // redo of a stroke removal: remove the stroke again
+                            const removed = item["d"][1];
+                            for (var j = _this.drawBuffer.length - 1; j >= 0; j--) {
+                                if (
+                                    _this.drawBuffer[j]["drawId"] === removed["drawId"] &&
+                                    _this.drawBuffer[j]["username"] === removed["username"]
+                                ) {
+                                    _this.drawBuffer.splice(j, 1);
+                                }
+                            }
+                        }
+                        if (item["t"] === "moveDraw" && item["d"]) {
+                            // redo of a stroke move: move the group again
+                            _this.drawBuffer.forEach(function (other) {
+                                if (
+                                    other["drawId"] === item["d"][2] &&
+                                    other["username"] === item["d"][3]
+                                ) {
+                                    _this.translateItem(other, item["d"][0], item["d"][1]);
+                                }
+                            });
+                        }
+                        _this.drawBuffer.push(item);
                         _this.undoBuffer.splice(i, 1);
                     }
                 }
@@ -1270,6 +1612,7 @@ const whiteboard = {
     },
     setTool: function (tool) {
         this.tool = tool;
+        this.dragGroup = null;
         if (this.tool === "text" || this.tool === "stickynote") {
             $(".textBox").addClass("active");
             this.textContainer.appendTo(this.container); //Bring textContainer to the front
@@ -1329,7 +1672,7 @@ const whiteboard = {
             }
         }
     },
-    handleEventsAndData: function (content, isNewData, doneCallback) {
+    handleEventsAndData: function (content, isNewData, doneCallback, fromReplay) {
         var _this = this;
         var tool = content["t"];
         var data = content["d"];
@@ -1407,6 +1750,43 @@ const whiteboard = {
                 _this.setTextboxFontColor(data[0], data[1]);
             } else if (tool === "setTextboxBackgroundColor") {
                 _this.setTextboxBackgroundColor(data[0], data[1]);
+            } else if (tool === "setTextboxSize") {
+                _this.setTextboxSize(data[0], data[1], data[2]);
+            } else if (tool === "removeDraw") {
+                // d = [index, removedItem]: remove the whole stroke group.
+                // The buffer is already normalized on replay (the group is
+                // gone), so the marker is a no-op there - re-applying it and
+                // re-rendering would loop forever.
+                if (fromReplay) return;
+                const removed = data[1];
+                if (removed && removed["drawId"] !== undefined) {
+                    for (let i = _this.drawBuffer.length - 1; i >= 0; i--) {
+                        if (
+                            _this.drawBuffer[i]["drawId"] === removed["drawId"] &&
+                            _this.drawBuffer[i]["username"] === removed["username"]
+                        ) {
+                            _this.drawBuffer.splice(i, 1);
+                        }
+                    }
+                } else if (
+                    data[0] !== undefined &&
+                    data[0] >= 0 &&
+                    data[0] < _this.drawBuffer.length
+                ) {
+                    _this.drawBuffer.splice(data[0], 1);
+                }
+                _this.applyViewTransform();
+            } else if (tool === "moveDraw") {
+                // d = [dx, dy, drawId, username]: translate the whole stroke group.
+                // No-op on replay: the buffer already holds the final positions,
+                // re-translating would shift the group again on every render.
+                if (fromReplay) return;
+                _this.drawBuffer.forEach(function (item) {
+                    if (item["drawId"] === data[2] && item["username"] === data[3]) {
+                        _this.translateItem(item, data[0], data[1]);
+                    }
+                });
+                _this.applyViewTransform();
             } else if (tool === "clear") {
                 _this.canvas.height = _this.canvas.height;
                 _this.imgContainer.empty();
@@ -1419,15 +1799,15 @@ const whiteboard = {
                     const badgeSelector = "." + usernameClass(content["username"]);
                     if (_this.cursorContainer.find(badgeSelector).length >= 1) {
                         _this.cursorContainer.find(badgeSelector).css({
-                            left: data[0] + _this.viewCoords.x + "px",
-                            top: data[1] + _this.viewCoords.y - 15 + "px",
+                            left: data[0] * _this.zoom + _this.viewCoords.x + "px",
+                            top: data[1] * _this.zoom + _this.viewCoords.y - 15 + "px",
                         });
                     } else {
                         _this.cursorContainer.append(
                             '<div style="font-size:0.8em; padding-left:2px; padding-right:2px; background:gray; color:white; border-radius:3px; position:absolute; left:' +
-                                (data[0] + _this.viewCoords.x) +
+                                (data[0] * _this.zoom + _this.viewCoords.x) +
                                 "px; top:" +
-                                (data[1] + _this.viewCoords.y - 151) +
+                                (data[1] * _this.zoom + _this.viewCoords.y - 15) +
                                 'px;" class="userbadge ' +
                                 usernameClass(content["username"]) +
                                 '">' +
@@ -1464,6 +1844,9 @@ const whiteboard = {
                 "setTextboxFontSize",
                 "setTextboxFontColor",
                 "setTextboxBackgroundColor",
+                "setTextboxSize",
+                "removeDraw",
+                "moveDraw",
             ].includes(tool)
         ) {
             content["drawId"] = content["drawId"] ? content["drawId"] : _this.drawId;
@@ -1581,13 +1964,20 @@ const whiteboard = {
         function lData(index) {
             for (var i = index; i < content.length; i++) {
                 if (content[i]["t"] === "addImgBG" && content[i]["draw"] == "1") {
-                    _this.handleEventsAndData(content[i], isNewData, function () {
-                        callAfterEveryStep(content[i], i);
-                        lData(i + 1);
-                    });
+                    _this.handleEventsAndData(
+                        content[i],
+                        isNewData,
+                        function () {
+                            callAfterEveryStep(content[i], i);
+                            lData(i + 1);
+                        },
+                        true,
+                    );
                     break;
                 } else {
-                    _this.handleEventsAndData(content[i], isNewData);
+                    // loadDataInSteps always replays a stored log, so buffer
+                    // mutating events (removeDraw/moveDraw) are no-ops here
+                    _this.handleEventsAndData(content[i], isNewData, undefined, true);
                     callAfterEveryStep(content[i], i);
                 }
             }
@@ -1635,6 +2025,9 @@ const whiteboard = {
                 "setTextboxFontSize",
                 "setTextboxFontColor",
                 "setTextboxBackgroundColor",
+                "setTextboxSize",
+                "removeDraw",
+                "moveDraw",
             ].includes(tool)
         ) {
             _this.drawBuffer.push(content);
@@ -1724,6 +2117,65 @@ function testImage(url, callback, timeout) {
         img.src = "//!!!!/test.jpg";
         callback(false);
     }, timeout);
+}
+
+/**
+ * Pointer events based drag helper: works with mouse AND touch (see issue #152).
+ * Replaces jQuery UI draggable for elements that must be touch friendly.
+ * @param {jQuery} $el element to move (or the element containing the handle)
+ * @param {object} [options]
+ * @param {string} [options.handle] selector of the drag handle inside $el (default: $el itself)
+ * @param {boolean} [options.move=true] when false, $el is not moved (e.g. resize handles)
+ * @param {function} [options.onStart] called on pointer down
+ * @param {function} [options.onDrag] called with (dx, dy, base, event); dx/dy in screen px
+ * @param {function} [options.onStop] called with (dx, dy, base, event) on pointer up/cancel
+ */
+function enablePointerDrag($el, options) {
+    options = options || {};
+    const handleEl = options.handle ? $el.find(options.handle) : $el;
+    const move = options.move !== false;
+    handleEl.on("pointerdown", function (e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        // let clicks on inner controls (buttons, ...) work as usual
+        if (
+            e.target.closest &&
+            e.target.closest("button, a, input, select, textarea, .rotationHandle")
+        )
+            return;
+        e.preventDefault();
+        e.stopPropagation();
+        const el = handleEl[0];
+        try {
+            el.setPointerCapture(e.pointerId);
+        } catch (err) {
+            // pointer capture not supported; drag still works within the element
+        }
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const base = {
+            left: $el.position().left,
+            top: $el.position().top,
+            width: $el.width(),
+            height: $el.height(),
+        };
+        if (options.onStart) options.onStart(e);
+        const onMove = function (ev) {
+            const dx = ev.clientX - startX;
+            const dy = ev.clientY - startY;
+            if (move) {
+                $el.css({ left: base.left + dx + "px", top: base.top + dy + "px" });
+            }
+            if (options.onDrag) options.onDrag(dx, dy, base, ev);
+        };
+        const onUp = function (ev) {
+            handleEl.off("pointermove pointerup pointercancel");
+            if (options.onStop) {
+                options.onStop(ev.clientX - startX, ev.clientY - startY, base, ev);
+            }
+        };
+        handleEl.on("pointermove", onMove);
+        handleEl.on("pointerup pointercancel", onUp);
+    });
 }
 
 export default whiteboard;

@@ -36,6 +36,14 @@ export default function startBackendServer(port) {
     var io = new Server(server, { path: "/ws-api" });
     WhiteboardInfoBackendService.start(io);
 
+    // periodically auto-delete idle whiteboards (see issue #53)
+    setInterval(
+        function () {
+            s_whiteboard.cleanupExpiredBoards();
+        },
+        5 * 60 * 1000,
+    );
+
     console.log("socketserver running on port:" + port);
 
     const { accessToken, enableWebdav } = config.backend;
@@ -401,6 +409,7 @@ export default function startBackendServer(port) {
             content = escapeAllContentStrings(content);
             if (accessToken === "" || accessToken == content["at"]) {
                 whiteboardId = content["wid"];
+                s_whiteboard.touchWhiteboard(whiteboardId);
 
                 socket.emit("whiteboardConfig", {
                     common: config.frontend,

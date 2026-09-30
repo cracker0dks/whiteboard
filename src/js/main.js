@@ -296,6 +296,35 @@ function initWhiteboard() {
                 whiteboard.redoWhiteboardClick();
             });
 
+        // zoom buttons (see issue #205)
+        $("#zoomInBtn")
+            .off("click")
+            .click(function () {
+                whiteboard.zoomBy(1.25);
+            });
+        $("#zoomOutBtn")
+            .off("click")
+            .click(function () {
+                whiteboard.zoomBy(1 / 1.25);
+            });
+        $("#zoomResetBtn")
+            .off("click")
+            .click(function () {
+                whiteboard.zoomTo(1);
+            });
+
+        // change username (see issue #131)
+        $("#changeUsernameBtn")
+            .off("click")
+            .click(function () {
+                const newName = prompt("Your name on the whiteboard:", myUsername);
+                if (!newName || newName === myUsername) return;
+                const params = new URLSearchParams(window.location.search);
+                params.set("username", newName);
+                window.location.search = params.toString();
+                window.location.reload();
+            });
+
         // view only
         $("#whiteboardLockBtn")
             .off("click")

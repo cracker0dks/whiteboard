@@ -16,6 +16,8 @@ body {
 #whiteboardContainer {
     height: calc(var(--vh, 1vh) * 100);
     width: 100%;
+    /* let pointer events drive drawing/dragging on touch devices (see issue #152) */
+    touch-action: none;
 }
 
 .btn-group button {
@@ -133,13 +135,46 @@ button {
     border: 1px dashed gray;
 }
 
+/* bigger, clearer text box icons (see issue #131) */
 .textBox > .removeIcon,
-.textBox > .moveIcon {
+.textBox > .moveIcon,
+.textBox > .resizeIcon {
     display: none;
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    line-height: 24px;
+    text-align: center;
+    font-size: 15px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #999;
+    color: #333;
+    z-index: 10;
+}
+
+.textBox > .removeIcon {
+    top: -13px;
+    right: -13px;
+    color: #d9534f;
+    cursor: pointer;
+}
+
+.textBox > .moveIcon {
+    top: -13px;
+    left: -13px;
+    cursor: move;
+}
+
+.textBox > .resizeIcon {
+    bottom: -13px;
+    right: -13px;
+    cursor: nwse-resize;
 }
 
 .textBox.active > .removeIcon,
-.textBox.active > .moveIcon {
+.textBox.active > .moveIcon,
+.textBox.active > .resizeIcon {
     display: block;
 }
 

@@ -44,6 +44,9 @@
                 <button id="whiteboardRedoBtn" title="Redo your last undo" type="button">
                     <i class="fa fa-arrow-rotate-right"></i>
                 </button>
+                <button id="changeUsernameBtn" title="Change your name" type="button">
+                    <i class="fa fa-user-pen"></i>
+                </button>
             </div>
 
             <div class="btn-group">
@@ -54,6 +57,18 @@
                     class="whiteboard-tool"
                 >
                     <i class="fa fa-hand" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="btn-group">
+                <button id="zoomInBtn" title="Zoom in" type="button">
+                    <i class="fa fa-magnifying-glass-plus"></i>
+                </button>
+                <button id="zoomOutBtn" title="Zoom out" type="button">
+                    <i class="fa fa-magnifying-glass-minus"></i>
+                </button>
+                <button id="zoomResetBtn" title="Reset zoom to 100%" type="button">
+                    <i class="fa fa-magnifying-glass"></i>
                 </button>
             </div>
 
@@ -96,6 +111,14 @@
                 </button>
                 <button tool="eraser" title="take the eraser" type="button" class="whiteboard-tool">
                     <i class="fa fa-eraser"></i>
+                </button>
+                <button
+                    tool="objEraser"
+                    title="erase whole strokes/objects"
+                    type="button"
+                    class="whiteboard-tool"
+                >
+                    <i class="fa fa-ban"></i>
                 </button>
             </div>
 

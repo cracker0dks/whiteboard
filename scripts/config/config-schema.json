@@ -17,6 +17,10 @@
         "enableFileDatabase": {
           "type": "boolean"
         },
+        "autoDeleteIdleMinutes": {
+          "type": "number",
+          "minimum": 0
+        },
         "performance": {
           "additionalProperties": false,
           "type": "object",

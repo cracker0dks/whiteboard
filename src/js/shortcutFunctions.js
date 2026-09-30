@@ -33,6 +33,13 @@ const shortcutFunctions = {
         $(".whiteboard-tool[tool=eraser]").click();
         whiteboard.redrawMouseCursor();
     }),
+    setTool_objEraser: defineShortcut(() => {
+        $(".whiteboard-tool[tool=objEraser]").click();
+        whiteboard.redrawMouseCursor();
+    }),
+    zoomIn: defineShortcut(() => whiteboard.zoomBy(1.25), false),
+    zoomOut: defineShortcut(() => whiteboard.zoomBy(1 / 1.25), false),
+    zoomReset: defineShortcut(() => whiteboard.zoomTo(1), false),
     thickness_bigger: defineShortcut(() => {
         const thickness = parseInt($("#whiteboardThicknessSlider").val()) + 1;
         $("#whiteboardThicknessSlider").val(thickness);

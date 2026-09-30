@@ -11,6 +11,7 @@
     "start:prod": "npm run build && npm run start",
     "start": "apidoc -i scripts/ -o ./dist/apidoc/ && node scripts/server.js --mode=production",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:browser": "npm run build && playwright test",
     "pretty-quick": "pretty-quick",
     "format": "prettier --write .",
     "style": "prettier --check .",
@@ -19,6 +20,12 @@
   },
   "lint-staged": {
     "**/*.{js,json,yml,md}": "prettier --write"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/e2e-browser/"
+    ]
   },
   "repository": {
     "type": "git",
@@ -52,6 +59,7 @@
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
     "@fortawesome/free-regular-svg-icons": "^7.3.1",
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@playwright/test": "^1.63.0",
     "babel-loader": "^10.1.1",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^14.0.0",

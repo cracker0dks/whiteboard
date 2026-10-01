@@ -321,8 +321,9 @@ function initWhiteboard() {
                 if (!newName || newName === myUsername) return;
                 const params = new URLSearchParams(window.location.search);
                 params.set("username", newName);
+                // assigning to location.search is itself a full navigation;
+                // an explicit reload() would race it and reload the old URL
                 window.location.search = params.toString();
-                window.location.reload();
             });
 
         // view only

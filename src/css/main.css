@@ -135,18 +135,18 @@ button {
     border: 1px dashed gray;
 }
 
-/* bigger, clearer text box icons (see issue #131) */
+/* text box / sticky note control icons */
 .textBox > .removeIcon,
 .textBox > .moveIcon,
 .textBox > .resizeIcon {
     display: none;
     position: absolute;
-    width: 26px;
-    height: 26px;
-    line-height: 24px;
+    width: 13px;
+    height: 13px;
+    line-height: 11px;
     text-align: center;
-    font-size: 15px;
-    border-radius: 4px;
+    font-size: 8px;
+    border-radius: 2px;
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid #999;
     color: #333;
@@ -154,21 +154,21 @@ button {
 }
 
 .textBox > .removeIcon {
-    top: -13px;
-    right: -13px;
+    top: -6.5px;
+    right: -6.5px;
     color: #d9534f;
     cursor: pointer;
 }
 
 .textBox > .moveIcon {
-    top: -13px;
-    left: -13px;
+    top: -6.5px;
+    left: -6.5px;
     cursor: move;
 }
 
 .textBox > .resizeIcon {
-    bottom: -13px;
-    right: -13px;
+    bottom: -6.5px;
+    right: -6.5px;
     cursor: nwse-resize;
 }
 

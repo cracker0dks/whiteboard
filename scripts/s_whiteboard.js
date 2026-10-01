@@ -17,7 +17,17 @@ var lastActivity = {};
  */
 function translateItem(item, dx, dy) {
     const d = item["d"];
-    if (!d) return;
+    // d and the deltas come from client-controlled socket data; refuse
+    // anything that is not an all-numeric array (type-confusion guard)
+    if (
+        !Array.isArray(d) ||
+        d.length === 0 ||
+        d.some((n) => !Number.isFinite(n)) ||
+        !Number.isFinite(dx) ||
+        !Number.isFinite(dy)
+    ) {
+        return;
+    }
     const t = item["t"];
     if (t === "pen" || t === "line" || t === "eraser") {
         for (let i = 0; i + 1 < d.length; i += 2) {

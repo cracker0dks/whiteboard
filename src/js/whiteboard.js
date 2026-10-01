@@ -932,15 +932,14 @@ const whiteboard = {
                 widthHeight = widthHeight * 2;
             }
             if (_this.tool === "eraser" || _this.tool === "pen") {
-                _this.ownCursor = $(
-                    '<div id="ownCursor" style="background:' +
-                        color +
-                        "; border:1px solid gray; position:absolute; width:" +
-                        widthHeight +
-                        "px; height:" +
-                        widthHeight +
-                        'px; border-radius:50%;"></div>',
-                );
+                _this.ownCursor = $('<div id="ownCursor"></div>').css({
+                    background: color,
+                    border: "1px solid gray",
+                    position: "absolute",
+                    width: widthHeight + "px",
+                    height: widthHeight + "px",
+                    "border-radius": "50%",
+                });
                 _this.cursorContainer.append(_this.ownCursor);
             }
         }

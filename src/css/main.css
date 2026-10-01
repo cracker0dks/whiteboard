@@ -182,6 +182,13 @@ button {
     width: 200px;
     height: 200px;
     box-shadow: 5px 5px 7px rgba(33, 33, 33, 0.7);
+}
+
+/* The sticky note frame must not clip: the three control icons stick
+   out 13px beyond it (like on .textBox). Long note text scrolls inside
+   the .textContent instead. */
+.stickyNote > .textContent {
+    max-height: 100%;
     overflow-y: auto;
 }
 

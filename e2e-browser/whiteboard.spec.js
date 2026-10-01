@@ -205,6 +205,32 @@ test("clicking with the text tool creates a textbox; resizing sends setTextboxSi
     expect(board.some((i) => i.t === "addTextBox")).toBe(true);
 });
 
+test("sticky note control icons are not clipped by the note frame", async ({ page }) => {
+    const wid = boardId("stickyicons");
+    await openBoard(page, wid);
+    await selectTool(page, "stickynote");
+    await page.mouse.click(500, 300);
+
+    const note = page.locator(".stickyNote").first();
+    await expect(note).toBeVisible();
+
+    // fresh notes are active, so the control icons are shown
+    const moveIcon = note.locator(".moveIcon");
+    await expect(moveIcon).toBeVisible();
+    const resizeIcon = note.locator(".resizeIcon");
+    await expect(resizeIcon).toBeVisible();
+
+    // the icons sit 13px outside the frame; the frame must not clip them
+    const noteBox = await note.boundingBox();
+    const iconBox = await moveIcon.boundingBox();
+    expect(iconBox.y).toBeLessThan(noteBox.y); // icon extends above the frame
+    expect(iconBox.x).toBeLessThan(noteBox.x); // and to the left of the frame
+
+    // the original clipping came from overflow on the frame itself
+    const overflowY = await note.evaluate((el) => getComputedStyle(el).overflowY);
+    expect(overflowY).toBe("visible");
+});
+
 test("a second client sees the first client's stroke", async ({ page, context }) => {
     const wid = boardId("collab");
     await openBoard(page, wid);

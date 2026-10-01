@@ -72,8 +72,8 @@ export default function startBackendServer(port) {
      * @apiName loadwhiteboard
      * @apiGroup WhiteboardAPI
      *
-     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
-     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
+     * @apiQuery {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiQuery {Number} [at] Accesstoken (Only if activated for this server)
      *
      * @apiSuccess {String} body returns the data as JSON String
      * @apiError {Number} 401 Unauthorized
@@ -104,8 +104,8 @@ export default function startBackendServer(port) {
      * @apiName getReadOnlyWid
      * @apiGroup WhiteboardAPI
      *
-     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
-     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
+     * @apiQuery {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiQuery {Number} [at] Accesstoken (Only if activated for this server)
      *
      * @apiSuccess {String} body returns the readOnlyWhiteboardId as text
      * @apiError {Number} 401 Unauthorized
@@ -132,11 +132,11 @@ export default function startBackendServer(port) {
      * @apiName upload
      * @apiGroup WhiteboardAPI
      *
-     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
-     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
-     * @apiParam {Number} [date] current timestamp (This is for the filename on the server; Don't set it if not sure)
-     * @apiParam {Boolean} [webdavaccess] set true to upload to webdav (Optional; Only if activated for this server)
-     * @apiParam {String} imagedata The imagedata base64 encoded
+     * @apiBody {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiBody {Number} [at] Accesstoken (Only if activated for this server)
+     * @apiBody {Number} [date] current timestamp (This is for the filename on the server; Don't set it if not sure)
+     * @apiBody {Boolean} [webdavaccess] set true to upload to webdav (Optional; Only if activated for this server)
+     * @apiBody {String} imagedata The imagedata base64 encoded
      *
      * @apiSuccess {String} body returns "done"
      * @apiError {Number} 401 Unauthorized
@@ -198,9 +198,9 @@ export default function startBackendServer(port) {
      * @apiName drawToWhiteboard
      * @apiGroup WhiteboardAPI
      *
-     * @apiParam {Number} wid WhiteboardId you find in the Whiteboard URL
-     * @apiParam {Number} [at] Accesstoken (Only if activated for this server)
-     * @apiParam {String} t The tool you want to use:  "line",
+     * @apiQuery {Number} wid WhiteboardId you find in the Whiteboard URL
+     * @apiQuery {Number} [at] Accesstoken (Only if activated for this server)
+     * @apiQuery {String} t The tool you want to use:  "line",
      * "pen",
      * "rect",
      * "circle",
@@ -214,12 +214,12 @@ export default function startBackendServer(port) {
      * "setTextboxPosition",
      * "setTextboxFontSize",
      * "setTextboxFontColor"
-     * @apiParam {String} [username] The username performing this action. Only relevant for the undo/redo function
-     * @apiParam {Number} [draw] Only has a function if t is set to "addImgBG". Set 1 to draw on canvas; 0  to draw into background
-     * @apiParam {String} [url] Only has a function if t is set to "addImgBG", then it has to be set to: [rootUrl]/uploads/[ReadOnlyWid]/[ReadOnlyWid]_[date].png
-     * @apiParam {String} [c] Color: Only used if color is needed (pen, rect, circle, addTextBox ... )
-     * @apiParam {String} [th] Thickness: Only used if Thickness is needed (pen, rect ... )
-     * @apiParam {Number[]} d has different function on every tool you use:
+     * @apiQuery {String} [username] The username performing this action. Only relevant for the undo/redo function
+     * @apiQuery {Number} [draw] Only has a function if t is set to "addImgBG". Set 1 to draw on canvas; 0  to draw into background
+     * @apiQuery {String} [url] Only has a function if t is set to "addImgBG", then it has to be set to: rootUrl/uploads/ReadOnlyWid/ReadOnlyWid_date.png
+     * @apiQuery {String} [c] Color: Only used if color is needed (pen, rect, circle, addTextBox ... )
+     * @apiQuery {String} [th] Thickness: Only used if Thickness is needed (pen, rect ... )
+     * @apiQuery {Number[]} d has different function on every tool you use:
      * fx. pen or addImgBG: [width, height, left, top, rotation]
      *
      * @apiSuccess {String} body returns "done" as text

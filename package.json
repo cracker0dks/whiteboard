@@ -2,6 +2,10 @@
   "name": "whiteboard",
   "version": "1.0.0",
   "description": "Collaborative Whiteboard / Sketchboard",
+  "apidoc": {
+    "name": "Whiteboard API",
+    "description": "REST API of the collaborative whiteboard server"
+  },
   "main": "scripts/server.js",
   "directories": {},
   "type": "module",

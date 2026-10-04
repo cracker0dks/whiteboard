@@ -312,6 +312,32 @@ test("hand tool pans the view without changing the board", async ({ page }) => {
     expect(board.filter((i) => i.t === "pen").length).toBe(penCountBefore);
 });
 
+test("pen stroke after a pan starts at the correct board position", async ({ page }) => {
+    const wid = boardId("panpen");
+    await openBoard(page, wid);
+    await selectTool(page, "pen");
+    await drag(page, 300, 300, 400, 300);
+    const countBefore = (await loadBoard(page, wid)).filter((i) => i.t === "pen").length;
+
+    // pan 300px right: screen (300,300) is now board (0,300)
+    await selectTool(page, "hand");
+    await drag(page, 400, 300, 700, 300);
+
+    await selectTool(page, "pen");
+    await drag(page, 300, 300, 400, 300);
+
+    const board = await waitForBoard(
+        page,
+        wid,
+        (b) => b.filter((i) => i.t === "pen").length > countBefore,
+    );
+    // first item of the second stroke must start at board (0,300), not at the
+    // stale screen coords (300,300)
+    const firstNew = board.filter((i) => i.t === "pen")[countBefore];
+    expect(firstNew.d[0]).toBeLessThan(50);
+    expect(firstNew.d[1]).toBeCloseTo(300, -1);
+});
+
 test("recSelect captures a canvas region as a stored recSelect item", async ({ page }) => {
     const wid = boardId("recselect");
     await openBoard(page, wid);

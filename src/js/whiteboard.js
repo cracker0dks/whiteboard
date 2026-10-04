@@ -150,14 +150,11 @@ const whiteboard = {
             const currentPos = Point.fromEvent(e);
 
             if (_this.tool === "pen") {
-                _this.penSmoothLastCoords = [
-                    currentPos.x,
-                    currentPos.y,
-                    currentPos.x,
-                    currentPos.y,
-                    currentPos.x,
-                    currentPos.y,
-                ];
+                // the smooth buffer holds board coords (see pushPointSmoothPen),
+                // so seed it with the converted position, not screen coords
+                const boardX = _this.toBoardX(currentPos.x);
+                const boardY = _this.toBoardY(currentPos.y);
+                _this.penSmoothLastCoords = [boardX, boardY, boardX, boardY, boardX, boardY];
             } else if (_this.tool === "hand") {
                 _this.startCoords = currentPos;
             } else if (_this.tool === "mouse") {

@@ -26,6 +26,7 @@ import {
     faSearchMinus,
     faSearch,
     faCancel,
+    faLink,
     faUpDownLeftRight,
     faUpRightAndDownLeftFromCenter,
 } from "@fortawesome/free-solid-svg-icons";
@@ -58,6 +59,7 @@ library.add(
     faSearchMinus,
     faSearch,
     faCancel,
+    faLink,
     faUpDownLeftRight,
     faUpRightAndDownLeftFromCenter,
     faSquare,

@@ -204,6 +204,10 @@ button {
     background: var(--selected-icon-bg-color);
 }
 
+#copyWhiteboardLinkBtn.active {
+    background: var(--selected-icon-bg-color);
+}
+
 #whiteboardInfoContainer {
     position: absolute;
     bottom: 10px;

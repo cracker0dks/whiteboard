@@ -47,6 +47,10 @@ You can run this app with and without docker
 1. `docker run -d -p 8080:8080 rofl256/whiteboard`
 2. Surf to http://YOURIP:8080
 
+### One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/Whiteboard/)
+
 ## Development
 
 After you have installed the app, run `npm run start:dev` to start the backend and a frontend development server. The website will be accessible on http://localhost:8080.

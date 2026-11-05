@@ -34,4 +34,4 @@ COPY scripts ./scripts
 COPY --from=base /opt/app/dist ./dist
 
 EXPOSE 8080
-ENTRYPOINT ["npm", "run", "start"]
+ENTRYPOINT ["sh", "-c", "exec npm run start -- \"$@\"", "--"]
